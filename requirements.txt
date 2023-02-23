@@ -1,0 +1,5 @@
+autopep8==2.0.1
+django==4.1.7
+flake8==6.0.0
+psycopg2==2.9.5
+python-decouple==3.7
