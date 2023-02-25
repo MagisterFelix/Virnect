@@ -3,6 +3,11 @@ import random
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.middleware.csrf import rotate_token
+from django.utils import timezone
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 
 class ImageUtils:
@@ -47,3 +52,55 @@ class ImageUtils:
             return None
 
         os.remove(file)
+
+
+class AuthorizationUtils:
+
+    @staticmethod
+    def _get_response(request, message, status, cookies=None):
+        view = APIView()
+        view.headers = view.default_response_headers
+
+        data = {
+            "detail": message
+        }
+
+        response = Response(data=data, status=status)
+
+        if cookies is not None:
+            for cookie in cookies:
+                response.set_cookie(**cookie)
+
+        return response, view.finalize_response(request, response).render()
+
+    @staticmethod
+    def get_missed_credentials_response(request):
+        message = "Authentication credentials were not provided"
+        _, response = AuthorizationUtils._get_response(request, message, status.HTTP_403_FORBIDDEN)
+        return response
+
+    @staticmethod
+    def get_invalid_token_response(request):
+        message = "Token is invalid or expired"
+        _, response = AuthorizationUtils._get_response(request, message, status.HTTP_403_FORBIDDEN)
+        return response
+
+    @staticmethod
+    def get_success_authorization_response(request, validated_data):
+        rotate_token(request)
+        message = "User logged in successfully"
+        cookies = [
+            {
+                "key": settings.SIMPLE_JWT["AUTH_COOKIE_ACCESS_TOKEN"],
+                "value": validated_data.get("access"),
+                "expires": timezone.now() + settings.SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"],
+                "httponly": settings.SIMPLE_JWT["AUTH_COOKIE_HTTP_ONLY"]
+            },
+            {
+                "key": settings.SIMPLE_JWT["AUTH_COOKIE_REFRESH_TOKEN"],
+                "value": validated_data.get("refresh"),
+                "expires": timezone.now() + settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"],
+                "httponly": settings.SIMPLE_JWT["AUTH_COOKIE_HTTP_ONLY"]
+            }
+        ]
+        return AuthorizationUtils._get_response(request, message, status.HTTP_200_OK, cookies)
