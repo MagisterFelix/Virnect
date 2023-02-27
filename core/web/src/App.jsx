@@ -1,12 +1,42 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { Navigate, Route, Routes } from 'react-router-dom';
+
+import Cookies from 'js-cookie';
+
+import Authorization from '@components/auth/authorization';
+import Main from '@components/main';
+
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+
+import colors from '@styles/colors.sass';
 import './App.sass';
 
-const App = () => (
-  <div className="App">
-    <header className="App-header">
-      <img src="/static/logo.svg" className="App-logo" alt="logo" />
-    </header>
-  </div>
-);
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: colors.purple,
+    },
+  },
+});
+
+const App = () => {
+  const [isAuth, setIsAuth] = useState(false);
+
+  useEffect(() => {
+    const token = Cookies.get('access_token');
+    if (token) {
+      setIsAuth(true);
+    }
+  }, [isAuth]);
+
+  return (
+    <ThemeProvider theme={theme}>
+      <Routes>
+        <Route path="/" element={<Main />} />
+        <Route path="/sign-in" element={!isAuth ? <Authorization /> : <Navigate to="/" />} />
+      </Routes>
+    </ThemeProvider>
+  );
+};
 
 export default App;
