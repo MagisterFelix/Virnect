@@ -94,13 +94,15 @@ class AuthorizationUtils:
                 "key": settings.SIMPLE_JWT["AUTH_COOKIE_ACCESS_TOKEN"],
                 "value": validated_data.get("access"),
                 "expires": timezone.now() + settings.SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"],
-                "httponly": settings.SIMPLE_JWT["AUTH_COOKIE_HTTP_ONLY"]
+                "httponly": settings.SIMPLE_JWT["AUTH_COOKIE_HTTP_ONLY"],
+                "samesite": settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
             },
             {
                 "key": settings.SIMPLE_JWT["AUTH_COOKIE_REFRESH_TOKEN"],
                 "value": validated_data.get("refresh"),
                 "expires": timezone.now() + settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"],
-                "httponly": settings.SIMPLE_JWT["AUTH_COOKIE_HTTP_ONLY"]
+                "httponly": settings.SIMPLE_JWT["AUTH_COOKIE_HTTP_ONLY"],
+                "samesite": settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
             }
         ]
         return AuthorizationUtils._get_response(request, message, status.HTTP_200_OK, cookies)
