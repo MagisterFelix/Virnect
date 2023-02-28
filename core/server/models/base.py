@@ -3,9 +3,9 @@ from django.db import models
 
 class BaseManager(models.Manager):
 
-    def get_or_none(self, **kwargs):
+    def get_or_none(self, *args, **kwargs):
         try:
-            return self.get(**kwargs)
+            return self.get(*args, **kwargs)
         except self.model.DoesNotExist:
             return None
 

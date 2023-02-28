@@ -1,0 +1,25 @@
+{
+    "compilerOptions": {
+        "target": "es2022",
+        "allowJs": true,
+        "checkJs": false,
+        "moduleResolution": "node",
+        "jsx": "react",
+        "baseUrl": ".",
+        "paths": {
+            "@styles/*": [
+                "src/res/styles/*"
+            ],
+            "@components/*": [
+                "src/components/*"
+            ],
+            "@api/*": [
+                "src/api/*"
+            ]
+        }
+    },
+    "exclude": [
+        "node_modules",
+        "build"
+    ]
+}

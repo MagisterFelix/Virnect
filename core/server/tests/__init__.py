@@ -63,3 +63,7 @@ HISTORIES = {
         "language": "english"
     }
 }
+
+PATHS = {
+    "sign-in": "/api/sign-in/"
+}
