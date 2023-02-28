@@ -2,11 +2,6 @@ import React, { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 
-import '@fontsource/poppins/400.css';
-import '@fontsource/poppins/700.css';
-import '@fontsource/roboto/400.css';
-import '@fontsource/roboto/900.css';
-
 import {
   Alert,
   Box,

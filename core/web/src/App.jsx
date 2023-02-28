@@ -3,6 +3,11 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 
 import Cookies from 'js-cookie';
 
+import '@fontsource/poppins/400.css';
+import '@fontsource/poppins/700.css';
+import '@fontsource/roboto/400.css';
+import '@fontsource/roboto/900.css';
+
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 import Authorization from '@components/auth/authorization';
