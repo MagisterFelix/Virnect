@@ -2,9 +2,6 @@ import React, { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 
-import useAxios from '@api/axios';
-import ENDPOINTS from '@api/endpoints';
-
 import '@fontsource/poppins/400.css';
 import '@fontsource/poppins/700.css';
 import '@fontsource/roboto/400.css';
@@ -31,8 +28,12 @@ import {
   VisibilityOff,
 } from '@mui/icons-material';
 
+import useAxios from '@api/axios';
+import ENDPOINTS from '@api/endpoints';
+
 import colors from '@styles/colors.sass';
 import vars from '@styles/vars.sass';
+
 import './auth.sass';
 
 const Authorization = () => {

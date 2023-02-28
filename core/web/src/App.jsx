@@ -3,10 +3,10 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 
 import Cookies from 'js-cookie';
 
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+
 import Authorization from '@components/auth/authorization';
 import Main from '@components/main';
-
-import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 import colors from '@styles/colors.sass';
 import './App.sass';
