@@ -15,11 +15,17 @@ USERS = {
         "password": "098f6bcd4621d373cade4e832627b4f6"
     }
 }
+LANGUAGE = {
+    "ukrainian": {
+        "name": "ukrainian",
+        "icon": "languages/ukrainian.svg"
+    }
+}
 TOPICS = {
     "chatting": {
         "title": "chatting",
         "description": "just chatting",
-        "image": "topics/chatting.png"
+        "image": "topics/chatting.svg"
     }
 }
 ROOMS = {
@@ -28,7 +34,6 @@ ROOMS = {
     },
     "only english": {
         "title": "only english",
-        "language": 1,
         "number_of_participants": 5
     }
 }
@@ -53,7 +58,7 @@ REPORTS = {
 NOTIFICATIONS = {
     "message reply": {
         "notification_type": 3,
-        "content": "mentioned_by=admin,room=just speak"
+        "content": "message=1,mentioned_by=admin,room=just speak"
     }
 }
 HISTORIES = {
