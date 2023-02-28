@@ -17,9 +17,9 @@ class Topic(BaseModel):
     def short_description(self):
         return truncatechars(self.description, 32)
 
-    def delete(self):
+    def delete(self, *args, **kwargs):
         ImageUtils.remove_image_from(self)
-        super(Topic, self).delete()
+        super(Topic, self).delete(*args, **kwargs)
 
     def __str__(self):
         return self.title

@@ -7,14 +7,14 @@
         "jsx": "react",
         "baseUrl": ".",
         "paths": {
-            "@styles/*": [
-                "src/res/styles/*"
+            "@api/*": [
+                "src/api/*"
             ],
             "@components/*": [
                 "src/components/*"
             ],
-            "@api/*": [
-                "src/api/*"
+            "@styles/*": [
+                "src/res/styles/*"
             ]
         }
     },

@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 from django.db.utils import IntegrityError
 from django.test import TestCase
 
+from core.server.models.language import Language
 from core.server.models.room import Room
 from core.server.models.topic import Topic
 from core.server.models.user import User
@@ -30,8 +31,8 @@ class RoomTest(TestCase):
         self.assertEqual(room.title, ROOMS["just speak"]["title"])
         self.assertEqual(room._meta.get_field("title").max_length, 64)
 
-        self.assertIsInstance(room.language, int)
-        self.assertEqual(room.language, Room.Language.INTERNATIONAL)
+        self.assertIsInstance(room.language, Language)
+        self.assertEqual(room.language.name, "International")
 
         self.assertIsInstance(room.number_of_participants, int)
         self.assertEqual(room.number_of_participants, 10)
