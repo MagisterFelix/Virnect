@@ -1,0 +1,25 @@
+$white: #fff;
+$black: #000;
+$dark: #282c34;
+$grey: #888888;
+$purple: #8d65ff;
+$blue: #6574ff;
+
+$font_poppins: 'Poppins', sans-serif;
+$font_small: 1rem;
+$font_medium: 1.5rem;
+$font_large: 2rem;
+
+:export {
+  white: $white;
+  black: $black;
+  dark: $dark;
+  grey: $grey;
+  purple: $purple;
+  blue: $blue;
+
+  font_poppins: $font_poppins;
+  font_small: $font_small;
+  font_medium: $font_medium;
+  font_large: $font_large;
+}
