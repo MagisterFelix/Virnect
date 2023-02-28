@@ -2,11 +2,6 @@ import React, { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 
-import '@fontsource/poppins/400.css';
-import '@fontsource/poppins/700.css';
-import '@fontsource/roboto/400.css';
-import '@fontsource/roboto/900.css';
-
 import {
   Alert,
   Box,
@@ -31,10 +26,9 @@ import {
 import useAxios from '@api/axios';
 import ENDPOINTS from '@api/endpoints';
 
-import colors from '@styles/colors.sass';
-import vars from '@styles/vars.sass';
+import styles from '@styles/_globals.scss';
 
-import './auth.sass';
+import './auth.scss';
 
 const Authorization = () => {
   const [{ error, loading }, execute] = useAxios(
@@ -83,7 +77,7 @@ const Authorization = () => {
         }}
       >
         <Grid container>
-          <Grid item xs={12} md={12} lg={12} xl={6} p={4}>
+          <Grid item xs={12} md={12} lg={6} xl={6} p={4}>
             <Grid
               container
               sx={{
@@ -98,8 +92,8 @@ const Authorization = () => {
                     alignItems: 'center',
                     textTransform: 'uppercase',
                     fontSize: {
-                      xs: vars.font_medium,
-                      sm: vars.font_large,
+                      xs: styles.font_medium,
+                      sm: styles.font_large,
                     },
                     fontWeight: 'bold',
                   }}
@@ -128,13 +122,13 @@ const Authorization = () => {
                   sx={{
                     display: 'inline',
                     margin: 1,
-                    fontFamily: vars.font_poppins,
+                    fontFamily: styles.font_poppins,
                     fontSize: {
-                      xs: vars.font_small,
-                      sm: vars.font_medium,
+                      xs: styles.font_small,
+                      sm: styles.font_medium,
                     },
                     fontWeight: 'bold',
-                    color: colors.purple,
+                    color: styles.purple,
                   }}
                 >
                   <span>Login</span>
@@ -145,12 +139,12 @@ const Authorization = () => {
                   sx={{
                     display: 'inline',
                     margin: 1,
-                    fontFamily: vars.font_poppins,
+                    fontFamily: styles.font_poppins,
                     fontSize: {
-                      xs: vars.font_small,
-                      sm: vars.font_medium,
+                      xs: styles.font_small,
+                      sm: styles.font_medium,
                     },
-                    color: colors.grey,
+                    color: styles.grey,
                   }}
                 >
                   <span>Register</span>
@@ -162,10 +156,10 @@ const Authorization = () => {
                 sx={{
                   marginTop: 3,
                   textTransform: 'uppercase',
-                  fontFamily: vars.font_poppins,
+                  fontFamily: styles.font_poppins,
                   fontSize: {
-                    xs: vars.font_medium,
-                    sm: vars.font_large,
+                    xs: styles.font_medium,
+                    sm: styles.font_large,
                   },
                   fontWeight: 'bold',
                 }}
@@ -175,12 +169,12 @@ const Authorization = () => {
               <Typography
                 sx={{
                   marginBottom: 3,
-                  fontFamily: vars.font_poppins,
+                  fontFamily: styles.font_poppins,
                   fontSize: {
-                    xs: vars.font_small,
-                    sm: vars.font_medium,
+                    xs: styles.font_small,
+                    sm: styles.font_medium,
                   },
-                  color: colors.grey,
+                  color: styles.grey,
                 }}
               >
                 <span>Sign in to use the application</span>
@@ -267,10 +261,10 @@ const Authorization = () => {
                     marginY: 2,
                     textAlign: 'right',
                     fontSize: {
-                      xs: vars.font_small,
-                      sm: vars.font_medium,
+                      xs: styles.font_small,
+                      sm: styles.font_medium,
                     },
-                    color: colors.grey,
+                    color: styles.grey,
                   }}
                 >
                   <span>Forgot password?</span>
@@ -291,10 +285,10 @@ const Authorization = () => {
                     },
                     borderRadius: 4,
                     textTransform: 'none',
-                    fontFamily: vars.font_poppins,
+                    fontFamily: styles.font_poppins,
                     fontSize: {
-                      xs: vars.font_small,
-                      sm: vars.font_medium,
+                      xs: styles.font_small,
+                      sm: styles.font_medium,
                     },
                   }}
                   onClick={handleSubmit(handleOnSubmit)}
@@ -306,13 +300,14 @@ const Authorization = () => {
           </Grid>
           <Grid
             item
+            lg={6}
             xl={6}
             sx={{
               display: {
-                xl: 'flex', lg: 'none', xs: 'none', md: 'none', sm: 'none',
+                xs: 'none', sm: 'none', md: 'none', lg: 'flex', xl: 'flex',
               },
               justifyContent: 'center',
-              backgroundImage: `url(${'/static/login.svg'}), linear-gradient(to bottom, ${colors.purple}, ${colors.blue})`,
+              backgroundImage: `url(${'/static/login.svg'}), linear-gradient(to bottom, ${styles.purple}, ${styles.blue})`,
               backgroundPosition: 'center',
               backgroundRepeat: 'no-repeat',
             }}

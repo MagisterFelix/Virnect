@@ -1,8 +1,8 @@
 import React from 'react';
 
-import './main.sass';
+import './home.scss';
 
-const Main = () => (
+const Home = () => (
   <div className="App">
     <header className="App-header">
       <img src="/static/logo.svg" className="App-logo" alt="logo" />
@@ -10,4 +10,4 @@ const Main = () => (
   </div>
 );
 
-export default Main;
+export default Home;
