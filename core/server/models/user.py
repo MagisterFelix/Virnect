@@ -55,9 +55,9 @@ class User(AbstractUser, PermissionsMixin):
         self.last_seen = timezone.now()
         self.save(update_fields=["last_seen"])
 
-    def delete(self):
+    def delete(self, *args, **kwargs):
         ImageUtils.remove_image_from(self)
-        super(User, self).delete()
+        super(User, self).delete(*args, **kwargs)
 
     def __str__(self):
         return self.username
