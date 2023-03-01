@@ -11,6 +11,7 @@ import '@fontsource/roboto/900.css';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 import Authorization from '@components/auth/authorization';
+import Registration from '@components/auth/registration';
 import Home from '@components/home';
 
 import styles from '@styles/_globals.scss';
@@ -40,6 +41,7 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/sign-in" element={!isAuth ? <Authorization /> : <Navigate to="/" />} />
+        <Route path="/sign-up" element={!isAuth ? <Registration /> : <Navigate to="/" />} />
       </Routes>
     </ThemeProvider>
   );

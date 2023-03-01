@@ -6,7 +6,6 @@ import {
   Alert,
   Box,
   Grid,
-  IconButton,
   InputAdornment,
   Link,
   Paper,
@@ -18,9 +17,9 @@ import { LoadingButton } from '@mui/lab';
 
 import {
   AccountCircleOutlined,
+  EmailOutlined,
+  Key,
   Login,
-  Visibility,
-  VisibilityOff,
 } from '@mui/icons-material';
 
 import useAxios from '@api/axios';
@@ -30,9 +29,18 @@ import styles from '@styles/_globals.scss';
 
 import './auth.scss';
 
-const Authorization = () => {
+const Registration = () => {
   const [errors, setErrors] = useState([]);
 
+  const [{ loading: loadingRegistration }, register] = useAxios(
+    {
+      url: ENDPOINTS.registration,
+      method: 'POST',
+    },
+    {
+      manual: true,
+    },
+  );
   const [{ loading: loadingAuthorization }, authorize] = useAxios(
     {
       url: ENDPOINTS.authorization,
@@ -48,41 +56,57 @@ const Authorization = () => {
   const helper = {
     username: {
       required: 'This field may not be blank',
+      maxLength: 'No more than 150 characters',
+      pattern: 'Provide the valid username',
+    },
+    email: {
+      required: 'This field may not be blank',
+      maxLength: 'No more than 150 characters',
+      pattern: 'Provide the valid email',
     },
     password: {
       required: 'This field may not be blank',
+      minLength: 'At least 8 characters',
+      maxLength: 'No more than 128 characters',
+      pattern: 'Provide the valid password',
     },
-    403: {
-      detail: 'There is no user with these credentials',
+    confirm_password: {
+      required: 'This field may not be blank',
+      validate: 'Password mismatch',
+    },
+    400: {
+      username: 'A user with that username already exists',
+      email: 'A user with this email already exists',
     },
   };
 
-  const { control, handleSubmit } = useForm();
+  const { control, watch, handleSubmit } = useForm();
   const handleOnSubmit = (form) => {
-    authorize({ data: form })
-      .then(() => navigate('/', { replace: true }))
-      .catch((e) => setErrors(
-        Array.from(
-          Object.keys(e.response.data),
-          (key, index) => (
-            <Alert
-              key={index}
-              severity="error"
-              sx={{ textAlign: 'left', my: 1 }}
-            >
-              {helper[e.response.status][key]}
-            </Alert>
+    register({ data: form })
+      .then(() => {
+        authorize({ data: form })
+          .then(() => navigate('/', { replace: true }));
+      })
+      .catch((e) => {
+        setErrors(
+          Array.from(
+            Object.keys(e.response.data),
+            (key, index) => (
+              <Alert
+                key={index}
+                severity="error"
+                sx={{ textAlign: 'left', my: 1 }}
+              >
+                {helper[e.response.status][key]}
+              </Alert>
+            ),
           ),
-        ),
-      ));
+        );
+      });
   };
-
-  const [showPassword, setShowPassword] = useState(false);
-  const handleClickShowPassword = () => setShowPassword((show) => !show);
-  const handleMouseDownPassword = (event) => event.preventDefault();
 
   return (
-    <div className="Authorization">
+    <div className="Registration">
       <Paper
         sx={{
           m: 2,
@@ -137,6 +161,22 @@ const Authorization = () => {
                 </Typography>
               </Grid>
               <Grid item>
+                <Link
+                  href="/sign-in"
+                  underline="none"
+                  sx={{
+                    display: 'inline',
+                    margin: 1,
+                    fontFamily: styles.font_poppins,
+                    fontSize: {
+                      xs: styles.font_small,
+                      sm: styles.font_medium,
+                    },
+                    color: styles.grey,
+                  }}
+                >
+                  <span>Login</span>
+                </Link>
                 <Typography
                   sx={{
                     display: 'inline',
@@ -150,24 +190,8 @@ const Authorization = () => {
                     color: styles.purple,
                   }}
                 >
-                  <span>Login</span>
-                </Typography>
-                <Link
-                  href="/sign-up"
-                  underline="none"
-                  sx={{
-                    display: 'inline',
-                    margin: 1,
-                    fontFamily: styles.font_poppins,
-                    fontSize: {
-                      xs: styles.font_small,
-                      sm: styles.font_medium,
-                    },
-                    color: styles.grey,
-                  }}
-                >
                   <span>Register</span>
-                </Link>
+                </Typography>
               </Grid>
             </Grid>
             <Grid item mx={1}>
@@ -183,7 +207,7 @@ const Authorization = () => {
                   fontWeight: 'bold',
                 }}
               >
-                <span>Sign In</span>
+                <span>Sign Up</span>
               </Typography>
               <Typography
                 sx={{
@@ -196,7 +220,7 @@ const Authorization = () => {
                   color: styles.grey,
                 }}
               >
-                <span>Sign in to use the application</span>
+                <span>Sign up to use the application</span>
               </Typography>
             </Grid>
             <Grid item mx={1} textAlign="center">
@@ -207,6 +231,8 @@ const Authorization = () => {
                   defaultValue=""
                   rules={{
                     required: true,
+                    maxLength: 150,
+                    pattern: /^[\w]+$/,
                   }}
                   render={({ field: { onChange, value }, fieldState: { error: fieldError } }) => (
                     <TextField
@@ -215,7 +241,7 @@ const Authorization = () => {
                       required
                       fullWidth
                       type="text"
-                      label="Username or email"
+                      label="Username"
                       InputProps={{
                         endAdornment: (
                           <InputAdornment position="end">
@@ -232,11 +258,13 @@ const Authorization = () => {
                   )}
                 />
                 <Controller
-                  name="password"
+                  name="email"
                   control={control}
                   defaultValue=""
                   rules={{
                     required: true,
+                    maxLength: 150,
+                    pattern: /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/,
                   }}
                   render={({ field: { onChange, value }, fieldState: { error: fieldError } }) => (
                     <TextField
@@ -244,22 +272,45 @@ const Authorization = () => {
                       value={value}
                       required
                       fullWidth
-                      type={showPassword ? 'text' : 'password'}
+                      type="email"
+                      label="Email"
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <EmailOutlined />
+                          </InputAdornment>
+                        ),
+                      }}
+                      sx={{
+                        marginY: 1,
+                      }}
+                      error={fieldError !== undefined}
+                      helperText={fieldError ? helper.email[fieldError.type] : ''}
+                    />
+                  )}
+                />
+                <Controller
+                  name="password"
+                  control={control}
+                  defaultValue=""
+                  rules={{
+                    required: true,
+                    minLength: 8,
+                    maxLength: 128,
+                    pattern: /^(?=.*\d)(?=.*[A-Za-z]).{8,128}$/,
+                  }}
+                  render={({ field: { onChange, value }, fieldState: { error: fieldError } }) => (
+                    <TextField
+                      onChange={onChange}
+                      value={value}
+                      required
+                      fullWidth
+                      type="password"
                       label="Password"
                       InputProps={{
                         endAdornment: (
                           <InputAdornment position="end">
-                            <IconButton
-                              aria-label="Toggle password visibility"
-                              onClick={handleClickShowPassword}
-                              onMouseDown={handleMouseDownPassword}
-                              edge="end"
-                              sx={{
-                                marginRight: -1,
-                              }}
-                            >
-                              {showPassword ? <VisibilityOff /> : <Visibility />}
-                            </IconButton>
+                            <Key />
                           </InputAdornment>
                         ),
                       }}
@@ -271,33 +322,42 @@ const Authorization = () => {
                     />
                   )}
                 />
-                {errors}
-                <Link
-                  href="/forgot-password"
-                  underline="hover"
-                  sx={{
-                    display: 'block',
-                    marginY: 2,
-                    textAlign: 'right',
-                    fontSize: {
-                      xs: styles.font_small,
-                      sm: styles.font_medium,
-                    },
-                    color: styles.grey,
+                <Controller
+                  name="confirm_password"
+                  control={control}
+                  defaultValue=""
+                  rules={{
+                    required: true,
+                    validate: (password) => password === watch('password'),
                   }}
-                >
-                  <span>Forgot password?</span>
-                </Link>
+                  render={({ field: { onChange, value }, fieldState: { error: fieldError } }) => (
+                    <TextField
+                      onChange={onChange}
+                      value={value}
+                      required
+                      fullWidth
+                      type="password"
+                      label="Confirm password"
+                      sx={{
+                        marginY: 1,
+                      }}
+                      error={fieldError !== undefined}
+                      helperText={fieldError ? helper.confirm_password[fieldError.type] : ''}
+                    />
+                  )}
+                />
+                {errors}
                 <LoadingButton
                   type="submit"
                   variant="contained"
                   color="primary"
                   fullWidth
                   endIcon={<Login />}
-                  loading={loadingAuthorization}
+                  loading={loadingRegistration || loadingAuthorization}
                   loadingPosition="end"
                   sx={{
-                    marginY: 1,
+                    marginTop: 2,
+                    marginBottom: 1,
                     maxWidth: {
                       xs: 150,
                       sm: 300,
@@ -312,7 +372,7 @@ const Authorization = () => {
                   }}
                   onClick={handleSubmit(handleOnSubmit)}
                 >
-                  <span>Sign In</span>
+                  <span>Sign Up</span>
                 </LoadingButton>
               </Box>
             </Grid>
@@ -337,4 +397,4 @@ const Authorization = () => {
   );
 };
 
-export default Authorization;
+export default Registration;

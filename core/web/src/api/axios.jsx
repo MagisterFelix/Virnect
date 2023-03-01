@@ -27,7 +27,8 @@ instance.interceptors.request.use(
 instance.interceptors.response.use(
   (response) => response,
   async (error) => {
-    if (error.response.status === 401 || error.response.status === 403) {
+    if (error.config.url !== ENDPOINTS.authorization
+      && (error.response.status === 401 || error.response.status === 403)) {
       window.location.href = '/sign-in';
     }
     return Promise.reject(error);

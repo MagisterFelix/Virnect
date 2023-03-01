@@ -3,8 +3,13 @@ from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.serializers import TokenRefreshSerializer, TokenVerifySerializer
 
 from core.server.utils import AuthorizationUtils
+from core.urls import urlpatterns
 
-REQUIRED_AUTHORIZATION = []
+api = urlpatterns[1]
+
+REQUIRED_AUTHORIZATION = [
+    f"/{str(api.pattern) + url.name}/" for url in api.url_patterns if url.name not in ["sign-in", "sign-up"]
+]
 
 
 class AuthorizationMiddleware:
