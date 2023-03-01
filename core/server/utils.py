@@ -84,6 +84,11 @@ class AuthorizationUtils:
         return response, view.finalize_response(request, response).render()
 
     @staticmethod
+    def remove_auth_cookies(response):
+        response.delete_cookie("access_token")
+        response.delete_cookie("refresh_token")
+
+    @staticmethod
     def get_missed_credentials_response(request):
         message = "Authentication credentials were not provided"
         _, response = AuthorizationUtils._get_response(request, message, status.HTTP_401_UNAUTHORIZED)
@@ -93,6 +98,7 @@ class AuthorizationUtils:
     def get_invalid_token_response(request):
         message = "Token is invalid or expired"
         _, response = AuthorizationUtils._get_response(request, message, status.HTTP_401_UNAUTHORIZED)
+        AuthorizationUtils.remove_auth_cookies(response)
         return response
 
     @staticmethod

@@ -1,3 +1,4 @@
+from django.middleware.csrf import CsrfViewMiddleware
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.serializers import TokenRefreshSerializer, TokenVerifySerializer
 
@@ -14,6 +15,11 @@ class AuthorizationMiddleware:
     def __call__(self, request):
         if request.path not in REQUIRED_AUTHORIZATION:
             return self.get_response(request)
+
+        reason = CsrfViewMiddleware(self.get_response).process_view(request, None, (), {})
+        if reason:
+            AuthorizationUtils.remove_auth_cookies(reason)
+            return reason
 
         access = request.COOKIES.get("access_token")
         refresh = request.COOKIES.get("refresh_token")
