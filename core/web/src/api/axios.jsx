@@ -3,6 +3,8 @@ import { makeUseAxios } from 'axios-hooks';
 
 import Cookies from 'js-cookie';
 
+import ENDPOINTS from '@api/endpoints';
+
 const instance = axios.create({
   baseURL: process.env.NODE_ENV === 'development' ? 'http://127.0.0.1:8000' : '',
   withCredentials: true,
@@ -10,17 +12,13 @@ const instance = axios.create({
 
 instance.interceptors.request.use(
   async (request) => {
-    if (request.url === '/api/sign-in/') {
+    if (request.url === ENDPOINTS.authorization) {
       return request;
     }
     const csrf = Cookies.get('csrftoken');
-    if (csrf === undefined) {
-      Cookies.remove('access_token');
-      Cookies.remove('refresh_token');
-      window.location.href = '/sign-in';
-      return Promise.reject(request);
+    if (csrf !== undefined) {
+      request.headers['X-CSRFToken'] = csrf;
     }
-    request.headers['X-CSRFToken'] = csrf;
     return request;
   },
   (error) => Promise.reject(error),
@@ -29,11 +27,8 @@ instance.interceptors.request.use(
 instance.interceptors.response.use(
   (response) => response,
   async (error) => {
-    if (error.response.status === 401) {
-      Cookies.remove('access_token');
-      Cookies.remove('refresh_token');
+    if (error.response.status === 401 || error.response.status === 403) {
       window.location.href = '/sign-in';
-      return error;
     }
     return Promise.reject(error);
   },
