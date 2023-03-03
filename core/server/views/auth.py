@@ -40,7 +40,7 @@ class RegistrationView(APIView):
         serializer.save()
 
         data = {
-            "detail": "User registered successfully"
+            "details": "User has been successfully registered."
         }
 
         return Response(data=data, status=status.HTTP_201_CREATED)
