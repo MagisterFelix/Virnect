@@ -9,10 +9,13 @@ class AuthorizationSerializer(TokenObtainPairSerializer):
 
     def validate(self, attrs):
         attr = attrs["username"]
+
         user = User.objects.get_or_none(Q(username=attr) | Q(email=attr))
 
-        if user is not None:
-            attrs["username"] = user.username
+        if user is None:
+            raise serializers.ValidationError("No user was found with these credentials.")
+
+        attrs["username"] = user.username
 
         return super(AuthorizationSerializer, self).validate(attrs)
 
