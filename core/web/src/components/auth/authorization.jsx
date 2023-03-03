@@ -25,13 +25,14 @@ import {
 
 import useAxios from '@api/axios';
 import ENDPOINTS from '@api/endpoints';
+import handleErrors from '@api/errors';
 
 import styles from '@styles/_globals.scss';
 
 import './auth.scss';
 
 const Authorization = () => {
-  const [errors, setErrors] = useState([]);
+  const [nonFieldError, setNonFieldError] = useState(null);
 
   const [{ loading: loadingAuthorization }, authorize] = useAxios(
     {
@@ -45,36 +46,23 @@ const Authorization = () => {
 
   const navigate = useNavigate();
 
-  const helper = {
+  const validation = {
     username: {
       required: 'This field may not be blank',
     },
     password: {
       required: 'This field may not be blank',
     },
-    403: {
-      detail: 'There is no user with these credentials',
-    },
   };
 
-  const { control, handleSubmit } = useForm();
-  const handleOnSubmit = (form) => {
-    authorize({ data: form })
-      .then(() => navigate('/', { replace: true }))
-      .catch((e) => setErrors(
-        Array.from(
-          Object.keys(e.response.data),
-          (key, index) => (
-            <Alert
-              key={index}
-              severity="error"
-              sx={{ textAlign: 'left', my: 1 }}
-            >
-              {helper[e.response.status][key]}
-            </Alert>
-          ),
-        ),
-      ));
+  const { control, handleSubmit, setError } = useForm();
+  const handleOnSubmit = async (form) => {
+    try {
+      await authorize({ data: form });
+      navigate('/', { replace: true });
+    } catch (e) {
+      handleErrors(validation, e.response.data.details, setError, setNonFieldError);
+    }
   };
 
   const [showPassword, setShowPassword] = useState(false);
@@ -227,7 +215,7 @@ const Authorization = () => {
                         marginY: 1,
                       }}
                       error={fieldError !== undefined}
-                      helperText={fieldError ? helper.username[fieldError.type] : ''}
+                      helperText={fieldError ? fieldError.message || validation.username[fieldError.type] : ''}
                     />
                   )}
                 />
@@ -267,13 +255,13 @@ const Authorization = () => {
                         marginY: 1,
                       }}
                       error={fieldError !== undefined}
-                      helperText={fieldError ? helper.password[fieldError.type] : ''}
+                      helperText={fieldError ? fieldError.message || validation.password[fieldError.type] : ''}
                     />
                   )}
                 />
-                {errors}
+                {nonFieldError && <Alert severity="error" sx={{ textAlign: 'left', my: 1 }}>{nonFieldError}</Alert>}
                 <Link
-                  href="/forgot-password"
+                  href="/reset-password"
                   underline="hover"
                   sx={{
                     display: 'block',

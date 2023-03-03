@@ -102,6 +102,7 @@ if DEBUG:
     CORS_ALLOWED_ORIGINS = ["http://127.0.0.1:3000"]
 
 REST_FRAMEWORK = {
+    "EXCEPTION_HANDLER": "core.server.exceptions.api_exception_handler",
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
         "rest_framework.permissions.IsAdminUser",

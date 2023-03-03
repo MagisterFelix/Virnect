@@ -72,7 +72,7 @@ class AuthorizationUtils:
         view.headers = view.default_response_headers
 
         data = {
-            "detail": message
+            "details": message
         }
 
         response = Response(data=data, status=status)
@@ -90,13 +90,13 @@ class AuthorizationUtils:
 
     @staticmethod
     def get_missed_credentials_response(request):
-        message = "Authentication credentials were not provided"
+        message = "Authentication credentials were not provided."
         _, response = AuthorizationUtils._get_response(request, message, status.HTTP_401_UNAUTHORIZED)
         return response
 
     @staticmethod
     def get_invalid_token_response(request):
-        message = "Token is invalid or expired"
+        message = "Token is invalid or expired."
         _, response = AuthorizationUtils._get_response(request, message, status.HTTP_401_UNAUTHORIZED)
         AuthorizationUtils.remove_auth_cookies(response)
         return response
@@ -104,7 +104,7 @@ class AuthorizationUtils:
     @staticmethod
     def get_success_authorization_response(request, validated_data):
         rotate_token(request)
-        message = "User logged in successfully"
+        message = "User has been successfully authorized."
         cookies = [
             {
                 "key": settings.SIMPLE_JWT["AUTH_COOKIE_ACCESS_TOKEN"],

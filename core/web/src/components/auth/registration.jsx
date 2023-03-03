@@ -24,13 +24,14 @@ import {
 
 import useAxios from '@api/axios';
 import ENDPOINTS from '@api/endpoints';
+import handleErrors from '@api/errors';
 
 import styles from '@styles/_globals.scss';
 
 import './auth.scss';
 
 const Registration = () => {
-  const [errors, setErrors] = useState([]);
+  const [nonFieldError, setNonFieldError] = useState(null);
 
   const [{ loading: loadingRegistration }, register] = useAxios(
     {
@@ -53,56 +54,40 @@ const Registration = () => {
 
   const navigate = useNavigate();
 
-  const helper = {
+  const validation = {
     username: {
-      required: 'This field may not be blank',
-      maxLength: 'No more than 150 characters',
-      pattern: 'Provide the valid username',
+      required: 'This field may not be blank.',
+      maxLength: 'No more than 150 characters.',
+      pattern: 'Provide the valid username.',
     },
     email: {
-      required: 'This field may not be blank',
-      maxLength: 'No more than 150 characters',
-      pattern: 'Provide the valid email',
+      required: 'This field may not be blank.',
+      maxLength: 'No more than 150 characters.',
+      pattern: 'Provide the valid email.',
     },
     password: {
-      required: 'This field may not be blank',
-      minLength: 'At least 8 characters',
-      maxLength: 'No more than 128 characters',
-      pattern: 'Provide the valid password',
+      required: 'This field may not be blank.',
+      minLength: 'At least 8 characters.',
+      maxLength: 'No more than 128 characters.',
+      pattern: 'Provide the valid password.',
     },
     confirm_password: {
-      required: 'This field may not be blank',
-      validate: 'Password mismatch',
-    },
-    400: {
-      username: 'A user with that username already exists',
-      email: 'A user with this email already exists',
+      required: 'This field may not be blank.',
+      validate: 'Password mismatch.',
     },
   };
 
-  const { control, watch, handleSubmit } = useForm();
-  const handleOnSubmit = (form) => {
-    register({ data: form })
-      .then(() => {
-        authorize({ data: form })
-          .then(() => navigate('/', { replace: true }));
-      })
-      .catch((e) => {
-        setErrors(
-          Array.from(
-            Object.keys(e.response.data),
-            (key, index) => (
-              <Alert
-                key={index}
-                severity="error"
-                sx={{ textAlign: 'left', my: 1 }}
-              >
-                {helper[e.response.status][key]}
-              </Alert>
-            ),
-          ),
-        );
-      });
+  const {
+    control, watch, handleSubmit, setError,
+  } = useForm();
+  const handleOnSubmit = async (form) => {
+    try {
+      await register({ data: form });
+      await authorize({ data: form });
+      navigate('/', { replace: true });
+    } catch (e) {
+      handleErrors(validation, e.response.data.details, setError, setNonFieldError);
+    }
   };
 
   return (
@@ -253,7 +238,7 @@ const Registration = () => {
                         marginY: 1,
                       }}
                       error={fieldError !== undefined}
-                      helperText={fieldError ? helper.username[fieldError.type] : ''}
+                      helperText={fieldError ? fieldError.message || validation.username[fieldError.type] : ''}
                     />
                   )}
                 />
@@ -285,7 +270,7 @@ const Registration = () => {
                         marginY: 1,
                       }}
                       error={fieldError !== undefined}
-                      helperText={fieldError ? helper.email[fieldError.type] : ''}
+                      helperText={fieldError ? fieldError.message || validation.email[fieldError.type] : ''}
                     />
                   )}
                 />
@@ -318,7 +303,7 @@ const Registration = () => {
                         marginY: 1,
                       }}
                       error={fieldError !== undefined}
-                      helperText={fieldError ? helper.password[fieldError.type] : ''}
+                      helperText={fieldError ? fieldError.message || validation.password[fieldError.type] : ''}
                     />
                   )}
                 />
@@ -342,11 +327,11 @@ const Registration = () => {
                         marginY: 1,
                       }}
                       error={fieldError !== undefined}
-                      helperText={fieldError ? helper.confirm_password[fieldError.type] : ''}
+                      helperText={fieldError ? validation.confirm_password[fieldError.type] : ''}
                     />
                   )}
                 />
-                {errors}
+                {nonFieldError && <Alert severity="error" sx={{ textAlign: 'left', my: 1 }}>{nonFieldError}</Alert>}
                 <LoadingButton
                   type="submit"
                   variant="contained"

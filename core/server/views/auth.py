@@ -15,8 +15,7 @@ class AuthorizationView(APIView):
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
 
-        if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
 
         response, _ = AuthorizationUtils.get_success_authorization_response(
             request=request,
@@ -34,13 +33,11 @@ class RegistrationView(APIView):
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
 
-        if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+        serializer.is_valid(raise_exception=True)
         serializer.save()
 
         data = {
-            "detail": "User registered successfully"
+            "details": "User has been successfully registered."
         }
 
         return Response(data=data, status=status.HTTP_201_CREATED)
