@@ -36,6 +36,9 @@ const PasswordReset = () => {
 
   const [{ loading }, execute] = useAxios(
     {
+      method: 'POST',
+    },
+    {
       manual: true,
     },
   );
@@ -65,7 +68,6 @@ const PasswordReset = () => {
     try {
       const response = await execute({
         url: ENDPOINTS.reset_password + ((uid && token) ? `${uid}/${token}/` : ''),
-        method: 'POST',
         data: form,
       });
       setAlert({ type: 'success', message: response.data.details });
@@ -135,7 +137,7 @@ const PasswordReset = () => {
               <Grid item>
                 <Link
                   href="/sign-in"
-                  underline="none"
+                  underline="hover"
                   sx={{
                     display: 'inline',
                     margin: 1,

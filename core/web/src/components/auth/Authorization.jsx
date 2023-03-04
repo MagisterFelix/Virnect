@@ -36,6 +36,9 @@ const Authorization = () => {
 
   const [{ loading }, execute] = useAxios(
     {
+      method: 'POST',
+    },
+    {
       manual: true,
     },
   );
@@ -56,7 +59,6 @@ const Authorization = () => {
     try {
       await execute({
         url: ENDPOINTS.authorization,
-        method: 'POST',
         data: form,
       });
       navigate('/', { replace: true });
@@ -142,7 +144,7 @@ const Authorization = () => {
                 </Typography>
                 <Link
                   href="/sign-up"
-                  underline="none"
+                  underline="hover"
                   sx={{
                     display: 'inline',
                     margin: 1,
