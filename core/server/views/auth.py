@@ -1,10 +1,11 @@
 from smtplib import SMTPException
 
 from django.conf import settings
+from django.contrib.auth import logout
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from rest_framework import status
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -47,6 +48,15 @@ class RegistrationView(APIView):
         }
 
         return Response(data=data, status=status.HTTP_201_CREATED)
+
+
+class DeauthorizationView(APIView):
+
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request):
+        logout(request)
+        return AuthorizationUtils.get_success_deauthorization_response(request=request)
 
 
 class PasswordResetView(APIView):
