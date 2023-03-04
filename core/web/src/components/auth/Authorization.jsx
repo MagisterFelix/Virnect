@@ -144,7 +144,7 @@ const Authorization = () => {
                 </Typography>
                 <Link
                   href="/sign-up"
-                  underline="none"
+                  underline="hover"
                   sx={{
                     display: 'inline',
                     margin: 1,

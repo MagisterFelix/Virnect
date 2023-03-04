@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
 import {
   Alert,
@@ -43,8 +43,6 @@ const PasswordReset = () => {
     },
   );
 
-  const navigate = useNavigate();
-
   const validation = {
     email: {
       required: 'This field may not be blank.',
@@ -73,9 +71,6 @@ const PasswordReset = () => {
         data: form,
       });
       setAlert({ type: 'success', message: response.data.details });
-      if (uid && token) {
-        navigate('/sign-in', { replace: true });
-      }
     } catch (error) {
       handleErrors(validation, error.response.data.details, setError, setAlert);
     }
@@ -142,7 +137,7 @@ const PasswordReset = () => {
               <Grid item>
                 <Link
                   href="/sign-in"
-                  underline="none"
+                  underline="hover"
                   sx={{
                     display: 'inline',
                     margin: 1,

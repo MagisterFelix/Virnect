@@ -144,7 +144,7 @@ const Registration = () => {
               <Grid item>
                 <Link
                   href="/sign-in"
-                  underline="none"
+                  underline="hover"
                   sx={{
                     display: 'inline',
                     margin: 1,

@@ -122,3 +122,10 @@ class AuthorizationUtils:
             }
         ]
         return AuthorizationUtils._get_response(request, message, status.HTTP_200_OK, cookies)
+
+    @staticmethod
+    def get_success_deauthorization_response(request):
+        message = "User has been successfully deauthorized."
+        response, _ = AuthorizationUtils._get_response(request, message, status.HTTP_204_NO_CONTENT)
+        AuthorizationUtils.remove_auth_cookies(response)
+        return response
