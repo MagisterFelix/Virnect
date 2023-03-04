@@ -11,6 +11,7 @@ import '@fontsource/roboto/900.css';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 import Authorization from '@components/auth/Authorization';
+import PasswordReset from '@components/auth/PasswordReset';
 import Registration from '@components/auth/Registration';
 import Home from '@components/Home';
 
@@ -42,6 +43,7 @@ const App = () => {
         <Route path="/" element={<Home />} />
         <Route path="/sign-in" element={!isAuth ? <Authorization /> : <Navigate to="/" />} />
         <Route path="/sign-up" element={!isAuth ? <Registration /> : <Navigate to="/" />} />
+        <Route path="/reset-password/:uid?/:token?" element={!isAuth ? <PasswordReset /> : <Navigate to="/" />} />
       </Routes>
     </ThemeProvider>
   );
