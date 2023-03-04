@@ -1,6 +1,6 @@
 import React from 'react';
 
-import './home.scss';
+import './Home.scss';
 
 const Home = () => (
   <div className="App">

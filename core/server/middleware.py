@@ -1,3 +1,4 @@
+from django.contrib.auth import logout
 from django.middleware.csrf import CsrfViewMiddleware
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.serializers import TokenRefreshSerializer, TokenVerifySerializer
@@ -7,8 +8,13 @@ from core.urls import urlpatterns
 
 api = urlpatterns[1]
 
+NON_REQUIRED_AUTHORIZATION = [
+    "sign-in",
+    "sign-up",
+    "reset-password",
+]
 REQUIRED_AUTHORIZATION = [
-    f"/{str(api.pattern) + url.name}/" for url in api.url_patterns if url.name not in ["sign-in", "sign-up"]
+    f"/{str(api.pattern) + url.name}/" for url in api.url_patterns if url.name not in NON_REQUIRED_AUTHORIZATION
 ]
 
 
@@ -18,6 +24,9 @@ class AuthorizationMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
+        if request.path in (f"/api/{path}/" for path in NON_REQUIRED_AUTHORIZATION):
+            request.COOKIES.get("sessionid") and logout(request)
+
         if request.path not in REQUIRED_AUTHORIZATION:
             return self.get_response(request)
 

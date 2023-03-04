@@ -28,23 +28,13 @@ import handleErrors from '@api/errors';
 
 import styles from '@styles/_globals.scss';
 
-import './auth.scss';
+import './Auth.scss';
 
 const Registration = () => {
-  const [nonFieldError, setNonFieldError] = useState(null);
+  const [alert, setAlert] = useState(null);
 
-  const [{ loading: loadingRegistration }, register] = useAxios(
+  const [{ loading }, execute] = useAxios(
     {
-      url: ENDPOINTS.registration,
-      method: 'POST',
-    },
-    {
-      manual: true,
-    },
-  );
-  const [{ loading: loadingAuthorization }, authorize] = useAxios(
-    {
-      url: ENDPOINTS.authorization,
       method: 'POST',
     },
     {
@@ -82,11 +72,17 @@ const Registration = () => {
   } = useForm();
   const handleOnSubmit = async (form) => {
     try {
-      await register({ data: form });
-      await authorize({ data: form });
+      await execute({
+        url: ENDPOINTS.registration,
+        data: form,
+      });
+      await execute({
+        url: ENDPOINTS.authorization,
+        data: form,
+      });
       navigate('/', { replace: true });
-    } catch (e) {
-      handleErrors(validation, e.response.data.details, setError, setNonFieldError);
+    } catch (error) {
+      handleErrors(validation, error.response.data.details, setError, setAlert);
     }
   };
 
@@ -219,7 +215,10 @@ const Registration = () => {
                     maxLength: 150,
                     pattern: /^[\w]+$/,
                   }}
-                  render={({ field: { onChange, value }, fieldState: { error: fieldError } }) => (
+                  render={({
+                    field: { onChange, value },
+                    fieldState: { error: fieldError },
+                  }) => (
                     <TextField
                       onChange={onChange}
                       value={value}
@@ -251,7 +250,10 @@ const Registration = () => {
                     maxLength: 150,
                     pattern: /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/,
                   }}
-                  render={({ field: { onChange, value }, fieldState: { error: fieldError } }) => (
+                  render={({
+                    field: { onChange, value },
+                    fieldState: { error: fieldError },
+                  }) => (
                     <TextField
                       onChange={onChange}
                       value={value}
@@ -284,7 +286,10 @@ const Registration = () => {
                     maxLength: 128,
                     pattern: /^(?=.*\d)(?=.*[A-Za-z]).{8,128}$/,
                   }}
-                  render={({ field: { onChange, value }, fieldState: { error: fieldError } }) => (
+                  render={({
+                    field: { onChange, value },
+                    fieldState: { error: fieldError },
+                  }) => (
                     <TextField
                       onChange={onChange}
                       value={value}
@@ -315,7 +320,10 @@ const Registration = () => {
                     required: true,
                     validate: (password) => password === watch('password'),
                   }}
-                  render={({ field: { onChange, value }, fieldState: { error: fieldError } }) => (
+                  render={({
+                    field: { onChange, value },
+                    fieldState: { error: fieldError },
+                  }) => (
                     <TextField
                       onChange={onChange}
                       value={value}
@@ -331,14 +339,14 @@ const Registration = () => {
                     />
                   )}
                 />
-                {nonFieldError && <Alert severity="error" sx={{ textAlign: 'left', my: 1 }}>{nonFieldError}</Alert>}
+                {alert && <Alert severity={alert.type} sx={{ textAlign: 'left', my: 1 }}>{alert.message}</Alert>}
                 <LoadingButton
                   type="submit"
                   variant="contained"
                   color="primary"
                   fullWidth
                   endIcon={<Login />}
-                  loading={loadingRegistration || loadingAuthorization}
+                  loading={loading}
                   loadingPosition="end"
                   sx={{
                     marginTop: 2,
