@@ -10,9 +10,9 @@ import '@fontsource/roboto/900.css';
 
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
-import Authorization from '@components/auth/authorization';
-import Registration from '@components/auth/registration';
-import Home from '@components/home';
+import Authorization from '@components/auth/Authorization';
+import Registration from '@components/auth/Registration';
+import Home from '@components/Home';
 
 import styles from '@styles/_globals.scss';
 

@@ -6,7 +6,6 @@ from rest_framework_simplejwt.serializers import TokenRefreshSerializer, TokenVe
 from core.server.utils import AuthorizationUtils
 from core.urls import urlpatterns
 
-admin = urlpatterns[0]
 api = urlpatterns[1]
 
 NON_REQUIRED_AUTHORIZATION = [
