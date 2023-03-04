@@ -55,7 +55,7 @@ class DeauthorizationView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def post(self, request):
-        logout(request)
+        request.COOKIES.get("sessionid") and logout(request)
         return AuthorizationUtils.get_success_deauthorization_response(request=request)
 
 

@@ -3,7 +3,7 @@ from rest_framework.test import APIRequestFactory
 
 from core.server.models import User
 from core.server.tests import PATHS, USERS
-from core.server.views.auth import AuthorizationView, RegistrationView
+from core.server.views.auth import AuthorizationView, DeauthorizationView, RegistrationView
 
 
 class AuthorizationViewTest(TestCase):
@@ -102,8 +102,12 @@ class RegistrationViewTest(TestCase):
 
         self.assertEqual(response.status_code, 400)
 
-        self.assertIn("username", response.data.keys())
-        self.assertIn("email", response.data.keys())
+        fields = []
+        for error in response.data["details"]:
+            fields.extend(error.keys())
+
+        self.assertIn("username", fields)
+        self.assertIn("email", fields)
 
     def test_registration_without_username(self):
         data = {
@@ -116,7 +120,11 @@ class RegistrationViewTest(TestCase):
 
         self.assertEqual(response.status_code, 400)
 
-        self.assertIn("username", response.data.keys())
+        fields = []
+        for error in response.data["details"]:
+            fields.extend(error.keys())
+
+        self.assertIn("username", fields)
 
     def test_registration_without_email(self):
         data = {
@@ -129,7 +137,11 @@ class RegistrationViewTest(TestCase):
 
         self.assertEqual(response.status_code, 400)
 
-        self.assertIn("email", response.data.keys())
+        fields = []
+        for error in response.data["details"]:
+            fields.extend(error.keys())
+
+        self.assertIn("email", fields)
 
     def test_registration_without_password(self):
         data = {
@@ -142,4 +154,38 @@ class RegistrationViewTest(TestCase):
 
         self.assertEqual(response.status_code, 400)
 
-        self.assertIn("password", response.data.keys())
+        fields = []
+        for error in response.data["details"]:
+            fields.extend(error.keys())
+
+        self.assertIn("password", fields)
+
+
+class DeauthorizationViewTest(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        User.objects.create_user(**USERS["user"])
+
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        data = {
+            "username": USERS["user"]["username"],
+            "password": USERS["user"]["password"]
+        }
+
+        request = self.factory.post(path=PATHS["sign-in"], data=data, format="json")
+        response = AuthorizationView().as_view()(request)
+
+        self.auth_header = {
+            "HTTP_AUTHORIZATION": f"Bearer {response.cookies.get('access_token').value}"
+        }
+
+    def test_deauthorization(self):
+        request = self.factory.post(path=PATHS["sign-out"], format="json", **self.auth_header)
+        response = DeauthorizationView().as_view()(request)
+
+        self.assertEqual(response.status_code, 204)
+
+        self.assertEqual(len(response.cookies.get("access_token").value), 0)
+        self.assertEqual(len(response.cookies.get("refresh_token").value), 0)
