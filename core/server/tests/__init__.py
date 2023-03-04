@@ -71,5 +71,6 @@ HISTORIES = {
 
 PATHS = {
     "sign-in": "/api/sign-in/",
-    "sign-up": "/api/sign-up/"
+    "sign-up": "/api/sign-up/",
+    "sign-out": "/api/sign-out/"
 }
