@@ -49,7 +49,8 @@ TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [
-            WEB_BUILD_DIR
+            WEB_BUILD_DIR,
+            SERVER_DIR / "templates"
         ],
         "APP_DIRS": True,
         "OPTIONS": {
@@ -100,6 +101,21 @@ CORS_ALLOW_CREDENTIALS = True
 if DEBUG:
     CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1:3000"]
     CORS_ALLOWED_ORIGINS = ["http://127.0.0.1:3000"]
+
+EMAIL_BACKEND = f"django.core.mail.backends.{'console' if DEBUG else 'smtp'}.EmailBackend"
+
+EMAIL_HOST = "smtp.gmail.com"
+
+EMAIL_HOST_USER = config("EMAIL_USER")
+
+EMAIL_HOST_PASSWORD = config("EMAIL_PASSWORD")
+
+if DEBUG:
+    EMAIL_USE_TLS = True
+    EMAIL_PORT = 587
+else:
+    EMAIL_USE_SSL = True
+    EMAIL_PORT = 465
 
 REST_FRAMEWORK = {
     "EXCEPTION_HANDLER": "core.server.exceptions.api_exception_handler",
