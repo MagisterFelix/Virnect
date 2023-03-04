@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
 import {
   Alert,
@@ -36,14 +36,9 @@ const PasswordReset = () => {
 
   const [{ loading }, execute] = useAxios(
     {
-      method: 'POST',
-    },
-    {
       manual: true,
     },
   );
-
-  const navigate = useNavigate();
 
   const validation = {
     email: {
@@ -70,12 +65,10 @@ const PasswordReset = () => {
     try {
       const response = await execute({
         url: ENDPOINTS.reset_password + ((uid && token) ? `${uid}/${token}/` : ''),
+        method: 'POST',
         data: form,
       });
       setAlert({ type: 'success', message: response.data.details });
-      if (uid && token) {
-        navigate('/sign-in', { replace: true });
-      }
     } catch (error) {
       handleErrors(validation, error.response.data.details, setError, setAlert);
     }

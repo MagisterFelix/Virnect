@@ -74,10 +74,12 @@ const Registration = () => {
     try {
       await execute({
         url: ENDPOINTS.registration,
+        method: 'POST',
         data: form,
       });
       await execute({
         url: ENDPOINTS.authorization,
+        method: 'POST',
         data: form,
       });
       navigate('/', { replace: true });

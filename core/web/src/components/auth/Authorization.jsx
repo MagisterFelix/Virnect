@@ -36,9 +36,6 @@ const Authorization = () => {
 
   const [{ loading }, execute] = useAxios(
     {
-      method: 'POST',
-    },
-    {
       manual: true,
     },
   );
@@ -59,6 +56,7 @@ const Authorization = () => {
     try {
       await execute({
         url: ENDPOINTS.authorization,
+        method: 'POST',
         data: form,
       });
       navigate('/', { replace: true });
