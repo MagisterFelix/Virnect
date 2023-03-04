@@ -32,11 +32,10 @@ import styles from '@styles/_globals.scss';
 import './Auth.scss';
 
 const Authorization = () => {
-  const [nonFieldError, setNonFieldError] = useState(null);
+  const [alert, setAlert] = useState(null);
 
-  const [{ loading: loadingAuthorization }, authorize] = useAxios(
+  const [{ loading }, execute] = useAxios(
     {
-      url: ENDPOINTS.authorization,
       method: 'POST',
     },
     {
@@ -58,10 +57,13 @@ const Authorization = () => {
   const { control, handleSubmit, setError } = useForm();
   const handleOnSubmit = async (form) => {
     try {
-      await authorize({ data: form });
+      await execute({
+        url: ENDPOINTS.authorization,
+        data: form,
+      });
       navigate('/', { replace: true });
-    } catch (e) {
-      handleErrors(validation, e.response.data.details, setError, setNonFieldError);
+    } catch (error) {
+      handleErrors(validation, error.response.data.details, setError, setAlert);
     }
   };
 
@@ -196,7 +198,10 @@ const Authorization = () => {
                   rules={{
                     required: true,
                   }}
-                  render={({ field: { onChange, value }, fieldState: { error: fieldError } }) => (
+                  render={({
+                    field: { onChange, value },
+                    fieldState: { error: fieldError },
+                  }) => (
                     <TextField
                       onChange={onChange}
                       value={value}
@@ -226,7 +231,10 @@ const Authorization = () => {
                   rules={{
                     required: true,
                   }}
-                  render={({ field: { onChange, value }, fieldState: { error: fieldError } }) => (
+                  render={({
+                    field: { onChange, value },
+                    fieldState: { error: fieldError },
+                  }) => (
                     <TextField
                       onChange={onChange}
                       value={value}
@@ -259,7 +267,7 @@ const Authorization = () => {
                     />
                   )}
                 />
-                {nonFieldError && <Alert severity="error" sx={{ textAlign: 'left', my: 1 }}>{nonFieldError}</Alert>}
+                {alert && <Alert severity={alert.type} sx={{ textAlign: 'left', my: 1 }}>{alert.message}</Alert>}
                 <Link
                   href="/reset-password"
                   underline="hover"
@@ -282,7 +290,7 @@ const Authorization = () => {
                   color="primary"
                   fullWidth
                   endIcon={<Login />}
-                  loading={loadingAuthorization}
+                  loading={loading}
                   loadingPosition="end"
                   sx={{
                     marginY: 1,
