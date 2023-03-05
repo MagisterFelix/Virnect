@@ -8,6 +8,7 @@ import '@fontsource/roboto/900.css';
 
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
+import NotFound from '@components/404/NotFound';
 import Authorization from '@components/auth/Authorization';
 import PasswordReset from '@components/auth/PasswordReset';
 import Registration from '@components/auth/Registration';
@@ -40,6 +41,7 @@ const App = () => (
           <Route element={<UserRoutes />}>
             <Route path="/" element={<Home />} />
           </Route>
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
