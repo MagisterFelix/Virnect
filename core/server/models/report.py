@@ -10,8 +10,11 @@ class Report(BaseModel):
         TEXT_ABUSE = 0, "Text abuse"
         VOICE_ABUSE = 1, "Voice abuse"
         OFFENSIVE_NAME = 2, "Offensive name"
-        DISRESPECTFUL_BEHAVIOR = 3, "Disrespectful behavior"
-        THREATS = 4, "Threats"
+        INAPPROPRIATE_AVATAR = 3, "Inappropriate avatar"
+        INAPPROPRIATE_ROOM_NAME = 4, "Inappropriate room name"
+        INAPPROPRIATE_ROOM_TAGS = 5, "Inappropriate room tags"
+        DISRESPECTFUL_BEHAVIOR = 6, "Disrespectful behavior"
+        THREATS = 7, "Threats"
 
     class Verdict(models.IntegerChoices):
         NO_VERDICT = 0, "No verdict"
