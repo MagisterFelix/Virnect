@@ -54,7 +54,7 @@ class PasswordResetSerializer(Serializer):
 
         validated_data = {
             "email": email,
-            "uid": urlsafe_base64_encode(force_bytes(user.pk)),
+            "uidb64": urlsafe_base64_encode(force_bytes(user.pk)),
             "token": default_token_generator.make_token(user)
         }
 

@@ -76,7 +76,7 @@ class PasswordResetView(APIView):
             "protocol": request.scheme,
             "domain": request.META["HTTP_HOST"],
             "url": request.META["HTTP_HOST"],
-            "uid": serializer.validated_data["uid"],
+            "uidb64": serializer.validated_data["uidb64"],
             "token": serializer.validated_data["token"]
         }
 
