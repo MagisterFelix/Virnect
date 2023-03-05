@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
 
 import {
   Alert,
@@ -22,6 +21,8 @@ import {
   Login,
 } from '@mui/icons-material';
 
+import { useAuth } from '@context/AuthProvider';
+
 import useAxios from '@api/axios';
 import ENDPOINTS from '@api/endpoints';
 import handleErrors from '@api/errors';
@@ -31,6 +32,8 @@ import styles from '@styles/_globals.scss';
 import './Auth.scss';
 
 const Registration = () => {
+  const auth = useAuth();
+
   const [alert, setAlert] = useState(null);
 
   const [{ loading }, execute] = useAxios(
@@ -41,8 +44,6 @@ const Registration = () => {
       manual: true,
     },
   );
-
-  const navigate = useNavigate();
 
   const validation = {
     username: {
@@ -80,9 +81,9 @@ const Registration = () => {
         url: ENDPOINTS.authorization,
         data: form,
       });
-      navigate('/', { replace: true });
-    } catch (error) {
-      handleErrors(validation, error.response.data.details, setError, setAlert);
+      auth.fetchProfile();
+    } catch (err) {
+      handleErrors(validation, err.response.data.details, setError, setAlert);
     }
   };
 
@@ -150,7 +151,7 @@ const Registration = () => {
                     margin: 1,
                     fontFamily: styles.font_poppins,
                     fontSize: {
-                      xs: styles.font_small,
+                      xs: styles.font_extra_small,
                       sm: styles.font_medium,
                     },
                     color: styles.grey,
@@ -164,7 +165,7 @@ const Registration = () => {
                     margin: 1,
                     fontFamily: styles.font_poppins,
                     fontSize: {
-                      xs: styles.font_small,
+                      xs: styles.font_extra_small,
                       sm: styles.font_medium,
                     },
                     fontWeight: 'bold',
@@ -195,7 +196,7 @@ const Registration = () => {
                   marginBottom: 3,
                   fontFamily: styles.font_poppins,
                   fontSize: {
-                    xs: styles.font_small,
+                    xs: styles.font_extra_small,
                     sm: styles.font_medium,
                   },
                   color: styles.grey,
@@ -359,7 +360,7 @@ const Registration = () => {
                     textTransform: 'none',
                     fontFamily: styles.font_poppins,
                     fontSize: {
-                      xs: styles.font_small,
+                      xs: styles.font_extra_small,
                       sm: styles.font_medium,
                     },
                   }}
@@ -376,7 +377,9 @@ const Registration = () => {
             xl={6}
             sx={{
               display: {
-                xs: 'none', sm: 'none', md: 'none', lg: 'flex', xl: 'flex',
+                xs: 'none',
+                lg: 'flex',
+                xl: 'flex',
               },
               justifyContent: 'center',
               backgroundImage: `url(${'/static/auth.svg'}), linear-gradient(to bottom, ${styles.purple}, ${styles.blue})`,

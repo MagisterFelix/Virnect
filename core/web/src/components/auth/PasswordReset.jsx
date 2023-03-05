@@ -143,7 +143,7 @@ const PasswordReset = () => {
                     margin: 1,
                     fontFamily: styles.font_poppins,
                     fontSize: {
-                      xs: styles.font_small,
+                      xs: styles.font_extra_small,
                       sm: styles.font_medium,
                     },
                     color: styles.grey,
@@ -279,7 +279,7 @@ const PasswordReset = () => {
                     textTransform: 'none',
                     fontFamily: styles.font_poppins,
                     fontSize: {
-                      xs: styles.font_small,
+                      xs: styles.font_extra_small,
                       sm: styles.font_medium,
                     },
                   }}
