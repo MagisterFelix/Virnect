@@ -86,3 +86,13 @@ class PasswordResetConfirmSerializer(Serializer):
         user.save()
 
         return super(PasswordResetConfirmSerializer, self).validate(attrs)
+
+
+class UserSerializer(ModelSerializer):
+
+    full_name = serializers.CharField(source="get_full_name", read_only=True)
+    avatar = serializers.CharField(source="image.url", read_only=True)
+
+    class Meta:
+        model = User
+        exclude = ("password", "first_name", "last_name", "image", "groups", "user_permissions",)
