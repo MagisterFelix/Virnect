@@ -350,7 +350,7 @@ const Registration = () => {
                   loading={loading}
                   loadingPosition="end"
                   sx={{
-                    marginTop: 2,
+                    marginTop: 3,
                     marginBottom: 1,
                     maxWidth: {
                       xs: 150,
