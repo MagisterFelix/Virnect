@@ -27,7 +27,7 @@ class AuthorizationMiddleware:
         if request.path in (f"/api/{path}/" for path in NON_REQUIRED_AUTHORIZATION):
             request.COOKIES.get("sessionid") and logout(request)
 
-        if request.path not in REQUIRED_AUTHORIZATION:
+        if all(request.path.find(path) == -1 for path in REQUIRED_AUTHORIZATION):
             return self.get_response(request)
 
         reason = CsrfViewMiddleware(self.get_response).process_view(request, None, (), {})
@@ -53,12 +53,7 @@ class AuthorizationMiddleware:
             except TokenError:
                 return AuthorizationUtils.get_invalid_token_response(request=request)
 
-            _, response = AuthorizationUtils.get_success_authorization_response(
-                request=request,
-                validated_data=serializer.validated_data
-            )
-
-            return response
+            access = serializer.data["access"]
 
         data = {
             "token": access
@@ -70,4 +65,13 @@ class AuthorizationMiddleware:
         except TokenError:
             return AuthorizationUtils.get_invalid_token_response(request=request)
 
-        return self.get_response(request)
+        response = self.get_response(request)
+
+        if request.path != "/api/sign-out/":
+            data = {
+                "access": access,
+                "refresh": refresh
+            }
+            AuthorizationUtils.set_auth_cookies(response, data)
+
+        return response

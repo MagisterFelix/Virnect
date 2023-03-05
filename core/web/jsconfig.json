@@ -13,8 +13,11 @@
             "@components/*": [
                 "src/components/*"
             ],
+            "@context/*": [
+                "src/context/*"
+            ],
             "@styles/*": [
-                "src/res/styles/*"
+                "src/styles/*"
             ]
         }
     },

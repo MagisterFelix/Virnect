@@ -67,7 +67,7 @@ class ImageUtils:
 class AuthorizationUtils:
 
     @staticmethod
-    def _get_response(request, message, status, cookies=None):
+    def _get_response(request, message, status):
         view = APIView()
         view.headers = view.default_response_headers
 
@@ -77,11 +77,29 @@ class AuthorizationUtils:
 
         response = Response(data=data, status=status)
 
-        if cookies is not None:
-            for cookie in cookies:
-                response.set_cookie(**cookie)
-
         return response, view.finalize_response(request, response).render()
+
+    @staticmethod
+    def set_auth_cookies(response, data):
+        cookies = [
+            {
+                "key": settings.SIMPLE_JWT["AUTH_COOKIE_ACCESS_TOKEN"],
+                "value": data.get("access"),
+                "expires": timezone.now() + settings.SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"],
+                "httponly": settings.SIMPLE_JWT["AUTH_COOKIE_HTTP_ONLY"],
+                "samesite": settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
+            },
+            {
+                "key": settings.SIMPLE_JWT["AUTH_COOKIE_REFRESH_TOKEN"],
+                "value": data.get("refresh"),
+                "expires": timezone.now() + settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"],
+                "httponly": settings.SIMPLE_JWT["AUTH_COOKIE_HTTP_ONLY"],
+                "samesite": settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
+            }
+        ]
+
+        for cookie in cookies:
+            response.set_cookie(**cookie)
 
     @staticmethod
     def remove_auth_cookies(response):
@@ -105,23 +123,9 @@ class AuthorizationUtils:
     def get_success_authorization_response(request, validated_data):
         rotate_token(request)
         message = "User has been successfully authorized."
-        cookies = [
-            {
-                "key": settings.SIMPLE_JWT["AUTH_COOKIE_ACCESS_TOKEN"],
-                "value": validated_data.get("access"),
-                "expires": timezone.now() + settings.SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"],
-                "httponly": settings.SIMPLE_JWT["AUTH_COOKIE_HTTP_ONLY"],
-                "samesite": settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
-            },
-            {
-                "key": settings.SIMPLE_JWT["AUTH_COOKIE_REFRESH_TOKEN"],
-                "value": validated_data.get("refresh"),
-                "expires": timezone.now() + settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"],
-                "httponly": settings.SIMPLE_JWT["AUTH_COOKIE_HTTP_ONLY"],
-                "samesite": settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
-            }
-        ]
-        return AuthorizationUtils._get_response(request, message, status.HTTP_200_OK, cookies)
+        response, _ = AuthorizationUtils._get_response(request, message, status.HTTP_200_OK)
+        AuthorizationUtils.set_auth_cookies(response, validated_data)
+        return response
 
     @staticmethod
     def get_success_deauthorization_response(request):

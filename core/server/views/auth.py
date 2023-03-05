@@ -24,7 +24,7 @@ class AuthorizationView(APIView):
 
         serializer.is_valid(raise_exception=True)
 
-        response, _ = AuthorizationUtils.get_success_authorization_response(
+        response = AuthorizationUtils.get_success_authorization_response(
             request=request,
             validated_data=serializer.validated_data
         )
@@ -101,10 +101,10 @@ class PasswordResetConfirmView(APIView):
     serializer_class = PasswordResetConfirmSerializer
     permission_classes = (AllowAny,)
 
-    def post(self, request, uid, token):
+    def post(self, request, uidb64, token):
         data = request.data.copy()
 
-        data["uid"] = uid
+        data["uidb64"] = uidb64
         data["token"] = token
 
         serializer = self.serializer_class(data=data)

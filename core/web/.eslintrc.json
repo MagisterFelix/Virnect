@@ -19,6 +19,7 @@
     ],
     "rules": {
         "import/no-unresolved": "off",
+        "react/prop-types": "off",
         "react/function-component-definition": [
             2,
             {

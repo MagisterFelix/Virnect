@@ -2,7 +2,9 @@ from django.contrib.auth.tokens import default_token_generator
 from django.db.models import Q
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
-from rest_framework import exceptions, serializers
+from rest_framework import serializers
+from rest_framework.exceptions import AuthenticationFailed, ValidationError
+from rest_framework.serializers import ModelSerializer, Serializer
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from .models import User
@@ -16,14 +18,14 @@ class AuthorizationSerializer(TokenObtainPairSerializer):
         user = User.objects.get_or_none(Q(username=attr) | Q(email=attr))
 
         if user is None:
-            raise exceptions.AuthenticationFailed("No user was found with these credentials.")
+            raise AuthenticationFailed("No user was found with these credentials.")
 
         attrs["username"] = user.username
 
         return super(AuthorizationSerializer, self).validate(attrs)
 
 
-class RegistrationSerializer(serializers.ModelSerializer):
+class RegistrationSerializer(ModelSerializer):
 
     class Meta:
         model = User
@@ -39,7 +41,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
         return user
 
 
-class PasswordResetSerializer(serializers.Serializer):
+class PasswordResetSerializer(Serializer):
 
     email = serializers.EmailField(max_length=150)
 
@@ -48,7 +50,7 @@ class PasswordResetSerializer(serializers.Serializer):
         user = User.objects.get_or_none(email=email)
 
         if user is None:
-            raise exceptions.AuthenticationFailed("No user was found with this email.")
+            raise AuthenticationFailed("No user was found with this email.")
 
         validated_data = {
             "email": email,
@@ -59,26 +61,26 @@ class PasswordResetSerializer(serializers.Serializer):
         return validated_data
 
 
-class PasswordResetConfirmSerializer(serializers.Serializer):
+class PasswordResetConfirmSerializer(Serializer):
 
     password = serializers.CharField(max_length=128, write_only=True)
-    uid = serializers.CharField(min_length=1, write_only=True)
+    uidb64 = serializers.CharField(min_length=1, write_only=True)
     token = serializers.CharField(min_length=1, write_only=True)
 
     def validate(self, attrs):
         password = attrs["password"]
-        uid = attrs["uid"]
+        uidb64 = attrs["uidb64"]
         token = attrs["token"]
 
         try:
-            pk = urlsafe_base64_decode(uid).decode()
+            pk = urlsafe_base64_decode(uidb64).decode()
         except (UnicodeDecodeError, ValueError):
-            raise exceptions.ValidationError("Invalid password reset link.")
+            raise ValidationError("Invalid password reset link.")
 
         user = User.objects.get_or_none(pk=pk)
 
         if not default_token_generator.check_token(user, token):
-            raise exceptions.ValidationError("Invalid password reset link.")
+            raise ValidationError("Invalid password reset link.")
 
         user.set_password(password)
         user.save()
