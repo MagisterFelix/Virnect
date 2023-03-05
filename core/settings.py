@@ -150,7 +150,7 @@ SIMPLE_JWT = {
     "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
     "AUTH_COOKIE_ACCESS_TOKEN": "access_token",
     "AUTH_COOKIE_REFRESH_TOKEN": "refresh_token",
-    "AUTH_COOKIE_HTTP_ONLY": False,
+    "AUTH_COOKIE_HTTP_ONLY": True,
     "AUTH_COOKIE_SAMESITE": "Lax",
     "USER_ID_FIELD": "id",
     "USER_ID_CLAIM": "user_id",
