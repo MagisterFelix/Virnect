@@ -1,63 +1,90 @@
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-} from 'react';
+import React, { createContext, useContext, useMemo } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 
 import useAxios from '@api/axios';
 import ENDPOINTS from '@api/endpoints';
+import handleErrors from '@api/errors';
 
 const AuthContext = createContext(null);
 
 const useAuth = () => useContext(AuthContext);
 
 const AuthProvider = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [profile, setProfile] = useState(null);
-
-  const [{ data }, fetchProfile] = useAxios(
+  const [{ loading: loadingProfile, data: profile }, getProfile] = useAxios(
     {
       url: ENDPOINTS.profile,
       method: 'GET',
     },
   );
 
-  useEffect(() => {
-    if (data !== undefined) {
-      setIsAuthenticated(true);
-      setProfile(data);
-    } else {
-      setIsAuthenticated(false);
-      setProfile(null);
-    }
-  }, [data]);
+  const [{ loading }, execute] = useAxios(
+    {
+      method: 'POST',
+    },
+    {
+      manual: true,
+    },
+  );
 
-  const value = React.useMemo(() => ({
-    isAuthenticated, setIsAuthenticated, profile, fetchProfile,
-  }), [isAuthenticated, setIsAuthenticated, profile, fetchProfile]);
+  const login = async (form, validation, setError, setAlert) => {
+    try {
+      await execute({
+        url: ENDPOINTS.authorization,
+        data: form,
+      });
+      getProfile();
+    } catch (err) {
+      handleErrors(validation, err.response.data.details, setError, setAlert);
+    }
+  };
+
+  const register = async (form, validation, setError, setAlert) => {
+    try {
+      await execute({
+        url: ENDPOINTS.registration,
+        data: form,
+      });
+      await execute({
+        url: ENDPOINTS.authorization,
+        data: form,
+      });
+      getProfile();
+    } catch (err) {
+      handleErrors(validation, err.response.data.details, setError, setAlert);
+    }
+  };
+
+  const logout = async (setAlert) => {
+    try {
+      await execute({
+        url: ENDPOINTS.deauthorization,
+        method: 'POST',
+      });
+      window.location.reload();
+    } catch (err) {
+      setAlert(true);
+    }
+  };
+
+  const value = useMemo(() => ({
+    loading, profile, login, register, logout,
+  }), [loading, profile]);
 
   return (
     <AuthContext.Provider value={value}>
-      {children}
+      {!loadingProfile && children}
     </AuthContext.Provider>
   );
 };
 
 const GuestRoutes = () => {
-  const auth = useAuth();
-  return !auth.isAuthenticated ? <Outlet /> : <Navigate to="/" replace />;
+  const { profile } = useAuth();
+  return !profile ? <Outlet /> : <Navigate to="/" replace />;
 };
 
 const UserRoutes = () => {
-  const auth = useAuth();
-
-  if (auth.profile == null) {
-    return null;
-  }
-
-  return auth.isAuthenticated ? <Outlet /> : <Navigate to="/sign-in" replace />;
+  const { profile } = useAuth();
+  return profile ? <Outlet /> : <Navigate to="/sign-in" replace />;
 };
 
 export {

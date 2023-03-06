@@ -24,27 +24,14 @@ import {
 
 import { useAuth } from '@context/AuthProvider';
 
-import useAxios from '@api/axios';
-import ENDPOINTS from '@api/endpoints';
-import handleErrors from '@api/errors';
-
 import styles from '@styles/_globals.scss';
 
 import './Auth.scss';
 
 const Authorization = () => {
-  const auth = useAuth();
+  const { loading, login } = useAuth();
 
   const [alert, setAlert] = useState(null);
-
-  const [{ loading }, execute] = useAxios(
-    {
-      method: 'POST',
-    },
-    {
-      manual: true,
-    },
-  );
 
   const validation = {
     username: {
@@ -57,15 +44,7 @@ const Authorization = () => {
 
   const { control, handleSubmit, setError } = useForm();
   const handleOnSubmit = async (form) => {
-    try {
-      await execute({
-        url: ENDPOINTS.authorization,
-        data: form,
-      });
-      auth.fetchProfile();
-    } catch (err) {
-      handleErrors(validation, err.response.data.details, setError, setAlert);
-    }
+    login(form, validation, setError, setAlert);
   };
 
   const [showPassword, setShowPassword] = useState(false);
