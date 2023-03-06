@@ -3,6 +3,7 @@ const ENDPOINTS = {
   registration: '/api/sign-up/',
   deauthorization: '/api/sign-out/',
   reset_password: '/api/reset-password/',
+  profile: '/api/profile/',
 };
 
 export default ENDPOINTS;

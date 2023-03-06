@@ -5,6 +5,8 @@ import Cookies from 'js-cookie';
 
 import ENDPOINTS from '@api/endpoints';
 
+const nonRequiredAuthorization = ['/sign-in', '/sign-up', '/reset-password'];
+
 const instance = axios.create({
   baseURL: process.env.NODE_ENV === 'development' ? 'http://127.0.0.1:8000' : '',
   withCredentials: true,
@@ -27,8 +29,8 @@ instance.interceptors.request.use(
 instance.interceptors.response.use(
   (response) => response,
   async (error) => {
-    if (error.config.url !== ENDPOINTS.authorization
-      && (error.response.status === 401 || error.response.status === 403)) {
+    if (!nonRequiredAuthorization.some((path) => window.location.pathname.includes(path))
+    && (error.response.status === 401 || error.response.status === 403)) {
       window.location.href = '/sign-in';
     }
     return Promise.reject(error);

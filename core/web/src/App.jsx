@@ -1,7 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
-
-import Cookies from 'js-cookie';
+import React from 'react';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 import '@fontsource/poppins/400.css';
 import '@fontsource/poppins/700.css';
@@ -10,10 +8,13 @@ import '@fontsource/roboto/900.css';
 
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
+import NotFound from '@components/404/NotFound';
 import Authorization from '@components/auth/Authorization';
 import PasswordReset from '@components/auth/PasswordReset';
 import Registration from '@components/auth/Registration';
 import Home from '@components/Home';
+
+import { AuthProvider, GuestRoutes, UserRoutes } from '@context/AuthProvider';
 
 import styles from '@styles/_globals.scss';
 
@@ -27,26 +28,24 @@ const theme = createTheme({
   },
 });
 
-const App = () => {
-  const [isAuth, setIsAuth] = useState(false);
-
-  useEffect(() => {
-    const token = Cookies.get('access_token');
-    if (token) {
-      setIsAuth(true);
-    }
-  }, [isAuth]);
-
-  return (
-    <ThemeProvider theme={theme}>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/sign-in" element={!isAuth ? <Authorization /> : <Navigate to="/" />} />
-        <Route path="/sign-up" element={!isAuth ? <Registration /> : <Navigate to="/" />} />
-        <Route path="/reset-password/:uid?/:token?" element={!isAuth ? <PasswordReset /> : <Navigate to="/" />} />
-      </Routes>
-    </ThemeProvider>
-  );
-};
+const App = () => (
+  <ThemeProvider theme={theme}>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route element={<GuestRoutes />}>
+            <Route path="/sign-in" element={<Authorization />} />
+            <Route path="/sign-up" element={<Registration />} />
+            <Route path="/reset-password/:uidb64?/:token?" element={<PasswordReset />} />
+          </Route>
+          <Route element={<UserRoutes />}>
+            <Route path="/" element={<Home />} />
+          </Route>
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
+  </ThemeProvider>
+);
 
 export default App;

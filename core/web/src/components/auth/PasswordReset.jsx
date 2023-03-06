@@ -30,7 +30,7 @@ import styles from '@styles/_globals.scss';
 import './Auth.scss';
 
 const PasswordReset = () => {
-  const { uid, token } = useParams();
+  const { uidb64, token } = useParams();
 
   const [alert, setAlert] = useState(null);
 
@@ -67,7 +67,7 @@ const PasswordReset = () => {
   const handleOnSubmit = async (form) => {
     try {
       const response = await execute({
-        url: ENDPOINTS.reset_password + ((uid && token) ? `${uid}/${token}/` : ''),
+        url: ENDPOINTS.reset_password + ((uidb64 && token) ? `${uidb64}/${token}/` : ''),
         data: form,
       });
       setAlert({ type: 'success', message: response.data.details });
@@ -143,7 +143,7 @@ const PasswordReset = () => {
                     margin: 1,
                     fontFamily: styles.font_poppins,
                     fontSize: {
-                      xs: styles.font_small,
+                      xs: styles.font_extra_small,
                       sm: styles.font_medium,
                     },
                     color: styles.grey,
@@ -155,7 +155,7 @@ const PasswordReset = () => {
             </Grid>
             <Grid item mx={1} my={1} textAlign="center">
               <Box component="form" autoComplete="off">
-                {(uid && token)
+                {(uidb64 && token)
                   ? (
                     <>
                       <Controller
@@ -269,7 +269,7 @@ const PasswordReset = () => {
                   loading={loading}
                   loadingPosition="end"
                   sx={{
-                    marginTop: 2,
+                    marginTop: 3,
                     marginBottom: 1,
                     maxWidth: {
                       xs: 150,
@@ -279,7 +279,7 @@ const PasswordReset = () => {
                     textTransform: 'none',
                     fontFamily: styles.font_poppins,
                     fontSize: {
-                      xs: styles.font_small,
+                      xs: styles.font_extra_small,
                       sm: styles.font_medium,
                     },
                   }}
