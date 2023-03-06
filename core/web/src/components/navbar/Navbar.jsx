@@ -18,37 +18,15 @@ import {
 
 import { useAuth } from '@context/AuthProvider';
 
-import useAxios from '@api/axios';
-import ENDPOINTS from '@api/endpoints';
-
 import styles from '@styles/_globals.scss';
 
 const Navbar = () => {
-  const auth = useAuth();
+  const { profile, logout } = useAuth();
 
-  const [{ error }, execute] = useAxios(
-    {
-      method: 'POST',
-    },
-    {
-      manual: true,
-    },
-  );
-
-  const [show, setShow] = useState(false);
-  const handleHide = () => {
-    setShow(false);
-  };
+  const [alert, setAlert] = useState(false);
 
   const handleLogout = async () => {
-    try {
-      await execute({
-        url: ENDPOINTS.deauthorization,
-      });
-      auth.setIsAuthenticated(false);
-    } catch (err) {
-      setShow(true);
-    }
+    logout(setAlert);
   };
 
   const [anchorElUser, setAnchorElUser] = useState(null);
@@ -57,8 +35,6 @@ const Navbar = () => {
 
   return (
     <div className="Navbar">
-      {auth.profile
-      && (
       <AppBar
         position="fixed"
         sx={{ backgroundColor: styles.darker }}
@@ -128,7 +104,7 @@ const Navbar = () => {
                     fontWeight: 'bold',
                   }}
                 >
-                  {auth.profile.full_name ? auth.profile.full_name : auth.profile.username}
+                  {profile.full_name ? profile.full_name : profile.username}
                 </Typography>
                 <Typography
                   sx={{
@@ -142,13 +118,13 @@ const Navbar = () => {
                   }}
                 >
                   @
-                  {auth.profile.username}
+                  {profile.username}
                 </Typography>
               </Container>
               <Tooltip title="Open menu">
                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                   <Avatar
-                    src={auth.profile.avatar}
+                    src={profile.avatar}
                     sx={{
                       height: {
                         xs: 48,
@@ -169,7 +145,6 @@ const Navbar = () => {
                   vertical: 'bottom',
                   horizontal: 'center',
                 }}
-                keepMounted
                 transformOrigin={{
                   vertical: 'top',
                   horizontal: 'center',
@@ -185,12 +160,9 @@ const Navbar = () => {
           </Toolbar>
         </Container>
       </AppBar>
-      )}
-      {error && (
-      <Snackbar open={show} autoHideDuration={3000} onClose={handleHide}>
+      <Snackbar open={alert} autoHideDuration={3000} onClose={() => setAlert(false)}>
         <Alert severity="error">Something went wrong...</Alert>
       </Snackbar>
-      )}
     </div>
   );
 };

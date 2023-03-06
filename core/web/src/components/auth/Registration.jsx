@@ -23,27 +23,14 @@ import {
 
 import { useAuth } from '@context/AuthProvider';
 
-import useAxios from '@api/axios';
-import ENDPOINTS from '@api/endpoints';
-import handleErrors from '@api/errors';
-
 import styles from '@styles/_globals.scss';
 
 import './Auth.scss';
 
 const Registration = () => {
-  const auth = useAuth();
+  const { loading, loadingProfile, register } = useAuth();
 
   const [alert, setAlert] = useState(null);
-
-  const [{ loading }, execute] = useAxios(
-    {
-      method: 'POST',
-    },
-    {
-      manual: true,
-    },
-  );
 
   const validation = {
     username: {
@@ -72,19 +59,7 @@ const Registration = () => {
     control, watch, handleSubmit, setError,
   } = useForm();
   const handleOnSubmit = async (form) => {
-    try {
-      await execute({
-        url: ENDPOINTS.registration,
-        data: form,
-      });
-      await execute({
-        url: ENDPOINTS.authorization,
-        data: form,
-      });
-      auth.fetchProfile();
-    } catch (err) {
-      handleErrors(validation, err.response.data.details, setError, setAlert);
-    }
+    register(form, validation, setError, setAlert);
   };
 
   return (
@@ -347,7 +322,7 @@ const Registration = () => {
                   color="primary"
                   fullWidth
                   endIcon={<Login />}
-                  loading={loading}
+                  loading={loading && !loadingProfile}
                   loadingPosition="end"
                   sx={{
                     marginTop: 3,
