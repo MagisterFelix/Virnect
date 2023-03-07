@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import {
   Alert,
@@ -12,20 +13,34 @@ import {
   MenuItem,
   Snackbar,
   Toolbar,
-  Tooltip,
   Typography,
 } from '@mui/material';
 
+import {
+  AccountCircle,
+  ExitToApp,
+} from '@mui/icons-material';
+
 import { useAuth } from '@context/AuthProvider';
 
+import { StyledBadge } from '@components/user/User';
+
 import styles from '@styles/_globals.scss';
+
+import './Navbar.scss';
 
 const Navbar = () => {
   const { profile, logout } = useAuth();
 
   const [alert, setAlert] = useState(false);
 
-  const handleLogout = async () => {
+  const navigate = useNavigate();
+
+  const navigateToProfile = () => {
+    navigate(`/user/${profile.username}`);
+  };
+
+  const handleLogout = () => {
     logout(setAlert);
   };
 
@@ -37,7 +52,7 @@ const Navbar = () => {
     <div className="Navbar">
       <AppBar
         position="fixed"
-        sx={{ backgroundColor: styles.darker }}
+        sx={{ backgroundColor: styles.color_darker }}
       >
         <Container maxWidth="xl">
           <Toolbar
@@ -53,7 +68,7 @@ const Navbar = () => {
                 display: 'flex',
                 alignItems: 'center',
                 textTransform: 'uppercase',
-                color: styles.white,
+                color: styles.color_white,
                 fontSize: {
                   xs: styles.font_extra_small,
                   sm: styles.font_medium,
@@ -113,17 +128,24 @@ const Navbar = () => {
                       xs: styles.font_extra_small,
                       sm: styles.font_small,
                     },
-                    color: styles.cyan,
+                    color: styles.color_cyan,
                     fontWeight: 'bold',
                   }}
                 >
-                  @
-                  {profile.username}
+                  <span>{`@${profile.username}`}</span>
                 </Typography>
               </Container>
-              <Tooltip title="Open menu">
-                <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                <StyledBadge
+                  overlap="circular"
+                  anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'right',
+                  }}
+                  variant="dot"
+                >
                   <Avatar
+                    alt={profile.username}
                     src={profile.avatar}
                     sx={{
                       height: {
@@ -136,10 +158,10 @@ const Navbar = () => {
                       },
                     }}
                   />
-                </IconButton>
-              </Tooltip>
+                </StyledBadge>
+              </IconButton>
               <Menu
-                sx={{ mt: 1 }}
+                sx={{ mt: 3 }}
                 anchorEl={anchorElUser}
                 anchorOrigin={{
                   vertical: 'bottom',
@@ -152,7 +174,12 @@ const Navbar = () => {
                 open={Boolean(anchorElUser)}
                 onClose={handleCloseUserMenu}
               >
+                <MenuItem onClick={navigateToProfile}>
+                  <AccountCircle sx={{ marginRight: 1 }} />
+                  <Typography textAlign="center">Profile</Typography>
+                </MenuItem>
                 <MenuItem onClick={handleLogout}>
+                  <ExitToApp sx={{ marginRight: 1 }} />
                   <Typography textAlign="center">Logout</Typography>
                 </MenuItem>
               </Menu>
