@@ -146,7 +146,7 @@ const PasswordReset = () => {
                       xs: styles.font_extra_small,
                       sm: styles.font_medium,
                     },
-                    color: styles.grey,
+                    color: styles.color_grey,
                   }}
                 >
                   <span>Login</span>

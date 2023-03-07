@@ -77,7 +77,12 @@ const Registration = () => {
         }}
       >
         <Grid container>
-          <Grid item xs={12} md={12} lg={6} xl={6} p={4}>
+          <Grid
+            item
+            xs={12}
+            lg={6}
+            p={4}
+          >
             <Grid
               container
               sx={{
@@ -129,7 +134,7 @@ const Registration = () => {
                       xs: styles.font_extra_small,
                       sm: styles.font_medium,
                     },
-                    color: styles.grey,
+                    color: styles.color_grey,
                   }}
                 >
                   <span>Login</span>
@@ -144,7 +149,7 @@ const Registration = () => {
                       sm: styles.font_medium,
                     },
                     fontWeight: 'bold',
-                    color: styles.purple,
+                    color: styles.color_purple,
                   }}
                 >
                   <span>Register</span>
@@ -174,7 +179,7 @@ const Registration = () => {
                     xs: styles.font_extra_small,
                     sm: styles.font_medium,
                   },
-                  color: styles.grey,
+                  color: styles.color_grey,
                 }}
               >
                 <span>Sign up to use the application</span>
@@ -349,15 +354,13 @@ const Registration = () => {
           <Grid
             item
             lg={6}
-            xl={6}
             sx={{
               display: {
                 xs: 'none',
                 lg: 'flex',
-                xl: 'flex',
               },
               justifyContent: 'center',
-              backgroundImage: `url(${'/static/auth.svg'}), linear-gradient(to bottom, ${styles.purple}, ${styles.blue})`,
+              backgroundImage: `url(${'/static/auth.svg'}), linear-gradient(to bottom, ${styles.color_purple}, ${styles.color_neon})`,
               backgroundPosition: 'center',
               backgroundRepeat: 'no-repeat',
             }}
