@@ -1,4 +1,9 @@
-import React, { createContext, useContext, useMemo } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+} from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 
 import useAxios from '@api/axios';
@@ -16,6 +21,23 @@ const AuthProvider = ({ children }) => {
       method: 'GET',
     },
   );
+
+  const [{ response }, ping] = useAxios(
+    {
+      method: 'GET',
+    },
+    {
+      manual: true,
+    },
+  );
+
+  useEffect(() => {
+    if (response && response.status !== 200) {
+      window.location.reload();
+    }
+    const interval = setInterval(() => ping(), 60000);
+    return () => clearInterval(interval);
+  }, [response]);
 
   const [{ loading }, execute] = useAxios(
     {
