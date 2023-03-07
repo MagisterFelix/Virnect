@@ -1,5 +1,5 @@
 from django.test import TestCase
-from rest_framework.test import APIRequestFactory
+from rest_framework.test import APIRequestFactory, force_authenticate
 
 from core.server.models import User
 from core.server.tests import PATHS, USERS
@@ -169,20 +169,11 @@ class DeauthorizationViewTest(TestCase):
 
     def setUp(self):
         self.factory = APIRequestFactory()
-        data = {
-            "username": USERS["user"]["username"],
-            "password": USERS["user"]["password"]
-        }
-
-        request = self.factory.post(path=PATHS["sign-in"], data=data, format="json")
-        response = AuthorizationView().as_view()(request)
-
-        self.auth_header = {
-            "HTTP_AUTHORIZATION": f"Bearer {response.cookies.get('access_token').value}"
-        }
+        self.user = User.objects.get(id=1)
 
     def test_deauthorization(self):
-        request = self.factory.post(path=PATHS["sign-out"], format="json", **self.auth_header)
+        request = self.factory.post(path=PATHS["sign-out"], format="json")
+        force_authenticate(request=request, user=self.user)
         response = DeauthorizationView().as_view()(request)
 
         self.assertEqual(response.status_code, 204)

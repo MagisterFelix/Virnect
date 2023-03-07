@@ -90,9 +90,12 @@ class PasswordResetConfirmSerializer(Serializer):
 
 class UserSerializer(ModelSerializer):
 
+    online = serializers.BooleanField(source="is_online", read_only=True)
     full_name = serializers.CharField(source="get_full_name", read_only=True)
     avatar = serializers.CharField(source="image.url", read_only=True)
+    about = serializers.CharField(source="about_user")
 
     class Meta:
         model = User
-        exclude = ("password", "first_name", "last_name", "image", "groups", "user_permissions",)
+        exclude = ("email", "password", "first_name", "last_name", "image",
+                   "date_joined", "last_login", "groups", "user_permissions",)
