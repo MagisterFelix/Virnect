@@ -5,14 +5,16 @@ import Navbar from '@components/navbar/Navbar';
 import './Home.scss';
 
 const Home = () => (
-  <div className="Home">
+  <>
     <Navbar />
-    <div className="App">
-      <header className="App-header">
-        <img src="/static/logo.svg" className="App-logo" alt="logo" />
-      </header>
+    <div className="Home">
+      <div className="App">
+        <header className="App-header">
+          <img src="/static/logo.svg" className="App-logo" alt="logo" />
+        </header>
+      </div>
     </div>
-  </div>
+  </>
 );
 
 export default Home;
