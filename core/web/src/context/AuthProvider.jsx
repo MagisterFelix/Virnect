@@ -6,6 +6,8 @@ import React, {
 } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 
+import { CircularProgress } from '@mui/material';
+
 import useAxios from '@api/axios';
 import ENDPOINTS from '@api/endpoints';
 import handleErrors from '@api/errors';
@@ -89,12 +91,23 @@ const AuthProvider = ({ children }) => {
   };
 
   const value = useMemo(() => ({
-    loading, profile, login, register, logout,
+    loading, profile, getProfile, login, register, logout,
   }), [loading, profile]);
 
   return (
     <AuthContext.Provider value={value}>
-      {!loadingProfile && children}
+      {loadingProfile
+        ? (
+          <div style={{
+            minHeight: '100dvh',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+          >
+            <CircularProgress />
+          </div>
+        ) : children}
     </AuthContext.Provider>
   );
 };
