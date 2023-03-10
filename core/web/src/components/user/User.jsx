@@ -91,6 +91,7 @@ const User = () => {
   const handleCloseUserMenu = () => setAnchorElUser(null);
 
   const [openTooltip, setOpenTooltip] = useState(false);
+  const handleClickUsername = () => { navigator.clipboard.writeText(`@${user.username}`); setOpenTooltip(true); };
 
   const getLastOnline = () => {
     const datetime = new Date(new Date(user.last_seen) - new Date().getTimezoneOffset() * 60000);
@@ -182,8 +183,10 @@ const User = () => {
               {loading ? (
                 <Skeleton
                   variant="text"
-                  sx={{ margin: 'auto' }}
-                  width={256}
+                  sx={{
+                    margin: 'auto',
+                  }}
+                  width="75%"
                   height={48}
                 />
               ) : (
@@ -203,8 +206,10 @@ const User = () => {
               {loading ? (
                 <Skeleton
                   variant="text"
-                  sx={{ margin: 'auto' }}
-                  width={128}
+                  sx={{
+                    margin: 'auto',
+                  }}
+                  width="50%"
                   height={32}
                 />
               ) : (
@@ -231,7 +236,7 @@ const User = () => {
                     <span
                       role="presentation"
                       style={{ cursor: 'pointer' }}
-                      onClick={() => { navigator.clipboard.writeText(`@${user.username}`); setOpenTooltip(true); }}
+                      onClick={handleClickUsername}
                     >
                       {`@${user.username}`}
                     </span>
@@ -253,8 +258,10 @@ const User = () => {
                   {loading ? (
                     <Skeleton
                       variant="text"
-                      sx={{ margin: 'auto' }}
-                      width={128}
+                      sx={{
+                        margin: 'auto',
+                      }}
+                      width="50%"
                       height={64}
                     />
                   ) : (
@@ -276,8 +283,11 @@ const User = () => {
                 <Grid item xs={12}>
                   {loading ? (
                     <Skeleton
-                      variant="text"
-                      height={64}
+                      variant="rounded"
+                      sx={{
+                        margin: 'auto',
+                      }}
+                      height={140}
                     />
                   ) : (
                     <Typography
@@ -289,7 +299,11 @@ const User = () => {
                         color: styles.color_white,
                       }}
                     >
-                      <span>{user.about}</span>
+                      <span>
+                        {user.about.length
+                          ? user.about
+                          : `We don't know much about ${user.username}, but we're sure ${user.username} is great.`}
+                      </span>
                     </Typography>
                   )}
                 </Grid>
@@ -302,5 +316,5 @@ const User = () => {
   );
 };
 
-export { StyledBadge };
+export { StyledBadge, outline };
 export default User;

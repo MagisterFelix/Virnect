@@ -65,6 +65,7 @@ const PasswordReset = () => {
     control, watch, handleSubmit, setError,
   } = useForm();
   const handleOnSubmit = async (form) => {
+    setAlert(null);
     try {
       const response = await execute({
         url: ENDPOINTS.reset_password + ((uidb64 && token) ? `${uidb64}/${token}/` : ''),

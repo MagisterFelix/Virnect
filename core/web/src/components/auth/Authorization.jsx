@@ -44,6 +44,7 @@ const Authorization = () => {
 
   const { control, handleSubmit, setError } = useForm();
   const handleOnSubmit = async (form) => {
+    setAlert(null);
     login(form, validation, setError, setAlert);
   };
 

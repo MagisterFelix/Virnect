@@ -17,29 +17,21 @@ const AuthContext = createContext(null);
 const useAuth = () => useContext(AuthContext);
 
 const AuthProvider = ({ children }) => {
-  const [{ loading: loadingProfile, data: profile }, getProfile] = useAxios(
+  const [{ loading: loadingProfile, data: profile }, refetchProfile] = useAxios(
     {
       url: ENDPOINTS.profile,
       method: 'GET',
     },
   );
 
-  const [{ response }, ping] = useAxios(
-    {
-      method: 'GET',
-    },
-    {
-      manual: true,
-    },
-  );
+  const ping = async () => {
+    await refetchProfile();
+  };
 
   useEffect(() => {
-    if (response && response.status !== 200) {
-      window.location.reload();
-    }
     const interval = setInterval(() => ping(), 60000);
     return () => clearInterval(interval);
-  }, [response]);
+  }, []);
 
   const [{ loading }, execute] = useAxios(
     {
@@ -56,7 +48,7 @@ const AuthProvider = ({ children }) => {
         url: ENDPOINTS.authorization,
         data: form,
       });
-      getProfile();
+      await refetchProfile();
     } catch (err) {
       handleErrors(validation, err.response.data.details, setError, setAlert);
     }
@@ -72,7 +64,7 @@ const AuthProvider = ({ children }) => {
         url: ENDPOINTS.authorization,
         data: form,
       });
-      getProfile();
+      await refetchProfile();
     } catch (err) {
       handleErrors(validation, err.response.data.details, setError, setAlert);
     }
@@ -91,12 +83,12 @@ const AuthProvider = ({ children }) => {
   };
 
   const value = useMemo(() => ({
-    loading, profile, getProfile, login, register, logout,
-  }), [loading, profile]);
+    loading, loadingProfile, profile, refetchProfile, login, register, logout,
+  }), [loading, loadingProfile, profile]);
 
   return (
     <AuthContext.Provider value={value}>
-      {loadingProfile
+      {loadingProfile && !profile
         ? (
           <div style={{
             minHeight: '100dvh',

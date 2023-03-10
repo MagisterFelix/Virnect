@@ -59,6 +59,7 @@ const Registration = () => {
     control, watch, handleSubmit, setError,
   } = useForm();
   const handleOnSubmit = async (form) => {
+    setAlert(null);
     register(form, validation, setError, setAlert);
   };
 
