@@ -25,15 +25,16 @@ const AuthProvider = ({ children }) => {
   );
 
   const ping = async () => {
-    if (profile) {
-      await refetchProfile();
-    }
+    await refetchProfile();
   };
 
   useEffect(() => {
+    if (!profile) {
+      return undefined;
+    }
     const interval = setInterval(() => ping(), 60000);
     return () => clearInterval(interval);
-  }, []);
+  }, [profile]);
 
   const [{ loading }, execute] = useAxios(
     {
@@ -76,7 +77,6 @@ const AuthProvider = ({ children }) => {
     try {
       await execute({
         url: ENDPOINTS.deauthorization,
-        method: 'POST',
       });
       window.location.reload();
     } catch (err) {
