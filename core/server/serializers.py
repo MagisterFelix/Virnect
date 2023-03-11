@@ -88,14 +88,48 @@ class PasswordResetConfirmSerializer(Serializer):
         return super(PasswordResetConfirmSerializer, self).validate(attrs)
 
 
+class ProfileSerializer(ModelSerializer):
+
+    new_password = serializers.CharField(max_length=128, required=False, write_only=True)
+
+    class Meta:
+        model = User
+        fields = ("email", "first_name", "last_name", "image", "about", "password", "new_password",)
+        extra_kwargs = {
+            "email": {
+                "required": False
+            },
+            "password": {
+                "required": False,
+                "write_only": True
+            }
+        }
+
+    def validate(self, attrs):
+        if attrs.get("new_password") is None:
+            return super(ProfileSerializer, self).validate(attrs)
+
+        if not self.instance.check_password(attrs.get("password")):
+            raise ValidationError({"password": "Password mismatch."})
+
+        return super(ProfileSerializer, self).validate(attrs)
+
+    def update(self, instance, validated_data):
+        if validated_data.get("new_password") is None:
+            return super(ProfileSerializer, self).update(instance, validated_data)
+
+        instance.set_password(validated_data["new_password"])
+        instance.save()
+
+        return instance
+
+
 class UserSerializer(ModelSerializer):
 
     online = serializers.BooleanField(source="is_online", read_only=True)
     full_name = serializers.CharField(source="get_full_name", read_only=True)
     avatar = serializers.CharField(source="image.url", read_only=True)
-    about = serializers.CharField(source="about_user")
 
     class Meta:
         model = User
-        exclude = ("email", "password", "first_name", "last_name", "image",
-                   "date_joined", "last_login", "groups", "user_permissions",)
+        exclude = ("password", "image", "date_joined", "last_login", "groups", "user_permissions",)

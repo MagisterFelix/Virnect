@@ -10,11 +10,12 @@ class ProfileViewTest(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        User.objects.create_superuser(**USERS["admin"])
         User.objects.create_user(**USERS["user"])
 
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.user = User.objects.get(id=1)
+        self.user = User.objects.get(id=2)
 
     def test_getting_profile(self):
         request = self.factory.get(path=PATHS["profile"], format="json")
@@ -23,10 +24,60 @@ class ProfileViewTest(TestCase):
 
         self.assertEqual(response.status_code, 200)
 
-        fields = ["id", "online", "full_name", "avatar", "about", "is_superuser",
-                  "username", "is_staff", "is_active", "last_seen"]
+        fields = ["id", "online", "full_name", "avatar", "is_superuser", "username",
+                  "first_name", "last_name", "is_staff", "is_active", "email", "last_seen", "about"]
 
         self.assertEqual(fields, list(response.data.keys()))
+
+    def test_updating_profile(self):
+        data = {
+            "email": "new_email@email.com",
+            "first_name": "First name",
+            "last_name": "Last name"
+        }
+
+        request = self.factory.patch(path=PATHS["profile"], data=data, format="json")
+        force_authenticate(request=request, user=self.user)
+        response = ProfileView().as_view()(request)
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_updating_profile_if_email_exists(self):
+        data = {
+            "email": USERS["admin"]["email"],
+            "first_name": "First name",
+            "last_name": "Last name"
+        }
+
+        request = self.factory.patch(path=PATHS["profile"], data=data, format="json")
+        force_authenticate(request=request, user=self.user)
+        response = ProfileView().as_view()(request)
+
+        self.assertEqual(response.status_code, 400)
+
+    def test_changing_password(self):
+        data = {
+            "password": USERS["user"]["password"],
+            "new_password": USERS["test"]["password"]
+        }
+
+        request = self.factory.patch(path=PATHS["profile"], data=data, format="json")
+        force_authenticate(request=request, user=self.user)
+        response = ProfileView().as_view()(request)
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_changing_password_if_password_mismatch(self):
+        data = {
+            "password": USERS["admin"]["password"],
+            "new_password": USERS["test"]["password"]
+        }
+
+        request = self.factory.patch(path=PATHS["profile"], data=data, format="json")
+        force_authenticate(request=request, user=self.user)
+        response = ProfileView().as_view()(request)
+
+        self.assertEqual(response.status_code, 400)
 
 
 class UserViewTest(TestCase):
@@ -46,8 +97,8 @@ class UserViewTest(TestCase):
 
         self.assertEqual(response.status_code, 200)
 
-        fields = ["id", "online", "full_name", "avatar", "about", "is_superuser",
-                  "username", "is_staff", "is_active", "last_seen"]
+        fields = ["id", "online", "full_name", "avatar", "is_superuser", "username",
+                  "first_name", "last_name", "is_staff", "is_active", "email", "last_seen", "about"]
 
         self.assertEqual(fields, list(response.data.keys()))
 
