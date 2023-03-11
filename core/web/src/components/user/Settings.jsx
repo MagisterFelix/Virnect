@@ -90,7 +90,8 @@ const Settings = () => {
         const response = await updateProfile({
           data: Object.fromEntries(formData),
         });
-        await refetchProfile();
+        const updated = await refetchProfile();
+        updated.data.image += `?t=${new Date().getTime()}`;
         setAlertProfile({ type: 'success', message: response.data.details });
       } catch (err) {
         handleErrors(validation, err.response.data.details, setErrorProfile, setAlertProfile);
@@ -291,6 +292,7 @@ const Settings = () => {
                       <Controller
                         name="image"
                         control={controlProfile}
+                        defaultValue={profile.image}
                         render={({
                           field: { onChange, value },
                           fieldState: { error: fieldError },
