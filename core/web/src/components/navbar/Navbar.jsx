@@ -19,6 +19,7 @@ import {
 import {
   AccountCircle,
   ExitToApp,
+  Settings,
 } from '@mui/icons-material';
 
 import { useAuth } from '@context/AuthProvider';
@@ -40,7 +41,12 @@ const Navbar = () => {
     navigate(`/user/${profile.username}`);
   };
 
+  const navigateToSettings = () => {
+    navigate('/settings');
+  };
+
   const handleLogout = () => {
+    setAlert(false);
     logout(setAlert);
   };
 
@@ -177,6 +183,10 @@ const Navbar = () => {
                 <MenuItem onClick={navigateToProfile}>
                   <AccountCircle sx={{ marginRight: 1 }} />
                   <Typography textAlign="center">Profile</Typography>
+                </MenuItem>
+                <MenuItem onClick={navigateToSettings}>
+                  <Settings sx={{ marginRight: 1 }} />
+                  <Typography textAlign="center">Settings</Typography>
                 </MenuItem>
                 <MenuItem onClick={handleLogout}>
                   <ExitToApp sx={{ marginRight: 1 }} />

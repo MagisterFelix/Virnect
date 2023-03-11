@@ -15,6 +15,7 @@ import Authorization from '@components/auth/Authorization';
 import PasswordReset from '@components/auth/PasswordReset';
 import Registration from '@components/auth/Registration';
 import Home from '@components/Home';
+import Settings from '@components/user/Settings';
 import User from '@components/user/User';
 
 import styles from '@styles/_globals.scss';
@@ -42,6 +43,7 @@ const App = () => (
           <Route element={<UserRoutes />}>
             <Route path="/" element={<Home />} />
             <Route path="/user/:username" element={<User />} />
+            <Route path="/settings" element={<Settings />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
