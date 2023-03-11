@@ -23,9 +23,6 @@ instance.interceptors.request.use(
 
 instance.interceptors.response.use(
   (response) => {
-    if (response.data.avatar) {
-      response.data.avatar = `${baseURL}${response.data.avatar}`;
-    }
     if (response.data.image) {
       response.data.image = `${baseURL}${response.data.image}`;
     }
