@@ -25,7 +25,9 @@ const AuthProvider = ({ children }) => {
   );
 
   const ping = async () => {
-    await refetchProfile();
+    if (profile) {
+      await refetchProfile();
+    }
   };
 
   useEffect(() => {
