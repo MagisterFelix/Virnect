@@ -62,12 +62,6 @@ class User(AbstractUser, PermissionsMixin):
             return False
         return timezone.now() <= self.last_seen + settings.USER_ONLINE_TIMEOUT
 
-    @property
-    def about_user(self):
-        if len(self.about) == 0:
-            return f"We don't know much about {self.username}, but we're sure {self.username} is great."
-        return self.about
-
     def update_last_seen(self):
         if not self.pk:
             return None
