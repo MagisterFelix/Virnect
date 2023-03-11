@@ -152,7 +152,7 @@ const Navbar = () => {
                 >
                   <Avatar
                     alt={profile.username}
-                    src={profile.avatar}
+                    src={profile.image}
                     sx={{
                       height: {
                         xs: 48,

@@ -11,6 +11,7 @@ class AuthorizationViewTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         User.objects.create_user(**USERS["user"])
+        User.objects.create_user(**USERS["test"], is_active=False)
 
     def setUp(self):
         self.factory = APIRequestFactory()
@@ -44,6 +45,19 @@ class AuthorizationViewTest(TestCase):
         self.assertIn("refresh_token", response.cookies.keys())
 
     def test_authorization_if_user_not_exists(self):
+        data = {
+            "username": USERS["admin"]["username"],
+            "password": USERS["admin"]["password"]
+        }
+
+        request = self.factory.post(path=PATHS["sign-in"], data=data, format="json")
+        response = AuthorizationView().as_view()(request)
+
+        self.assertEqual(response.status_code, 403)
+
+        self.assertEqual(len(response.cookies), 0)
+
+    def test_authorization_if_user_is_blocked(self):
         data = {
             "username": USERS["test"]["username"],
             "password": USERS["test"]["password"]

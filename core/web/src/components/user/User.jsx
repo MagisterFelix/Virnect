@@ -141,7 +141,7 @@ const User = () => {
                     >
                       <Avatar
                         alt={user.username}
-                        src={user.avatar}
+                        src={user.image}
                         sx={{
                           height: {
                             xs: 84,
