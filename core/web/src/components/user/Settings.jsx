@@ -79,6 +79,7 @@ const Settings = () => {
     control: controlProfile,
     handleSubmit: handleSubmitProfile,
     setError: setErrorProfile,
+    reset: resetProfile,
   } = useForm();
   const handleOnSubmitProfile = async (form) => {
     setAlertProfile(null);
@@ -92,6 +93,9 @@ const Settings = () => {
         });
         const updated = await refetchProfile();
         updated.data.image += `?t=${new Date().getTime()}`;
+        resetProfile({
+          image: updated.data.image,
+        });
         setAlertProfile({ type: 'success', message: response.data.details });
       } catch (err) {
         handleErrors(validation, err.response.data.details, setErrorProfile, setAlertProfile);
@@ -184,6 +188,7 @@ const Settings = () => {
                             value={value}
                             required
                             fullWidth
+                            margin="dense"
                             type="email"
                             label="Email"
                             InputProps={{
@@ -192,9 +197,6 @@ const Settings = () => {
                                   <EmailOutlined />
                                 </InputAdornment>
                               ),
-                            }}
-                            sx={{
-                              marginY: 1,
                             }}
                             error={fieldError !== undefined}
                             helperText={fieldError ? fieldError.message || validation.email[fieldError.type] : ''}
@@ -215,6 +217,7 @@ const Settings = () => {
                             onChange={onChange}
                             value={value}
                             fullWidth
+                            margin="dense"
                             type="text"
                             label="First name"
                             InputProps={{
@@ -223,9 +226,6 @@ const Settings = () => {
                                   <BadgeOutlined />
                                 </InputAdornment>
                               ),
-                            }}
-                            sx={{
-                              marginY: 1,
                             }}
                           />
                         )}
@@ -244,6 +244,7 @@ const Settings = () => {
                             onChange={onChange}
                             value={value}
                             fullWidth
+                            margin="dense"
                             type="text"
                             label="Last name"
                             InputProps={{
@@ -252,9 +253,6 @@ const Settings = () => {
                                   <BadgeOutlined />
                                 </InputAdornment>
                               ),
-                            }}
-                            sx={{
-                              marginY: 1,
                             }}
                           />
                         )}
@@ -274,6 +272,7 @@ const Settings = () => {
                             value={value}
                             fullWidth
                             multiline
+                            margin="dense"
                             type="text"
                             label="About"
                             InputProps={{
@@ -282,9 +281,6 @@ const Settings = () => {
                                   <DescriptionOutlined />
                                 </InputAdornment>
                               ),
-                            }}
-                            sx={{
-                              marginY: 1,
                             }}
                           />
                         )}
@@ -301,6 +297,7 @@ const Settings = () => {
                             onChange={(event) => onChange(event.target.files[0])}
                             value={value && value.filename}
                             fullWidth
+                            margin="dense"
                             type="file"
                             label="Image"
                             InputLabelProps={{ shrink: true }}
@@ -310,9 +307,6 @@ const Settings = () => {
                                   <UploadFileOutlined />
                                 </InputAdornment>
                               ),
-                            }}
-                            sx={{
-                              marginY: 1,
                             }}
                             error={fieldError !== undefined}
                             helperText={fieldError ? fieldError.message || validation.image[fieldError.type] : ''}
@@ -329,7 +323,7 @@ const Settings = () => {
                         loading={loadingUpdateProfile || loadingProfile}
                         loadingPosition="end"
                         sx={{
-                          marginTop: 2,
+                          marginTop: 3,
                           maxWidth: {
                             xs: 125,
                             sm: 175,
@@ -398,6 +392,7 @@ const Settings = () => {
                             value={value}
                             required
                             fullWidth
+                            margin="dense"
                             type="password"
                             label="Old password"
                             InputProps={{
@@ -406,9 +401,6 @@ const Settings = () => {
                                   <Key />
                                 </InputAdornment>
                               ),
-                            }}
-                            sx={{
-                              marginY: 1,
                             }}
                             error={fieldError !== undefined}
                             helperText={fieldError ? fieldError.message || validation.password[fieldError.type] : ''}
@@ -434,6 +426,7 @@ const Settings = () => {
                             value={value}
                             required
                             fullWidth
+                            margin="dense"
                             type="password"
                             label="New password"
                             InputProps={{
@@ -442,9 +435,6 @@ const Settings = () => {
                                   <Key />
                                 </InputAdornment>
                               ),
-                            }}
-                            sx={{
-                              marginY: 1,
                             }}
                             error={fieldError !== undefined}
                             helperText={fieldError ? fieldError.message || validation.password[fieldError.type] : ''}
@@ -461,7 +451,7 @@ const Settings = () => {
                         loading={loadingChangePassword}
                         loadingPosition="end"
                         sx={{
-                          marginTop: 2,
+                          marginTop: 3,
                           maxWidth: {
                             xs: 125,
                             sm: 175,

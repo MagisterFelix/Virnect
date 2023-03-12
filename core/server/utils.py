@@ -3,7 +3,6 @@ import random
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.middleware.csrf import rotate_token
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.response import Response
@@ -77,7 +76,7 @@ class AuthorizationUtils:
 
         response = Response(data=data, status=status)
 
-        return response, view.finalize_response(request, response).render()
+        return view.finalize_response(request, response).render()
 
     @staticmethod
     def set_auth_cookies(response, data):
@@ -109,27 +108,12 @@ class AuthorizationUtils:
     @staticmethod
     def get_missed_credentials_response(request):
         message = "Authentication credentials were not provided."
-        _, response = AuthorizationUtils._get_response(request, message, status.HTTP_401_UNAUTHORIZED)
+        response = AuthorizationUtils._get_response(request, message, status.HTTP_401_UNAUTHORIZED)
         return response
 
     @staticmethod
     def get_invalid_token_response(request):
         message = "Token is invalid or expired."
-        _, response = AuthorizationUtils._get_response(request, message, status.HTTP_401_UNAUTHORIZED)
-        AuthorizationUtils.remove_auth_cookies(response)
-        return response
-
-    @staticmethod
-    def get_success_authorization_response(request, validated_data):
-        rotate_token(request)
-        message = "User has been successfully authorized."
-        response, _ = AuthorizationUtils._get_response(request, message, status.HTTP_200_OK)
-        AuthorizationUtils.set_auth_cookies(response, validated_data)
-        return response
-
-    @staticmethod
-    def get_success_deauthorization_response(request):
-        message = "User has been successfully deauthorized."
-        response, _ = AuthorizationUtils._get_response(request, message, status.HTTP_204_NO_CONTENT)
+        response = AuthorizationUtils._get_response(request, message, status.HTTP_401_UNAUTHORIZED)
         AuthorizationUtils.remove_auth_cookies(response)
         return response

@@ -193,6 +193,7 @@ const Authorization = () => {
                       value={value}
                       required
                       fullWidth
+                      margin="dense"
                       type="text"
                       label="Username or email"
                       InputProps={{
@@ -201,9 +202,6 @@ const Authorization = () => {
                             <AccountCircleOutlined />
                           </InputAdornment>
                         ),
-                      }}
-                      sx={{
-                        marginY: 1,
                       }}
                       error={fieldError !== undefined}
                       helperText={fieldError ? fieldError.message || validation.username[fieldError.type] : ''}
@@ -226,6 +224,7 @@ const Authorization = () => {
                       value={value}
                       required
                       fullWidth
+                      margin="dense"
                       type={showPassword ? 'text' : 'password'}
                       label="Password"
                       InputProps={{
@@ -245,9 +244,6 @@ const Authorization = () => {
                           </InputAdornment>
                         ),
                       }}
-                      sx={{
-                        marginY: 1,
-                      }}
                       error={fieldError !== undefined}
                       helperText={fieldError ? fieldError.message || validation.password[fieldError.type] : ''}
                     />
@@ -259,7 +255,7 @@ const Authorization = () => {
                   underline="hover"
                   sx={{
                     display: 'block',
-                    marginY: 2,
+                    marginY: 3,
                     textAlign: 'right',
                     fontSize: {
                       xs: styles.font_extra_small,
@@ -279,12 +275,11 @@ const Authorization = () => {
                   loading={loading}
                   loadingPosition="end"
                   sx={{
-                    marginY: 1,
                     maxWidth: {
                       xs: 150,
                       sm: 300,
                     },
-                    borderRadius: 4,
+                    borderRadius: 3,
                     textTransform: 'none',
                     fontFamily: styles.font_poppins,
                     fontSize: {

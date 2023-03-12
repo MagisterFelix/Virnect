@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from core.server.models.user import User
-from core.server.serializers import UserSerializer
+from core.server.serializers.user import UserSerializer
 
 
 class UserView(APIView):
@@ -19,29 +19,24 @@ class UserView(APIView):
         user = User.objects.get_or_none(username=username) if username is not None else request.user
 
         if user is None or not user.is_active:
-            raise NotFound()
+            raise NotFound("No user was found.")
 
-        serializer = self.serializer_class(user)
-        response = serializer.data
+        serializer = self.serializer_class(instance=user)
+        data = serializer.data
+        username is not None and data.pop("email")
 
-        username is not None and response.pop("email")
-
-        return Response(response, status=status.HTTP_200_OK)
+        return Response(data=data, status=status.HTTP_200_OK)
 
     def patch(self, request, username=None):
         if username is not None:
             raise MethodNotAllowed(request.method)
 
-        serializer = self.serializer_class(request.user, data=request.data)
+        context = {
+            "action": "update" if request.data.get("password") is None else "change"
+        }
 
+        serializer = self.serializer_class(instance=request.user, data=request.data, context=context)
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
-        data = {}
-
-        if serializer.validated_data.get("password") is None:
-            data["details"] = "Profile has been successfully updated."
-        else:
-            data["details"] = "Password has been successfully changed."
-
-        return Response(data, status=status.HTTP_200_OK)
+        return Response(serializer.data, status=status.HTTP_200_OK)

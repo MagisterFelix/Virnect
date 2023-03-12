@@ -178,6 +178,7 @@ const PasswordReset = () => {
                             value={value}
                             required
                             fullWidth
+                            margin="dense"
                             type="password"
                             label="Password"
                             InputProps={{
@@ -186,9 +187,6 @@ const PasswordReset = () => {
                                   <Key />
                                 </InputAdornment>
                               ),
-                            }}
-                            sx={{
-                              marginY: 1,
                             }}
                             error={fieldError !== undefined}
                             helperText={fieldError ? fieldError.message || validation.password[fieldError.type] : ''}
@@ -212,11 +210,9 @@ const PasswordReset = () => {
                             value={value}
                             required
                             fullWidth
+                            margin="dense"
                             type="password"
                             label="Confirm password"
-                            sx={{
-                              marginY: 1,
-                            }}
                             error={fieldError !== undefined}
                             helperText={fieldError ? validation.confirm_password[fieldError.type] : ''}
                           />
@@ -242,6 +238,7 @@ const PasswordReset = () => {
                           value={value}
                           required
                           fullWidth
+                          margin="dense"
                           type="email"
                           label="Email"
                           InputProps={{
@@ -250,9 +247,6 @@ const PasswordReset = () => {
                                 <EmailOutlined />
                               </InputAdornment>
                             ),
-                          }}
-                          sx={{
-                            marginY: 2,
                           }}
                           error={fieldError !== undefined}
                           helperText={fieldError ? fieldError.message || validation.email[fieldError.type] : ''}
@@ -271,12 +265,11 @@ const PasswordReset = () => {
                   loadingPosition="end"
                   sx={{
                     marginTop: 3,
-                    marginBottom: 1,
                     maxWidth: {
                       xs: 150,
                       sm: 300,
                     },
-                    borderRadius: 4,
+                    borderRadius: 3,
                     textTransform: 'none',
                     fontFamily: styles.font_poppins,
                     fontSize: {

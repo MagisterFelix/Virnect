@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 from django.contrib.auth.tokens import default_token_generator
 from django.db.models import Q
 from django.utils.encoding import force_bytes
@@ -7,7 +9,7 @@ from rest_framework.exceptions import AuthenticationFailed, ValidationError
 from rest_framework.serializers import ModelSerializer, Serializer
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-from .models import User
+from core.server.models.user import User
 
 
 class AuthorizationSerializer(TokenObtainPairSerializer):
@@ -27,6 +29,23 @@ class AuthorizationSerializer(TokenObtainPairSerializer):
 
         return super(AuthorizationSerializer, self).validate(attrs)
 
+    def to_representation(self, instance):
+        data = OrderedDict()
+
+        data["details"] = "User has been authorized."
+
+        return data
+
+
+class DeauthorizationSerializer(Serializer):
+
+    def to_representation(self, instance):
+        data = OrderedDict()
+
+        data["details"] = "User has been deauthorized."
+
+        return data
+
 
 class RegistrationSerializer(ModelSerializer):
 
@@ -42,6 +61,13 @@ class RegistrationSerializer(ModelSerializer):
     def create(self, validated_data):
         user = User.objects.create_user(**validated_data)
         return user
+
+    def to_representation(self, instance):
+        data = OrderedDict()
+
+        data["details"] = "User has been registered."
+
+        return data
 
 
 class PasswordResetSerializer(Serializer):
@@ -62,6 +88,13 @@ class PasswordResetSerializer(Serializer):
         }
 
         return validated_data
+
+    def to_representation(self, instance):
+        data = OrderedDict()
+
+        data["details"] = "Email has been sent."
+
+        return data
 
 
 class PasswordResetConfirmSerializer(Serializer):
@@ -90,53 +123,9 @@ class PasswordResetConfirmSerializer(Serializer):
 
         return super(PasswordResetConfirmSerializer, self).validate(attrs)
 
+    def to_representation(self, instance):
+        data = OrderedDict()
 
-class UserSerializer(ModelSerializer):
+        data["details"] = "Password has been reset."
 
-    online = serializers.BooleanField(source="is_online", read_only=True)
-    full_name = serializers.CharField(source="get_full_name", read_only=True)
-
-    new_password = serializers.CharField(max_length=128, required=False, write_only=True)
-
-    class Meta:
-        model = User
-        exclude = ("date_joined", "last_login", "groups", "user_permissions",)
-        extra_kwargs = {
-            "username": {
-                "required": False
-            },
-            "email": {
-                "required": False
-            },
-            "password": {
-                "required": False,
-                "write_only": True
-            },
-            "is_superuser": {
-                "read_only": True
-            },
-            "is_staff": {
-                "read_only": True
-            },
-            "is_active": {
-                "read_only": True
-            }
-        }
-
-    def validate(self, attrs):
-        if attrs.get("new_password") is None:
-            return super(UserSerializer, self).validate(attrs)
-
-        if not self.instance.check_password(attrs.get("password")):
-            raise ValidationError({"password": "Password mismatch."})
-
-        return super(UserSerializer, self).validate(attrs)
-
-    def update(self, instance, validated_data):
-        if validated_data.get("new_password") is None:
-            return super(UserSerializer, self).update(instance, validated_data)
-
-        instance.set_password(validated_data["new_password"])
-        instance.save()
-
-        return instance
+        return data
