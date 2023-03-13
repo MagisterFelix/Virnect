@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser, BaseUserManager, PermissionsMixin
 from django.db import models
 from django.utils import timezone
@@ -54,6 +55,12 @@ class User(AbstractUser, PermissionsMixin):
     about = models.TextField(max_length=1024, blank=True)
 
     objects = UserManager()
+
+    @property
+    def is_online(self):
+        if self.last_seen is None:
+            return False
+        return timezone.now() <= self.last_seen + settings.USER_ONLINE_TIMEOUT
 
     def update_last_seen(self):
         if not self.pk:

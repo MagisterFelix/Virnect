@@ -1,5 +1,5 @@
 from django.test import TestCase
-from rest_framework.test import APIRequestFactory
+from rest_framework.test import APIRequestFactory, force_authenticate
 
 from core.server.models import User
 from core.server.tests import PATHS, USERS
@@ -11,6 +11,7 @@ class AuthorizationViewTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         User.objects.create_user(**USERS["user"])
+        User.objects.create_user(**USERS["test"], is_active=False)
 
     def setUp(self):
         self.factory = APIRequestFactory()
@@ -44,6 +45,19 @@ class AuthorizationViewTest(TestCase):
         self.assertIn("refresh_token", response.cookies.keys())
 
     def test_authorization_if_user_not_exists(self):
+        data = {
+            "username": USERS["admin"]["username"],
+            "password": USERS["admin"]["password"]
+        }
+
+        request = self.factory.post(path=PATHS["sign-in"], data=data, format="json")
+        response = AuthorizationView().as_view()(request)
+
+        self.assertEqual(response.status_code, 403)
+
+        self.assertEqual(len(response.cookies), 0)
+
+    def test_authorization_if_user_is_blocked(self):
         data = {
             "username": USERS["test"]["username"],
             "password": USERS["test"]["password"]
@@ -169,20 +183,11 @@ class DeauthorizationViewTest(TestCase):
 
     def setUp(self):
         self.factory = APIRequestFactory()
-        data = {
-            "username": USERS["user"]["username"],
-            "password": USERS["user"]["password"]
-        }
-
-        request = self.factory.post(path=PATHS["sign-in"], data=data, format="json")
-        response = AuthorizationView().as_view()(request)
-
-        self.auth_header = {
-            "HTTP_AUTHORIZATION": f"Bearer {response.cookies.get('access_token').value}"
-        }
+        self.user = User.objects.get(id=1)
 
     def test_deauthorization(self):
-        request = self.factory.post(path=PATHS["sign-out"], format="json", **self.auth_header)
+        request = self.factory.post(path=PATHS["sign-out"], format="json")
+        force_authenticate(request=request, user=self.user)
         response = DeauthorizationView().as_view()(request)
 
         self.assertEqual(response.status_code, 204)

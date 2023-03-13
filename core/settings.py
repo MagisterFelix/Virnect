@@ -96,6 +96,8 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+USER_ONLINE_TIMEOUT = timedelta(minutes=2)
+
 CORS_ALLOW_CREDENTIALS = True
 
 if DEBUG:

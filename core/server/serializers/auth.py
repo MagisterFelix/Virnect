@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 from django.contrib.auth.tokens import default_token_generator
 from django.db.models import Q
 from django.utils.encoding import force_bytes
@@ -7,7 +9,7 @@ from rest_framework.exceptions import AuthenticationFailed, ValidationError
 from rest_framework.serializers import ModelSerializer, Serializer
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-from .models import User
+from core.server.models.user import User
 
 
 class AuthorizationSerializer(TokenObtainPairSerializer):
@@ -20,9 +22,29 @@ class AuthorizationSerializer(TokenObtainPairSerializer):
         if user is None:
             raise AuthenticationFailed("No user was found with these credentials.")
 
+        if not user.is_active:
+            raise AuthenticationFailed("User is blocked.")
+
         attrs["username"] = user.username
 
         return super(AuthorizationSerializer, self).validate(attrs)
+
+    def to_representation(self, instance):
+        data = OrderedDict()
+
+        data["details"] = "User has been authorized."
+
+        return data
+
+
+class DeauthorizationSerializer(Serializer):
+
+    def to_representation(self, instance):
+        data = OrderedDict()
+
+        data["details"] = "User has been deauthorized."
+
+        return data
 
 
 class RegistrationSerializer(ModelSerializer):
@@ -39,6 +61,13 @@ class RegistrationSerializer(ModelSerializer):
     def create(self, validated_data):
         user = User.objects.create_user(**validated_data)
         return user
+
+    def to_representation(self, instance):
+        data = OrderedDict()
+
+        data["details"] = "User has been registered."
+
+        return data
 
 
 class PasswordResetSerializer(Serializer):
@@ -59,6 +88,13 @@ class PasswordResetSerializer(Serializer):
         }
 
         return validated_data
+
+    def to_representation(self, instance):
+        data = OrderedDict()
+
+        data["details"] = "Email has been sent."
+
+        return data
 
 
 class PasswordResetConfirmSerializer(Serializer):
@@ -87,12 +123,9 @@ class PasswordResetConfirmSerializer(Serializer):
 
         return super(PasswordResetConfirmSerializer, self).validate(attrs)
 
+    def to_representation(self, instance):
+        data = OrderedDict()
 
-class UserSerializer(ModelSerializer):
+        data["details"] = "Password has been reset."
 
-    full_name = serializers.CharField(source="get_full_name", read_only=True)
-    avatar = serializers.CharField(source="image.url", read_only=True)
-
-    class Meta:
-        model = User
-        exclude = ("password", "first_name", "last_name", "image", "groups", "user_permissions",)
+        return data

@@ -10,14 +10,17 @@
             "@api/*": [
                 "src/api/*"
             ],
-            "@components/*": [
-                "src/components/*"
-            ],
             "@context/*": [
                 "src/context/*"
             ],
+            "@components/*": [
+                "src/components/*"
+            ],
             "@styles/*": [
                 "src/styles/*"
+            ],
+            "@utils/*": [
+                "src/utils/*"
             ]
         }
     },

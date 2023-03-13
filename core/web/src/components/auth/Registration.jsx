@@ -59,6 +59,7 @@ const Registration = () => {
     control, watch, handleSubmit, setError,
   } = useForm();
   const handleOnSubmit = async (form) => {
+    setAlert(null);
     register(form, validation, setError, setAlert);
   };
 
@@ -77,7 +78,12 @@ const Registration = () => {
         }}
       >
         <Grid container>
-          <Grid item xs={12} md={12} lg={6} xl={6} p={4}>
+          <Grid
+            item
+            xs={12}
+            lg={6}
+            p={4}
+          >
             <Grid
               container
               sx={{
@@ -129,7 +135,7 @@ const Registration = () => {
                       xs: styles.font_extra_small,
                       sm: styles.font_medium,
                     },
-                    color: styles.grey,
+                    color: styles.color_grey,
                   }}
                 >
                   <span>Login</span>
@@ -144,7 +150,7 @@ const Registration = () => {
                       sm: styles.font_medium,
                     },
                     fontWeight: 'bold',
-                    color: styles.purple,
+                    color: styles.color_purple,
                   }}
                 >
                   <span>Register</span>
@@ -174,7 +180,7 @@ const Registration = () => {
                     xs: styles.font_extra_small,
                     sm: styles.font_medium,
                   },
-                  color: styles.grey,
+                  color: styles.color_grey,
                 }}
               >
                 <span>Sign up to use the application</span>
@@ -200,6 +206,7 @@ const Registration = () => {
                       value={value}
                       required
                       fullWidth
+                      margin="dense"
                       type="text"
                       label="Username"
                       InputProps={{
@@ -208,9 +215,6 @@ const Registration = () => {
                             <AccountCircleOutlined />
                           </InputAdornment>
                         ),
-                      }}
-                      sx={{
-                        marginY: 1,
                       }}
                       error={fieldError !== undefined}
                       helperText={fieldError ? fieldError.message || validation.username[fieldError.type] : ''}
@@ -271,6 +275,7 @@ const Registration = () => {
                       value={value}
                       required
                       fullWidth
+                      margin="dense"
                       type="password"
                       label="Password"
                       InputProps={{
@@ -279,9 +284,6 @@ const Registration = () => {
                             <Key />
                           </InputAdornment>
                         ),
-                      }}
-                      sx={{
-                        marginY: 1,
                       }}
                       error={fieldError !== undefined}
                       helperText={fieldError ? fieldError.message || validation.password[fieldError.type] : ''}
@@ -305,11 +307,9 @@ const Registration = () => {
                       value={value}
                       required
                       fullWidth
+                      margin="dense"
                       type="password"
                       label="Confirm password"
-                      sx={{
-                        marginY: 1,
-                      }}
                       error={fieldError !== undefined}
                       helperText={fieldError ? validation.confirm_password[fieldError.type] : ''}
                     />
@@ -326,12 +326,11 @@ const Registration = () => {
                   loadingPosition="end"
                   sx={{
                     marginTop: 3,
-                    marginBottom: 1,
                     maxWidth: {
                       xs: 150,
                       sm: 300,
                     },
-                    borderRadius: 4,
+                    borderRadius: 3,
                     textTransform: 'none',
                     fontFamily: styles.font_poppins,
                     fontSize: {
@@ -349,15 +348,13 @@ const Registration = () => {
           <Grid
             item
             lg={6}
-            xl={6}
             sx={{
               display: {
                 xs: 'none',
                 lg: 'flex',
-                xl: 'flex',
               },
               justifyContent: 'center',
-              backgroundImage: `url(${'/static/auth.svg'}), linear-gradient(to bottom, ${styles.purple}, ${styles.blue})`,
+              backgroundImage: `url(${'/static/auth.svg'}), linear-gradient(to bottom, ${styles.color_purple}, ${styles.color_neon})`,
               backgroundPosition: 'center',
               backgroundRepeat: 'no-repeat',
             }}

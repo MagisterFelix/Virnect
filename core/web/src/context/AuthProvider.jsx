@@ -1,5 +1,12 @@
-import React, { createContext, useContext, useMemo } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+} from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
+
+import { CircularProgress } from '@mui/material';
 
 import useAxios from '@api/axios';
 import ENDPOINTS from '@api/endpoints';
@@ -10,12 +17,24 @@ const AuthContext = createContext(null);
 const useAuth = () => useContext(AuthContext);
 
 const AuthProvider = ({ children }) => {
-  const [{ loading: loadingProfile, data: profile }, getProfile] = useAxios(
+  const [{ loading: loadingProfile, data: profile }, refetchProfile] = useAxios(
     {
       url: ENDPOINTS.profile,
       method: 'GET',
     },
   );
+
+  const ping = async () => {
+    await refetchProfile();
+  };
+
+  useEffect(() => {
+    if (!profile) {
+      return undefined;
+    }
+    const interval = setInterval(() => ping(), 60000);
+    return () => clearInterval(interval);
+  }, [profile]);
 
   const [{ loading }, execute] = useAxios(
     {
@@ -32,7 +51,7 @@ const AuthProvider = ({ children }) => {
         url: ENDPOINTS.authorization,
         data: form,
       });
-      getProfile();
+      await refetchProfile();
     } catch (err) {
       handleErrors(validation, err.response.data.details, setError, setAlert);
     }
@@ -48,7 +67,7 @@ const AuthProvider = ({ children }) => {
         url: ENDPOINTS.authorization,
         data: form,
       });
-      getProfile();
+      await refetchProfile();
     } catch (err) {
       handleErrors(validation, err.response.data.details, setError, setAlert);
     }
@@ -58,7 +77,6 @@ const AuthProvider = ({ children }) => {
     try {
       await execute({
         url: ENDPOINTS.deauthorization,
-        method: 'POST',
       });
       window.location.reload();
     } catch (err) {
@@ -67,12 +85,23 @@ const AuthProvider = ({ children }) => {
   };
 
   const value = useMemo(() => ({
-    loading, profile, login, register, logout,
-  }), [loading, profile]);
+    loading, loadingProfile, profile, refetchProfile, login, register, logout,
+  }), [loading, loadingProfile, profile]);
 
   return (
     <AuthContext.Provider value={value}>
-      {!loadingProfile && children}
+      {loadingProfile && !profile
+        ? (
+          <div style={{
+            minHeight: '100dvh',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+          >
+            <CircularProgress />
+          </div>
+        ) : children}
     </AuthContext.Provider>
   );
 };

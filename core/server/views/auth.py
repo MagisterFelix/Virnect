@@ -3,14 +3,16 @@ from smtplib import SMTPException
 from django.conf import settings
 from django.contrib.auth import logout
 from django.core.mail import send_mail
+from django.middleware.csrf import rotate_token
 from django.template.loader import render_to_string
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from core.server.serializers import (AuthorizationSerializer, PasswordResetConfirmSerializer, PasswordResetSerializer,
-                                     RegistrationSerializer)
+from core.server.serializers.auth import (AuthorizationSerializer, DeauthorizationSerializer,
+                                          PasswordResetConfirmSerializer, PasswordResetSerializer,
+                                          RegistrationSerializer)
 from core.server.utils import AuthorizationUtils
 
 
@@ -21,13 +23,28 @@ class AuthorizationView(APIView):
 
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
-
         serializer.is_valid(raise_exception=True)
 
-        response = AuthorizationUtils.get_success_authorization_response(
-            request=request,
-            validated_data=serializer.validated_data
-        )
+        rotate_token(request)
+
+        response = Response(data=serializer.data, status=status.HTTP_200_OK)
+        AuthorizationUtils.set_auth_cookies(response, serializer.validated_data)
+
+        return response
+
+
+class DeauthorizationView(APIView):
+
+    serializer_class = DeauthorizationSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request):
+        serializer = self.serializer_class(instance=request.user)
+
+        request.COOKIES.get("sessionid") and logout(request)
+
+        response = Response(data=serializer.data, status=status.HTTP_204_NO_CONTENT)
+        AuthorizationUtils.remove_auth_cookies(response)
 
         return response
 
@@ -39,24 +56,10 @@ class RegistrationView(APIView):
 
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
-
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
-        data = {
-            "details": "User has been successfully registered."
-        }
-
-        return Response(data=data, status=status.HTTP_201_CREATED)
-
-
-class DeauthorizationView(APIView):
-
-    permission_classes = (IsAuthenticated,)
-
-    def post(self, request):
-        request.COOKIES.get("sessionid") and logout(request)
-        return AuthorizationUtils.get_success_deauthorization_response(request=request)
+        return Response(data=serializer.data, status=status.HTTP_201_CREATED)
 
 
 class PasswordResetView(APIView):
@@ -66,10 +69,7 @@ class PasswordResetView(APIView):
 
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
-
         serializer.is_valid(raise_exception=True)
-
-        data = {}
 
         email_template_name = "password_reset_email.txt"
         context = {
@@ -79,21 +79,23 @@ class PasswordResetView(APIView):
             "uidb64": serializer.validated_data["uidb64"],
             "token": serializer.validated_data["token"]
         }
+        message = render_to_string(email_template_name, context)
 
         try:
             send_mail(
                 subject="Password reset",
-                message=render_to_string(email_template_name, context),
+                message=message,
                 from_email=settings.EMAIL_HOST_USER,
                 recipient_list=[serializer.validated_data["email"]],
                 fail_silently=False,
             )
-            data["details"] = "Email has been sent."
         except SMTPException:
-            data["details"] = "Email was not sent."
+            data = {
+                "details": "Email was not sent."
+            }
             return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
 
-        return Response(data=data, status=status.HTTP_200_OK)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 
 class PasswordResetConfirmView(APIView):
@@ -108,11 +110,6 @@ class PasswordResetConfirmView(APIView):
         data["token"] = token
 
         serializer = self.serializer_class(data=data)
-
         serializer.is_valid(raise_exception=True)
 
-        data = {
-            "details": "Password has been reset."
-        }
-
-        return Response(data=data, status=status.HTTP_200_OK)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)

@@ -4,8 +4,12 @@ $dark: #282c34;
 $darker: #202329;
 $grey: #888888;
 $purple: #8d65ff;
-$blue: #6574ff;
+$neon: #6574ff;
 $cyan: #88dbfe;
+$red: #f03939;
+$green: #44b700;
+$blue: #618deb;
+$yellow: #e6d81e;
 
 $font_poppins: 'Poppins', sans-serif;
 $font_extra_small: 1rem;
@@ -14,14 +18,18 @@ $font_medium: 1.5rem;
 $font_large: 2rem;
 
 :export {
-  white: $white;
-  black: $black;
-  dark: $dark;
-  darker: $darker;
-  grey: $grey;
-  purple: $purple;
-  blue: $blue;
-  cyan: $cyan;
+  color_white: $white;
+  color_black: $black;
+  color_dark: $dark;
+  color_darker: $darker;
+  color_grey: $grey;
+  color_purple: $purple;
+  color_neon: $neon;
+  color_cyan: $cyan;
+  color_red: $red;
+  color_green: $green;
+  color_blue: $blue;
+  color_yellow: $yellow;
 
   font_poppins: $font_poppins;
   font_extra_small: $font_extra_small;
