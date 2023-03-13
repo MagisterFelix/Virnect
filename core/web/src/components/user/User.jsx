@@ -1,20 +1,32 @@
 import React, { useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import { useParams } from 'react-router-dom';
 
 import {
+  Alert,
   Avatar,
   Badge,
+  Box,
   Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Grid,
   IconButton,
+  LinearProgress,
   Menu,
   MenuItem,
   Skeleton,
+  TextField,
   Tooltip,
   Typography,
 } from '@mui/material';
 
+import { LoadingButton } from '@mui/lab';
+
 import {
+  Close,
   FlagCircle,
 } from '@mui/icons-material';
 
@@ -79,7 +91,7 @@ const User = () => {
 
   const { username } = useParams();
 
-  const [{ loading, data: user, error }] = useAxios(
+  const [{ loading: loadingUser, data: user, error: errorUser }] = useAxios(
     {
       url: `${ENDPOINTS.user}${username}/`,
       method: 'GET',
@@ -98,7 +110,59 @@ const User = () => {
     return `Was online ${getFormattedTime(datetime)}`;
   };
 
-  if (!loading && error) {
+  const [{ loading: loadingReportOptions, data: reportOptions }] = useAxios(
+    {
+      url: ENDPOINTS.report,
+      method: 'OPTIONS',
+    },
+  );
+
+  const validation = {
+    reason: {
+      required: 'This field may not be blank',
+    },
+  };
+
+  const [{ loading: loadingReport }, sendReport] = useAxios(
+    {
+      url: ENDPOINTS.report,
+      method: 'POST',
+    },
+    {
+      manual: true,
+    },
+  );
+
+  const [alert, setAlert] = useState(null);
+  const { control, handleSubmit, reset } = useForm();
+  const handleOnSubmit = async (form) => {
+    const formData = {
+      sender: profile.id,
+      suspect: user.id,
+      ...form,
+    };
+    setAlert(null);
+    try {
+      const response = await sendReport({
+        method: 'POST',
+        data: formData,
+      });
+      setAlert({ type: 'success', message: response.data.details });
+    } catch (err) {
+      setAlert({ type: 'error', message: 'Something went wrong' });
+    }
+  };
+
+  const [openReportDialog, setOpenReportDialog] = useState(false);
+  const handleOpenReportDialog = () => {
+    setAnchorElUser(null);
+    reset();
+    setAlert(null);
+    setOpenReportDialog(true);
+  };
+  const handleCloseReportDialog = () => { setOpenReportDialog(false); };
+
+  if (!loadingUser && errorUser) {
     return <NotFound />;
   }
 
@@ -110,13 +174,13 @@ const User = () => {
           <Grid container sx={{ textAlign: 'center' }}>
             <Grid item xs={5} sm={4}>
               <Tooltip
-                title={!loading && !user.online && user.last_seen && getLastOnline()}
+                title={!loadingUser && !user.online && user.last_seen && getLastOnline()}
                 arrow
                 placement="top"
                 disableTouchListener
               >
                 <IconButton onClick={handleOpenUserMenu} sx={{ mb: 1, p: 0 }}>
-                  {loading ? (
+                  {loadingUser ? (
                     <Skeleton
                       variant="circular"
                       sx={{
@@ -158,29 +222,97 @@ const User = () => {
                   )}
                 </IconButton>
               </Tooltip>
-              {!loading && profile.username !== username
+              {!loadingUser && profile.username !== username
               && (
-              <Menu
-                sx={{ mt: 2 }}
-                anchorEl={anchorElUser}
-                anchorOrigin={{
-                  vertical: 'bottom',
-                  horizontal: 'center',
-                }}
-                transformOrigin={{
-                  vertical: 'top',
-                  horizontal: 'center',
-                }}
-                open={Boolean(anchorElUser)}
-                onClose={handleCloseUserMenu}
-              >
-                <MenuItem>
-                  <FlagCircle sx={{ marginRight: 1 }} />
-                  <Typography textAlign="center">Report</Typography>
-                </MenuItem>
-              </Menu>
+                <>
+                  <Menu
+                    sx={{ mt: 2 }}
+                    anchorEl={anchorElUser}
+                    anchorOrigin={{
+                      vertical: 'bottom',
+                      horizontal: 'center',
+                    }}
+                    transformOrigin={{
+                      vertical: 'top',
+                      horizontal: 'center',
+                    }}
+                    open={Boolean(anchorElUser)}
+                    onClose={handleCloseUserMenu}
+                  >
+                    <MenuItem onClick={handleOpenReportDialog}>
+                      <FlagCircle sx={{ marginRight: 1 }} />
+                      <Typography textAlign="center">Report</Typography>
+                    </MenuItem>
+                  </Menu>
+                  <Dialog open={openReportDialog} onClose={handleCloseReportDialog} fullWidth>
+                    <Box component="form" autoComplete="off">
+                      <DialogTitle sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                      }}
+                      >
+                        <span>Report</span>
+                        <IconButton
+                          aria-label="close"
+                          sx={{ marginRight: -1 }}
+                          onClick={handleCloseReportDialog}
+                        >
+                          <Close />
+                        </IconButton>
+                      </DialogTitle>
+                      <DialogContent>
+                        <Controller
+                          name="reason"
+                          control={control}
+                          defaultValue=""
+                          rules={{
+                            required: true,
+                          }}
+                          render={({
+                            field: { onChange, value },
+                            fieldState: { error: fieldError },
+                          }) => (
+                            <TextField
+                              onChange={onChange}
+                              value={value}
+                              required
+                              fullWidth
+                              select
+                              margin="dense"
+                              label="Reason"
+                              error={fieldError !== undefined}
+                              helperText={fieldError ? fieldError.message || validation.reason[fieldError.type] : ''}
+                            >
+                              {
+                                loadingReportOptions
+                                  ? (<LinearProgress sx={{ margin: 2 }} />)
+                                  : (reportOptions.actions.POST.reason.choices.map(
+                                    (choice) => (
+                                      <MenuItem key={choice.value} value={choice.value}>
+                                        {choice.display_name}
+                                      </MenuItem>
+                                    ),
+                                  ))
+                              }
+                            </TextField>
+                          )}
+                        />
+                        {alert && <Alert severity={alert.type} sx={{ textAlign: 'left', mt: 1 }}>{alert.message}</Alert>}
+                      </DialogContent>
+                      <DialogActions sx={{ marginX: 1 }}>
+                        <LoadingButton
+                          loading={loadingReport}
+                          onClick={handleSubmit(handleOnSubmit)}
+                        >
+                          Report
+                        </LoadingButton>
+                      </DialogActions>
+                    </Box>
+                  </Dialog>
+                </>
               )}
-              {loading ? (
+              {loadingUser ? (
                 <Skeleton
                   variant="text"
                   sx={{
@@ -203,7 +335,7 @@ const User = () => {
                   <span>{user.full_name ? user.full_name : user.username}</span>
                 </Typography>
               )}
-              {loading ? (
+              {loadingUser ? (
                 <Skeleton
                   variant="text"
                   sx={{
@@ -255,7 +387,7 @@ const User = () => {
             >
               <Grid container>
                 <Grid item xs={12} justifyContent="center">
-                  {loading ? (
+                  {loadingUser ? (
                     <Skeleton
                       variant="text"
                       sx={{
@@ -281,7 +413,7 @@ const User = () => {
                   )}
                 </Grid>
                 <Grid item xs={12}>
-                  {loading ? (
+                  {loadingUser ? (
                     <Skeleton
                       variant="rounded"
                       sx={{
