@@ -74,5 +74,6 @@ PATHS = {
     "sign-up": "/api/sign-up/",
     "sign-out": "/api/sign-out/",
     "profile": "/api/profile/",
-    "user": "/api/user/"
+    "user": "/api/user/",
+    "report": "/api/report/",
 }
