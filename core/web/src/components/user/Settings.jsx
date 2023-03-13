@@ -66,9 +66,6 @@ const Settings = () => {
     {
       url: ENDPOINTS.profile,
       method: 'PATCH',
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
     },
     {
       manual: true,
