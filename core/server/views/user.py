@@ -21,7 +21,7 @@ class UserView(APIView):
         if user is None or not user.is_active:
             raise NotFound("No user was found.")
 
-        serializer = self.serializer_class(instance=user)
+        serializer = self.serializer_class(instance=user, context={"request": request})
         data = serializer.data
         username is not None and data.pop("email")
 
