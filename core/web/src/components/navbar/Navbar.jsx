@@ -24,7 +24,7 @@ import {
 
 import { useAuth } from '@context/AuthProvider';
 
-import { StyledBadge } from '@components/user/User';
+import { OnlineBadge } from '@utils/Styles';
 
 import styles from '@styles/_globals.scss';
 
@@ -142,7 +142,7 @@ const Navbar = () => {
                 </Typography>
               </Container>
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <StyledBadge
+                <OnlineBadge
                   overlap="circular"
                   anchorOrigin={{
                     vertical: 'bottom',
@@ -164,7 +164,7 @@ const Navbar = () => {
                       },
                     }}
                   />
-                </StyledBadge>
+                </OnlineBadge>
               </IconButton>
               <Menu
                 sx={{ mt: 3 }}

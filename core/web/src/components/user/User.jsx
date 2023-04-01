@@ -5,7 +5,6 @@ import { useParams } from 'react-router-dom';
 import {
   Alert,
   Avatar,
-  Badge,
   Box,
   Container,
   Dialog,
@@ -30,8 +29,6 @@ import {
   FlagCircle,
 } from '@mui/icons-material';
 
-import { styled } from '@mui/material/styles';
-
 import { useAuth } from '@context/AuthProvider';
 
 import useAxios from '@api/axios';
@@ -40,51 +37,14 @@ import ENDPOINTS from '@api/endpoints';
 import NotFound from '@components/404/NotFound';
 import Navbar from '@components/navbar/Navbar';
 
+import {
+  LightTooltip,
+  OnlineBadge,
+  outline,
+} from '@utils/Styles';
 import getFormattedTime from '@utils/Time';
 
 import styles from '@styles/_globals.scss';
-
-const StyledBadge = styled(Badge)(({ theme }) => ({
-  '& .MuiBadge-badge': {
-    width: 10,
-    height: 10,
-    borderRadius: 10,
-    backgroundColor: styles.color_green,
-    color: styles.color_green,
-    boxShadow: `0 0 0 2px ${theme.palette.background.paper}`,
-    '&::after': {
-      position: 'absolute',
-      top: -1,
-      left: -1,
-      width: '100%',
-      height: '100%',
-      borderRadius: '50%',
-      animation: 'ripple 1.2s infinite ease-in-out',
-      border: '1px solid currentColor',
-      content: '""',
-    },
-  },
-  '@keyframes ripple': {
-    '0%': {
-      transform: 'scale(.8)',
-      opacity: 1,
-    },
-    '100%': {
-      transform: 'scale(2.4)',
-      opacity: 0,
-    },
-  },
-}));
-
-const outline = (user) => {
-  if (user.is_superuser) {
-    return `3px solid ${styles.color_red}`;
-  }
-  if (user.is_staff) {
-    return `3px solid ${styles.color_yellow}`;
-  }
-  return `3px solid ${styles.color_blue}`;
-};
 
 const User = () => {
   const { profile } = useAuth();
@@ -173,7 +133,7 @@ const User = () => {
         <Container>
           <Grid container sx={{ textAlign: 'center' }}>
             <Grid item xs={5} sm={4}>
-              <Tooltip
+              <LightTooltip
                 title={!loadingUser && !user.online && user.last_seen && getLastOnline()}
                 arrow
                 placement="top"
@@ -195,7 +155,7 @@ const User = () => {
                       }}
                     />
                   ) : (
-                    <StyledBadge
+                    <OnlineBadge
                       overlap="circular"
                       anchorOrigin={{
                         vertical: 'bottom',
@@ -218,10 +178,10 @@ const User = () => {
                           outline: outline(user),
                         }}
                       />
-                    </StyledBadge>
+                    </OnlineBadge>
                   )}
                 </IconButton>
-              </Tooltip>
+              </LightTooltip>
               {!loadingUser && profile.username !== username
               && (
                 <>
@@ -448,5 +408,4 @@ const User = () => {
   );
 };
 
-export { StyledBadge, outline };
 export default User;
