@@ -3,6 +3,7 @@ from django.urls import path
 from core.server.views.auth import (AuthorizationView, DeauthorizationView, PasswordResetConfirmView,
                                     PasswordResetView, RegistrationView)
 from core.server.views.report import ReportView
+from core.server.views.topic import TopicListView
 from core.server.views.user import UserView
 
 urlpatterns = [
@@ -14,4 +15,5 @@ urlpatterns = [
     path("profile/", UserView().as_view(), name="profile"),
     path("user/<username>/", UserView().as_view(), name="user"),
     path("report/", ReportView().as_view(), name="report"),
+    path("topics/", TopicListView().as_view(), name="topics"),
 ]

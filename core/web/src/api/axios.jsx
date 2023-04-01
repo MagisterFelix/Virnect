@@ -24,19 +24,6 @@ instance.interceptors.request.use(
   (error) => Promise.reject(error),
 );
 
-instance.interceptors.response.use(
-  (response) => {
-    if (response.data.image) {
-      response.data.image = `${baseURL}${response.data.image}`;
-    }
-    if (response.data.icon) {
-      response.data.icon = `${baseURL}${response.data.icon}`;
-    }
-    return response;
-  },
-  (error) => Promise.reject(error),
-);
-
 const useAxios = makeUseAxios({
   axios: instance,
   cache: false,

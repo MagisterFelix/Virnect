@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 
 import {
   Avatar,
+  Box,
   Container,
   Grid,
   IconButton,
@@ -10,6 +11,13 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
+
+import { LoadingButton } from '@mui/lab';
+
+import {
+  Close,
+  FlagCircle,
+} from '@mui/icons-material';
 
 import { useAuth } from '@context/AuthProvider';
 
@@ -20,7 +28,11 @@ import NotFound from '@components/404/NotFound';
 import Navbar from '@components/navbar/Navbar';
 import Report from '@components/report/Report';
 
-import { outline, StyledBadge } from '@utils/Styles';
+import {
+  LightTooltip,
+  OnlineBadge,
+  outline,
+} from '@utils/Styles';
 import getFormattedTime from '@utils/Time';
 
 import styles from '@styles/_globals.scss';
@@ -59,7 +71,7 @@ const User = () => {
         <Container>
           <Grid container sx={{ textAlign: 'center' }}>
             <Grid item xs={5} sm={4}>
-              <Tooltip
+              <LightTooltip
                 title={!loadingUser && !user.online && user.last_seen && getLastOnline()}
                 arrow
                 placement="top"
@@ -81,7 +93,7 @@ const User = () => {
                       }}
                     />
                   ) : (
-                    <StyledBadge
+                    <OnlineBadge
                       overlap="circular"
                       anchorOrigin={{
                         vertical: 'bottom',
@@ -104,10 +116,10 @@ const User = () => {
                           outline: outline(user),
                         }}
                       />
-                    </StyledBadge>
+                    </OnlineBadge>
                   )}
                 </IconButton>
-              </Tooltip>
+              </LightTooltip>
               {!loadingUser && profile.username !== username
               && (
                 <Report

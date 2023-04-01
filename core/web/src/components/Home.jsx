@@ -1,19 +1,20 @@
 import React from 'react';
 
+import {
+  Container,
+} from '@mui/material';
+
 import Navbar from '@components/navbar/Navbar';
+import Topic from '@components/topic/Topic';
 
 import './Home.scss';
 
 const Home = () => (
   <>
     <Navbar />
-    <div className="Home">
-      <div className="App">
-        <header className="App-header">
-          <img src="/static/logo.svg" className="App-logo" alt="logo" />
-        </header>
-      </div>
-    </div>
+    <Container>
+      <Topic />
+    </Container>
   </>
 );
 
