@@ -76,4 +76,5 @@ PATHS = {
     "profile": "/api/profile/",
     "user": "/api/user/",
     "report": "/api/report/",
+    "topics": "/api/topics/",
 }
