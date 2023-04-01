@@ -6,6 +6,7 @@ const ENDPOINTS = {
   profile: '/api/profile/',
   user: '/api/user/',
   report: '/api/report/',
+  topics: '/api/topics/',
 };
 
 export default ENDPOINTS;
