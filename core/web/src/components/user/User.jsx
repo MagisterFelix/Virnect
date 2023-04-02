@@ -47,10 +47,7 @@ const User = () => {
   const [openTooltip, setOpenTooltip] = useState(false);
   const handleClickUsername = () => { navigator.clipboard.writeText(`@${user.username}`); setOpenTooltip(true); };
 
-  const getLastOnline = () => {
-    const datetime = new Date(new Date(user.last_seen) - new Date().getTimezoneOffset() * 60000);
-    return `Was online ${getFormattedTime(datetime)}`;
-  };
+  const getLastOnline = () => `Was online ${getFormattedTime(user.last_seen)}`;
 
   if (!loadingUser && errorUser) {
     return <NotFound />;

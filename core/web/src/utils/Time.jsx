@@ -5,6 +5,9 @@ TimeAgo.addDefaultLocale(en);
 
 const time = new TimeAgo('en-US');
 
-const getFormattedTime = (datetime) => time.format(datetime);
+const getFormattedTime = (datetime) => {
+  const datetimeTZ = new Date(new Date(datetime) - new Date().getTimezoneOffset() * 60000);
+  return time.format(datetimeTZ);
+};
 
 export default getFormattedTime;
