@@ -3,6 +3,7 @@ from rest_framework.test import APIRequestFactory, APITestCase, force_authentica
 
 from core.server.models import Topic, User
 from core.server.tests import PATHS, TOPICS, USERS
+from core.server.utils import ImageUtils
 from core.server.views import TopicListView
 
 
@@ -37,6 +38,8 @@ class TopicListViewTest(APITestCase):
         request = self.factory.post(path=PATHS["topics"], data=data, format="multipart")
         force_authenticate(request=request, user=self.admin)
         response = TopicListView().as_view()(request)
+
+        ImageUtils.remove_image_from(Topic.objects.get(id=2))
 
         self.assertEqual(response.status_code, 201)
 
