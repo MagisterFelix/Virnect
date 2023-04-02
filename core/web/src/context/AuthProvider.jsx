@@ -73,15 +73,11 @@ const AuthProvider = ({ children }) => {
     }
   };
 
-  const logout = async (setAlert) => {
-    try {
-      await execute({
-        url: ENDPOINTS.deauthorization,
-      });
-      window.location.reload();
-    } catch (err) {
-      setAlert(true);
-    }
+  const logout = async () => {
+    await execute({
+      url: ENDPOINTS.deauthorization,
+    });
+    window.location.reload();
   };
 
   const resetPassword = async (uidb64, token, form, validation, setError, setAlert) => {

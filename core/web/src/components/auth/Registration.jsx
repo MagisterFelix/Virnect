@@ -30,8 +30,6 @@ import './Auth.scss';
 const Registration = () => {
   const { loading, loadingProfile, register } = useAuth();
 
-  const [alert, setAlert] = useState(null);
-
   const validation = {
     username: {
       required: 'This field may not be blank.',
@@ -55,10 +53,11 @@ const Registration = () => {
     },
   };
 
+  const [alert, setAlert] = useState(null);
   const {
     control, watch, handleSubmit, setError,
   } = useForm();
-  const handleOnSubmit = async (form) => {
+  const handleOnSubmit = (form) => {
     setAlert(null);
     register(form, validation, setError, setAlert);
   };
@@ -67,13 +66,14 @@ const Registration = () => {
     <div className="Registration">
       <Paper
         sx={{
-          m: 2,
           maxWidth: {
             xs: 0.9,
             sm: 0.8,
+            md: 0.6,
+            xl: 0.7,
           },
           flexGrow: 1,
-          borderRadius: 4,
+          borderRadius: 2,
           overflow: 'hidden',
         }}
       >
@@ -81,8 +81,12 @@ const Registration = () => {
           <Grid
             item
             xs={12}
-            lg={6}
-            p={4}
+            xl={6}
+            p={{
+              xs: 3,
+              sm: 4,
+            }}
+            mb={1}
           >
             <Grid
               container
@@ -97,10 +101,7 @@ const Registration = () => {
                     display: 'flex',
                     alignItems: 'center',
                     textTransform: 'uppercase',
-                    fontSize: {
-                      xs: styles.font_medium,
-                      sm: styles.font_large,
-                    },
+                    fontSize: styles.font_large,
                     fontWeight: 'bold',
                   }}
                 >
@@ -110,14 +111,8 @@ const Registration = () => {
                     alt="logo"
                     p={1}
                     sx={{
-                      height: {
-                        xs: 64,
-                        sm: 100,
-                      },
-                      width: {
-                        xs: 64,
-                        sm: 100,
-                      },
+                      height: 64,
+                      width: 64,
                     }}
                   />
                   <span>Virnect</span>
@@ -129,12 +124,9 @@ const Registration = () => {
                   underline="hover"
                   sx={{
                     display: 'inline',
-                    margin: 1,
+                    m: 1,
                     fontFamily: styles.font_poppins,
-                    fontSize: {
-                      xs: styles.font_extra_small,
-                      sm: styles.font_medium,
-                    },
+                    fontSize: styles.font_medium,
                     color: styles.color_grey,
                   }}
                 >
@@ -143,12 +135,9 @@ const Registration = () => {
                 <Typography
                   sx={{
                     display: 'inline',
-                    margin: 1,
+                    m: 1,
                     fontFamily: styles.font_poppins,
-                    fontSize: {
-                      xs: styles.font_extra_small,
-                      sm: styles.font_medium,
-                    },
+                    fontSize: styles.font_medium,
                     fontWeight: 'bold',
                     color: styles.color_purple,
                   }}
@@ -160,13 +149,10 @@ const Registration = () => {
             <Grid item mx={1}>
               <Typography
                 sx={{
-                  marginTop: 3,
+                  mt: 3,
                   textTransform: 'uppercase',
                   fontFamily: styles.font_poppins,
-                  fontSize: {
-                    xs: styles.font_medium,
-                    sm: styles.font_large,
-                  },
+                  fontSize: styles.font_large,
                   fontWeight: 'bold',
                 }}
               >
@@ -174,16 +160,13 @@ const Registration = () => {
               </Typography>
               <Typography
                 sx={{
-                  marginBottom: 3,
+                  mb: 3,
                   fontFamily: styles.font_poppins,
-                  fontSize: {
-                    xs: styles.font_extra_small,
-                    sm: styles.font_medium,
-                  },
+                  fontSize: styles.font_medium,
                   color: styles.color_grey,
                 }}
               >
-                <span>Sign up to use the application</span>
+                <span>To use the system</span>
               </Typography>
             </Grid>
             <Grid item mx={1} textAlign="center">
@@ -249,7 +232,7 @@ const Registration = () => {
                         ),
                       }}
                       sx={{
-                        marginY: 1,
+                        myY: 1,
                       }}
                       error={fieldError !== undefined}
                       helperText={fieldError ? fieldError.message || validation.email[fieldError.type] : ''}
@@ -325,18 +308,12 @@ const Registration = () => {
                   loading={loading && !loadingProfile}
                   loadingPosition="end"
                   sx={{
-                    marginTop: 3,
-                    maxWidth: {
-                      xs: 150,
-                      sm: 300,
-                    },
-                    borderRadius: 3,
+                    mt: 4,
+                    maxWidth: 300,
+                    borderRadius: 2,
                     textTransform: 'none',
                     fontFamily: styles.font_poppins,
-                    fontSize: {
-                      xs: styles.font_extra_small,
-                      sm: styles.font_medium,
-                    },
+                    fontSize: styles.font_medium,
                   }}
                   onClick={handleSubmit(handleOnSubmit)}
                 >
@@ -347,11 +324,11 @@ const Registration = () => {
           </Grid>
           <Grid
             item
-            lg={6}
+            xl={6}
             sx={{
               display: {
                 xs: 'none',
-                lg: 'flex',
+                xl: 'flex',
               },
               justifyContent: 'center',
               backgroundImage: `url(${'/static/auth.svg'}), linear-gradient(to bottom, ${styles.color_purple}, ${styles.color_neon})`,

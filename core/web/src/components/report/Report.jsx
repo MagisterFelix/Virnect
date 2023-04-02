@@ -27,11 +27,13 @@ import {
 import useAxios from '@api/axios';
 import ENDPOINTS from '@api/endpoints';
 
+import { useAuth } from '@context/AuthProvider';
+
 import './Report.scss';
 
-const Report = ({
-  profile, user, anchorElUser, setAnchorElUser,
-}) => {
+const Report = ({ user, anchorElUser, setAnchorElUser }) => {
+  const { profile } = useAuth();
+
   const [{ loading: loadingReportOptions, data: reportOptions }] = useAxios(
     {
       url: ENDPOINTS.report,
@@ -87,7 +89,6 @@ const Report = ({
   return (
     <div className="Report">
       <Menu
-        sx={{ mt: 2 }}
         anchorEl={anchorElUser}
         anchorOrigin={{
           vertical: 'bottom',
@@ -99,24 +100,30 @@ const Report = ({
         }}
         open={Boolean(anchorElUser)}
         onClose={() => setAnchorElUser(null)}
+        sx={{ mt: 1 }}
       >
         <MenuItem onClick={handleOpenReportDialog}>
-          <FlagCircle sx={{ marginRight: 1 }} />
+          <FlagCircle sx={{ mr: 1 }} />
           <Typography textAlign="center">Report</Typography>
         </MenuItem>
       </Menu>
-      <Dialog open={openReportDialog} onClose={handleCloseReportDialog} fullWidth>
+      <Dialog
+        fullWidth
+        open={openReportDialog}
+        onClose={handleCloseReportDialog}
+      >
         <Box component="form" autoComplete="off">
-          <DialogTitle sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-          }}
+          <DialogTitle
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}
           >
             <span>Report</span>
             <IconButton
               aria-label="close"
-              sx={{ marginRight: -1 }}
+              sx={{ mr: -1 }}
               onClick={handleCloseReportDialog}
             >
               <Close />
@@ -154,7 +161,7 @@ const Report = ({
                 >
                   {
                     loadingReportOptions
-                      ? (<LinearProgress sx={{ margin: 2 }} />)
+                      ? (<LinearProgress sx={{ m: 2 }} />)
                       : (reportOptions.actions.POST.reason.choices.map(
                         (choice) => (
                           <MenuItem key={choice.value} value={choice.value}>
@@ -168,13 +175,13 @@ const Report = ({
             />
             {alert && <Alert severity={alert.type} sx={{ textAlign: 'left', mt: 1 }}>{alert.message}</Alert>}
           </DialogContent>
-          <DialogActions sx={{ marginX: 1 }}>
+          <DialogActions sx={{ mx: 1 }}>
             <LoadingButton
               loading={loadingReport}
               onClick={handleSubmit(handleOnSubmit)}
               endIcon={<Send />}
             >
-              Send
+              <span>Send</span>
             </LoadingButton>
           </DialogActions>
         </Box>

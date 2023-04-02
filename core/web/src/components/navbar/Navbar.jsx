@@ -2,23 +2,24 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import {
-  Alert,
   AppBar,
   Avatar,
+  Badge,
   Box,
   Container,
   IconButton,
   Link,
   Menu,
-  MenuItem,
-  Snackbar,
-  Toolbar,
+  MenuItem, Toolbar,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 
 import {
   AccountCircle,
   ExitToApp,
+  Notifications,
   Settings,
 } from '@mui/icons-material';
 
@@ -33,8 +34,6 @@ import './Navbar.scss';
 const Navbar = () => {
   const { profile, logout } = useAuth();
 
-  const [alert, setAlert] = useState(false);
-
   const navigate = useNavigate();
 
   const navigateToProfile = () => {
@@ -45,9 +44,8 @@ const Navbar = () => {
     navigate('/settings');
   };
 
-  const handleLogout = () => {
-    setAlert(false);
-    logout(setAlert);
+  const handleOnLogout = () => {
+    logout();
   };
 
   const [anchorElUser, setAnchorElUser] = useState(null);
@@ -56,10 +54,7 @@ const Navbar = () => {
 
   return (
     <div className="Navbar">
-      <AppBar
-        position="fixed"
-        sx={{ backgroundColor: styles.color_darker }}
-      >
+      <AppBar position="fixed" sx={{ backgroundColor: styles.color_darker }}>
         <Container maxWidth="xl">
           <Toolbar
             sx={{
@@ -75,10 +70,7 @@ const Navbar = () => {
                 alignItems: 'center',
                 textTransform: 'uppercase',
                 color: styles.color_white,
-                fontSize: {
-                  xs: styles.font_extra_small,
-                  sm: styles.font_medium,
-                },
+                fontSize: styles.font_medium,
                 fontWeight: 'bold',
               }}
             >
@@ -86,19 +78,14 @@ const Navbar = () => {
                 component="img"
                 src="/static/logo.svg"
                 alt="logo"
-                p={2}
+                py={2}
+                pr={2}
                 sx={{
-                  height: {
-                    xs: 48,
-                    sm: 64,
-                  },
-                  width: {
-                    xs: 48,
-                    sm: 64,
-                  },
+                  height: 64,
+                  width: 64,
                 }}
               />
-              <span>Virnect</span>
+              <span style={{ display: useMediaQuery(useTheme().breakpoints.down('sm')) ? 'none' : 'flex' }}>Virnect</span>
             </Link>
             <Box
               sx={{
@@ -106,42 +93,12 @@ const Navbar = () => {
                 alignItems: 'center',
               }}
             >
-              <Container
-                sx={{
-                  textAlign: 'right',
-                  display: {
-                    xs: 'none',
-                    md: 'block',
-                  },
-                }}
-              >
-                <Typography
-                  sx={{
-                    marginY: -1,
-                    fontSize: {
-                      xs: styles.font_extra_small,
-                      sm: styles.font_medium,
-                    },
-                    fontWeight: 'bold',
-                  }}
-                >
-                  {profile.full_name ? profile.full_name : profile.username}
-                </Typography>
-                <Typography
-                  sx={{
-                    marginY: -1,
-                    fontSize: {
-                      xs: styles.font_extra_small,
-                      sm: styles.font_small,
-                    },
-                    color: styles.color_cyan,
-                    fontWeight: 'bold',
-                  }}
-                >
-                  <span>{`@${profile.username}`}</span>
-                </Typography>
-              </Container>
-              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+              <IconButton size="large" sx={{ color: styles.color_white }}>
+                <Badge max={9} color="primary">
+                  <Notifications fontSize="large" sx={{ color: styles.color_white }} />
+                </Badge>
+              </IconButton>
+              <IconButton onClick={handleOpenUserMenu} sx={{ pr: 0 }}>
                 <OnlineBadge
                   overlap="circular"
                   anchorOrigin={{
@@ -154,20 +111,13 @@ const Navbar = () => {
                     alt={profile.username}
                     src={profile.image}
                     sx={{
-                      height: {
-                        xs: 48,
-                        sm: 64,
-                      },
-                      width: {
-                        xs: 48,
-                        sm: 64,
-                      },
+                      height: 64,
+                      width: 64,
                     }}
                   />
                 </OnlineBadge>
               </IconButton>
               <Menu
-                sx={{ mt: 3 }}
                 anchorEl={anchorElUser}
                 anchorOrigin={{
                   vertical: 'bottom',
@@ -181,15 +131,15 @@ const Navbar = () => {
                 onClose={handleCloseUserMenu}
               >
                 <MenuItem onClick={navigateToProfile}>
-                  <AccountCircle sx={{ marginRight: 1 }} />
+                  <AccountCircle sx={{ mr: 1 }} />
                   <Typography textAlign="center">Profile</Typography>
                 </MenuItem>
                 <MenuItem onClick={navigateToSettings}>
-                  <Settings sx={{ marginRight: 1 }} />
+                  <Settings sx={{ mr: 1 }} />
                   <Typography textAlign="center">Settings</Typography>
                 </MenuItem>
-                <MenuItem onClick={handleLogout}>
-                  <ExitToApp sx={{ marginRight: 1 }} />
+                <MenuItem onClick={handleOnLogout}>
+                  <ExitToApp sx={{ mr: 1 }} />
                   <Typography textAlign="center">Logout</Typography>
                 </MenuItem>
               </Menu>
@@ -197,9 +147,6 @@ const Navbar = () => {
           </Toolbar>
         </Container>
       </AppBar>
-      <Snackbar open={alert} autoHideDuration={3000} onClose={() => setAlert(false)}>
-        <Alert severity="error">Something went wrong...</Alert>
-      </Snackbar>
     </div>
   );
 };
