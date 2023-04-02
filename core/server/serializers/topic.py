@@ -1,6 +1,6 @@
 from rest_framework.serializers import ModelSerializer
 
-from core.server.models.topic import Topic
+from core.server.models import Topic
 
 
 class TopicListSerializer(ModelSerializer):

@@ -2,10 +2,7 @@ from datetime import datetime
 
 from django.test import TestCase
 
-from core.server.models.message import Message
-from core.server.models.room import Room
-from core.server.models.topic import Topic
-from core.server.models.user import User
+from core.server.models import Message, Room, Topic, User
 from core.server.tests import MESSAGES, ROOMS, TOPICS, USERS
 
 

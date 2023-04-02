@@ -1,8 +1,7 @@
-
 from django import forms
 from django.core.exceptions import ValidationError
 
-from .models.room import Room
+from .models import Room
 
 
 class RoomForm(forms.ModelForm):

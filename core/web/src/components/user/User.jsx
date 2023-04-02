@@ -3,7 +3,6 @@ import { useParams } from 'react-router-dom';
 
 import {
   Avatar,
-  Box,
   Container,
   Grid,
   IconButton,
@@ -11,13 +10,6 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-
-import { LoadingButton } from '@mui/lab';
-
-import {
-  Close,
-  FlagCircle,
-} from '@mui/icons-material';
 
 import { useAuth } from '@context/AuthProvider';
 

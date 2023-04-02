@@ -1,10 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
-from core.server.models.room import Room
-from core.server.models.tag import Tag
-from core.server.models.topic import Topic
-from core.server.models.user import User
+from core.server.models import Room, Tag, Topic, User
 from core.server.tests import ROOMS, TAGS, TOPICS, USERS
 
 

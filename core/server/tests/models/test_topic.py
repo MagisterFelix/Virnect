@@ -2,7 +2,7 @@ from django.db.models.fields.files import FieldFile
 from django.db.utils import IntegrityError
 from django.test import TestCase
 
-from core.server.models.topic import Topic
+from core.server.models import Topic
 from core.server.tests import TOPICS
 
 

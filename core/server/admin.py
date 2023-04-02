@@ -4,14 +4,7 @@ from django.contrib.auth.models import Group
 from django.utils.html import format_html
 
 from .forms import RoomForm
-from .models.history import History
-from .models.message import Message
-from .models.notification import Notification
-from .models.report import Report
-from .models.room import Room
-from .models.tag import Tag
-from .models.topic import Topic
-from .models.user import User
+from .models import History, Message, Notification, Report, Room, Tag, Topic, User
 
 
 @admin.register(User)

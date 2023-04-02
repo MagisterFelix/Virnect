@@ -1,12 +1,11 @@
-from django.test import TestCase
-from rest_framework.test import APIRequestFactory, force_authenticate
+from rest_framework.test import APIRequestFactory, APITestCase, force_authenticate
 
 from core.server.models import User
 from core.server.tests import PATHS, USERS
-from core.server.views.auth import AuthorizationView, DeauthorizationView, RegistrationView
+from core.server.views import AuthorizationView, DeauthorizationView, RegistrationView
 
 
-class AuthorizationViewTest(TestCase):
+class AuthorizationViewTest(APITestCase):
 
     @classmethod
     def setUpTestData(cls):
@@ -95,7 +94,7 @@ class AuthorizationViewTest(TestCase):
         self.assertEqual(len(response.cookies), 0)
 
 
-class RegistrationViewTest(TestCase):
+class RegistrationViewTest(APITestCase):
 
     @classmethod
     def setUpTestData(cls):
@@ -175,7 +174,7 @@ class RegistrationViewTest(TestCase):
         self.assertIn("password", fields)
 
 
-class DeauthorizationViewTest(TestCase):
+class DeauthorizationViewTest(APITestCase):
 
     @classmethod
     def setUpTestData(cls):

@@ -1,10 +1,7 @@
 from django.urls import path
 
-from core.server.views.auth import (AuthorizationView, DeauthorizationView, PasswordResetConfirmView,
-                                    PasswordResetView, RegistrationView)
-from core.server.views.report import ReportView
-from core.server.views.topic import TopicListView
-from core.server.views.user import UserView
+from core.server.views import (AuthorizationView, DeauthorizationView, PasswordResetConfirmView, PasswordResetView,
+                               RegistrationView, ReportView, TopicListView, UserView)
 
 urlpatterns = [
     path("sign-in/", AuthorizationView().as_view(), name="sign-in"),
