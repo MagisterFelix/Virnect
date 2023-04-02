@@ -1,12 +1,12 @@
-from rest_framework.generics import ListAPIView
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.generics import ListCreateAPIView
 
 from core.server.models import Topic
+from core.server.permissions import IsAdminUserOrReadOnly
 from core.server.serializers import TopicListSerializer
 
 
-class TopicListView(ListAPIView):
+class TopicListView(ListCreateAPIView):
 
     queryset = Topic.objects.all()
     serializer_class = TopicListSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAdminUserOrReadOnly,)
