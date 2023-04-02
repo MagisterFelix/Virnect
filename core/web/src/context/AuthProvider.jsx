@@ -73,19 +73,27 @@ const AuthProvider = ({ children }) => {
     }
   };
 
-  const logout = async (setAlert) => {
+  const logout = async () => {
+    await execute({
+      url: ENDPOINTS.deauthorization,
+    });
+    window.location.reload();
+  };
+
+  const resetPassword = async (uidb64, token, form, validation, setError, setAlert) => {
     try {
-      await execute({
-        url: ENDPOINTS.deauthorization,
+      const response = await execute({
+        url: ENDPOINTS.reset_password + ((uidb64 && token) ? `${uidb64}/${token}/` : ''),
+        data: form,
       });
-      window.location.reload();
+      setAlert({ type: 'success', message: response.data.details });
     } catch (err) {
-      setAlert(true);
+      handleErrors(validation, err.response.data.details, setError, setAlert);
     }
   };
 
   const value = useMemo(() => ({
-    loading, loadingProfile, profile, refetchProfile, login, register, logout,
+    loading, loadingProfile, profile, refetchProfile, login, register, logout, resetPassword,
   }), [loading, loadingProfile, profile]);
 
   return (
@@ -101,7 +109,8 @@ const AuthProvider = ({ children }) => {
           >
             <CircularProgress />
           </div>
-        ) : children}
+        )
+        : children}
     </AuthContext.Provider>
   );
 };

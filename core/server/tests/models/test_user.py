@@ -5,7 +5,7 @@ from django.db.models.fields.files import FieldFile
 from django.db.utils import IntegrityError
 from django.test import TestCase
 
-from core.server.models.user import User
+from core.server.models import User
 from core.server.tests import USERS
 
 

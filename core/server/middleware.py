@@ -5,7 +5,7 @@ from rest_framework_simplejwt.backends import TokenBackend
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.serializers import TokenRefreshSerializer, TokenVerifySerializer
 
-from core.server.models.user import User
+from core.server.models import User
 from core.server.utils import AuthorizationUtils
 from core.urls import urlpatterns
 

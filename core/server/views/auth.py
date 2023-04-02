@@ -10,9 +10,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from core.server.serializers.auth import (AuthorizationSerializer, DeauthorizationSerializer,
-                                          PasswordResetConfirmSerializer, PasswordResetSerializer,
-                                          RegistrationSerializer)
+from core.server.serializers import (AuthorizationSerializer, DeauthorizationSerializer,
+                                     PasswordResetConfirmSerializer, PasswordResetSerializer, RegistrationSerializer)
 from core.server.utils import AuthorizationUtils
 
 

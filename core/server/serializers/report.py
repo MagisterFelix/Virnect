@@ -2,7 +2,7 @@ from collections import OrderedDict
 
 from rest_framework.serializers import ModelSerializer
 
-from core.server.models.report import Report
+from core.server.models import Report
 
 
 class ReportSerializer(ModelSerializer):

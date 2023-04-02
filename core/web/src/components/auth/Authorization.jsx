@@ -31,8 +31,6 @@ import './Auth.scss';
 const Authorization = () => {
   const { loading, login } = useAuth();
 
-  const [alert, setAlert] = useState(null);
-
   const validation = {
     username: {
       required: 'This field may not be blank',
@@ -42,8 +40,9 @@ const Authorization = () => {
     },
   };
 
+  const [alert, setAlert] = useState(null);
   const { control, handleSubmit, setError } = useForm();
-  const handleOnSubmit = async (form) => {
+  const handleOnSubmit = (form) => {
     setAlert(null);
     login(form, validation, setError, setAlert);
   };
@@ -56,13 +55,14 @@ const Authorization = () => {
     <div className="Authorization">
       <Paper
         sx={{
-          m: 2,
           maxWidth: {
             xs: 0.9,
             sm: 0.8,
+            md: 0.6,
+            xl: 0.7,
           },
           flexGrow: 1,
-          borderRadius: 4,
+          borderRadius: 2,
           overflow: 'hidden',
         }}
       >
@@ -70,8 +70,12 @@ const Authorization = () => {
           <Grid
             item
             xs={12}
-            lg={6}
-            p={4}
+            xl={6}
+            p={{
+              xs: 3,
+              sm: 4,
+            }}
+            mb={1}
           >
             <Grid
               container
@@ -86,10 +90,7 @@ const Authorization = () => {
                     display: 'flex',
                     alignItems: 'center',
                     textTransform: 'uppercase',
-                    fontSize: {
-                      xs: styles.font_medium,
-                      sm: styles.font_large,
-                    },
+                    fontSize: styles.font_large,
                     fontWeight: 'bold',
                   }}
                 >
@@ -99,14 +100,8 @@ const Authorization = () => {
                     alt="logo"
                     p={1}
                     sx={{
-                      height: {
-                        xs: 64,
-                        sm: 100,
-                      },
-                      width: {
-                        xs: 64,
-                        sm: 100,
-                      },
+                      height: 64,
+                      width: 64,
                     }}
                   />
                   <span>Virnect</span>
@@ -116,12 +111,9 @@ const Authorization = () => {
                 <Typography
                   sx={{
                     display: 'inline',
-                    margin: 1,
+                    m: 1,
                     fontFamily: styles.font_poppins,
-                    fontSize: {
-                      xs: styles.font_extra_small,
-                      sm: styles.font_medium,
-                    },
+                    fontSize: styles.font_medium,
                     fontWeight: 'bold',
                     color: styles.color_purple,
                   }}
@@ -133,12 +125,9 @@ const Authorization = () => {
                   underline="hover"
                   sx={{
                     display: 'inline',
-                    margin: 1,
+                    m: 1,
                     fontFamily: styles.font_poppins,
-                    fontSize: {
-                      xs: styles.font_extra_small,
-                      sm: styles.font_medium,
-                    },
+                    fontSize: styles.font_medium,
                     color: styles.color_grey,
                   }}
                 >
@@ -149,13 +138,10 @@ const Authorization = () => {
             <Grid item mx={1}>
               <Typography
                 sx={{
-                  marginTop: 3,
+                  mt: 3,
                   textTransform: 'uppercase',
                   fontFamily: styles.font_poppins,
-                  fontSize: {
-                    xs: styles.font_medium,
-                    sm: styles.font_large,
-                  },
+                  fontSize: styles.font_large,
                   fontWeight: 'bold',
                 }}
               >
@@ -163,16 +149,13 @@ const Authorization = () => {
               </Typography>
               <Typography
                 sx={{
-                  marginBottom: 3,
+                  mb: 3,
                   fontFamily: styles.font_poppins,
-                  fontSize: {
-                    xs: styles.font_extra_small,
-                    sm: styles.font_medium,
-                  },
+                  fontSize: styles.font_medium,
                   color: styles.color_grey,
                 }}
               >
-                <span>Sign in to use the application</span>
+                <span>To use the system</span>
               </Typography>
             </Grid>
             <Grid item mx={1} textAlign="center">
@@ -235,9 +218,7 @@ const Authorization = () => {
                               onClick={handleClickShowPassword}
                               onMouseDown={handleMouseDownPassword}
                               edge="end"
-                              sx={{
-                                marginRight: -1,
-                              }}
+                              sx={{ mr: -1 }}
                             >
                               {showPassword ? <VisibilityOff /> : <Visibility />}
                             </IconButton>
@@ -255,12 +236,9 @@ const Authorization = () => {
                   underline="hover"
                   sx={{
                     display: 'block',
-                    marginY: 3,
+                    my: 3,
                     textAlign: 'right',
-                    fontSize: {
-                      xs: styles.font_extra_small,
-                      sm: styles.font_medium,
-                    },
+                    fontSize: styles.font_medium,
                     color: styles.color_grey,
                   }}
                 >
@@ -275,17 +253,12 @@ const Authorization = () => {
                   loading={loading}
                   loadingPosition="end"
                   sx={{
-                    maxWidth: {
-                      xs: 150,
-                      sm: 300,
-                    },
-                    borderRadius: 3,
+                    maxWidth: 300,
+                    my: 1,
+                    borderRadius: 2,
                     textTransform: 'none',
                     fontFamily: styles.font_poppins,
-                    fontSize: {
-                      xs: styles.font_extra_small,
-                      sm: styles.font_medium,
-                    },
+                    fontSize: styles.font_medium,
                   }}
                   onClick={handleSubmit(handleOnSubmit)}
                 >
@@ -296,11 +269,11 @@ const Authorization = () => {
           </Grid>
           <Grid
             item
-            lg={6}
+            xl={6}
             sx={{
               display: {
                 xs: 'none',
-                lg: 'flex',
+                xl: 'flex',
               },
               justifyContent: 'center',
               backgroundImage: `url(${'/static/auth.svg'}), linear-gradient(to bottom, ${styles.color_purple}, ${styles.color_neon})`,

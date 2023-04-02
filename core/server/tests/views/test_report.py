@@ -1,12 +1,11 @@
-from django.test import TestCase
-from rest_framework.test import APIRequestFactory, force_authenticate
+from rest_framework.test import APIRequestFactory, APITestCase, force_authenticate
 
-from core.server.models.user import User
+from core.server.models import User
 from core.server.tests import PATHS, REPORTS, USERS
-from core.server.views.report import ReportView
+from core.server.views import ReportView
 
 
-class ReportViewTest(TestCase):
+class ReportViewTest(APITestCase):
 
     @classmethod
     def setUpTestData(cls):

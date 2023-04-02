@@ -6,7 +6,6 @@ import {
   Box,
   Container,
   Grid,
-  InputAdornment,
   Paper,
   TextField,
   Typography,
@@ -14,32 +13,22 @@ import {
 
 import { LoadingButton } from '@mui/lab';
 
-import {
-  BadgeOutlined,
-  DescriptionOutlined,
-  EmailOutlined,
-  Key,
-  Publish,
-  UploadFileOutlined,
-} from '@mui/icons-material';
-
-import { useAuth } from '@context/AuthProvider';
-
 import useAxios from '@api/axios';
 import ENDPOINTS from '@api/endpoints';
 import handleErrors from '@api/errors';
+
+import { useAuth } from '@context/AuthProvider';
 
 import Navbar from '@components/navbar/Navbar';
 
 import styles from '@styles/_globals.scss';
 
+import './Settings.scss';
+
 const Settings = () => {
   const { loadingProfile, profile, refetchProfile } = useAuth();
 
-  const [alertProfile, setAlertProfile] = useState(null);
-  const [alertPassword, setAlertPassword] = useState(null);
-
-  const validation = {
+  const validationProfile = {
     email: {
       required: 'This field may not be blank.',
       maxLength: 'No more than 150 characters.',
@@ -54,12 +43,6 @@ const Settings = () => {
     about: {
       maxLength: 'No more than 1024 characters.',
     },
-    password: {
-      required: 'This field may not be blank.',
-      minLength: 'At least 8 characters.',
-      maxLength: 'No more than 128 characters.',
-      pattern: 'Provide the valid password.',
-    },
   };
 
   const [{ loading: loadingUpdateProfile }, updateProfile] = useAxios(
@@ -72,6 +55,7 @@ const Settings = () => {
     },
   );
 
+  const [alertProfile, setAlertProfile] = useState(null);
   const {
     control: controlProfile,
     handleSubmit: handleSubmitProfile,
@@ -92,12 +76,31 @@ const Settings = () => {
         updated.data.image += `?t=${new Date().getTime()}`;
         resetProfile({
           image: updated.data.image,
+          ...updated.data,
         });
         setAlertProfile({ type: 'success', message: response.data.details });
       } catch (err) {
-        handleErrors(validation, err.response.data.details, setErrorProfile, setAlertProfile);
+        handleErrors(
+          validationProfile,
+          err.response.data.details,
+          setErrorProfile,
+          setAlertProfile,
+        );
       }
     }
+  };
+
+  const validationPassword = {
+    password: {
+      required: 'This field may not be blank.',
+      minLength: 'At least 8 characters.',
+      maxLength: 'No more than 128 characters.',
+      pattern: 'Provide the valid password.',
+    },
+    confirm_password: {
+      required: 'This field may not be blank.',
+      validate: 'Password mismatch.',
+    },
   };
 
   const [{ loading: loadingChangePassword }, changePassword] = useAxios(
@@ -110,8 +113,10 @@ const Settings = () => {
     },
   );
 
+  const [alertPassword, setAlertPassword] = useState(null);
   const {
     control: controlPassword,
+    watch: watchPassword,
     handleSubmit: handleSubmitPassword,
     setError: setErrorPassword,
   } = useForm();
@@ -123,7 +128,12 @@ const Settings = () => {
       });
       setAlertPassword({ type: 'success', message: response.data.details });
     } catch (err) {
-      handleErrors(validation, err.response.data.details, setErrorPassword, setAlertPassword);
+      handleErrors(
+        validationPassword,
+        err.response.data.details,
+        setErrorPassword,
+        setAlertPassword,
+      );
     }
   };
 
@@ -139,13 +149,13 @@ const Settings = () => {
               justifyContent: 'center',
             }}
           >
-            <Grid item md={8}>
+            <Grid item xs={12} md={7} lg={8}>
               <Paper
                 sx={{
-                  m: 2,
+                  mx: 2,
                   p: 2,
                   flexGrow: 1,
-                  borderRadius: 4,
+                  borderRadius: 2,
                 }}
               >
                 <Grid container>
@@ -153,18 +163,21 @@ const Settings = () => {
                     sx={{
                       display: 'flex',
                       alignItems: 'center',
-                      margin: 'auto',
-                      fontSize: {
-                        xs: styles.font_medium,
-                        sm: styles.font_large,
-                      },
+                      m: 'auto',
+                      fontSize: styles.font_large,
                       fontWeight: 'bold',
                     }}
                   >
                     <span>Profile</span>
                   </Typography>
                 </Grid>
-                <Grid container p={2}>
+                <Grid
+                  container
+                  p={{
+                    xs: 1,
+                    sm: 2,
+                  }}
+                >
                   <Grid item mx={1} textAlign="right">
                     <Box component="form" autoComplete="off">
                       <Controller
@@ -188,15 +201,8 @@ const Settings = () => {
                             margin="dense"
                             type="email"
                             label="Email"
-                            InputProps={{
-                              endAdornment: (
-                                <InputAdornment position="end">
-                                  <EmailOutlined />
-                                </InputAdornment>
-                              ),
-                            }}
                             error={fieldError !== undefined}
-                            helperText={fieldError ? fieldError.message || validation.email[fieldError.type] : ''}
+                            helperText={fieldError ? fieldError.message || validationProfile.email[fieldError.type] : ''}
                           />
                         )}
                       />
@@ -217,13 +223,6 @@ const Settings = () => {
                             margin="dense"
                             type="text"
                             label="First name"
-                            InputProps={{
-                              endAdornment: (
-                                <InputAdornment position="end">
-                                  <BadgeOutlined />
-                                </InputAdornment>
-                              ),
-                            }}
                           />
                         )}
                       />
@@ -244,13 +243,6 @@ const Settings = () => {
                             margin="dense"
                             type="text"
                             label="Last name"
-                            InputProps={{
-                              endAdornment: (
-                                <InputAdornment position="end">
-                                  <BadgeOutlined />
-                                </InputAdornment>
-                              ),
-                            }}
                           />
                         )}
                       />
@@ -272,13 +264,7 @@ const Settings = () => {
                             margin="dense"
                             type="text"
                             label="About"
-                            InputProps={{
-                              endAdornment: (
-                                <InputAdornment position="end">
-                                  <DescriptionOutlined />
-                                </InputAdornment>
-                              ),
-                            }}
+                            minRows={4}
                           />
                         )}
                       />
@@ -298,15 +284,8 @@ const Settings = () => {
                             type="file"
                             label="Image"
                             InputLabelProps={{ shrink: true }}
-                            InputProps={{
-                              endAdornment: (
-                                <InputAdornment position="end">
-                                  <UploadFileOutlined />
-                                </InputAdornment>
-                              ),
-                            }}
                             error={fieldError !== undefined}
-                            helperText={fieldError ? fieldError.message || validation.image[fieldError.type] : ''}
+                            helperText={fieldError ? fieldError.message || validationProfile.image[fieldError.type] : ''}
                           />
                         )}
                       />
@@ -316,22 +295,14 @@ const Settings = () => {
                         variant="contained"
                         color="primary"
                         fullWidth
-                        endIcon={<Publish />}
                         loading={loadingUpdateProfile || loadingProfile}
-                        loadingPosition="end"
                         sx={{
-                          marginTop: 3,
-                          maxWidth: {
-                            xs: 125,
-                            sm: 175,
-                          },
-                          borderRadius: 3,
+                          mt: 3,
+                          maxWidth: 125,
+                          borderRadius: 2,
                           textTransform: 'none',
                           fontFamily: styles.font_poppins,
-                          fontSize: {
-                            xs: styles.font_extra_small,
-                            sm: styles.font_medium,
-                          },
+                          fontSize: styles.font_small,
                         }}
                         onClick={handleSubmitProfile(handleOnSubmitProfile)}
                       >
@@ -342,13 +313,17 @@ const Settings = () => {
                 </Grid>
               </Paper>
             </Grid>
-            <Grid item md={4}>
+            <Grid item xs={12} md={5} lg={4}>
               <Paper
                 sx={{
-                  m: 2,
+                  mx: 2,
+                  my: {
+                    xs: 5,
+                    md: 0,
+                  },
                   p: 2,
                   flexGrow: 1,
-                  borderRadius: 4,
+                  borderRadius: 2,
                 }}
               >
                 <Grid container>
@@ -356,18 +331,21 @@ const Settings = () => {
                     sx={{
                       display: 'flex',
                       alignItems: 'center',
-                      margin: 'auto',
-                      fontSize: {
-                        xs: styles.font_medium,
-                        sm: styles.font_large,
-                      },
+                      m: 'auto',
+                      fontSize: styles.font_large,
                       fontWeight: 'bold',
                     }}
                   >
                     <span>Password</span>
                   </Typography>
                 </Grid>
-                <Grid container p={2}>
+                <Grid
+                  container
+                  p={{
+                    xs: 1,
+                    sm: 2,
+                  }}
+                >
                   <Grid item mx={1} textAlign="right">
                     <Box component="form" autoComplete="off">
                       <Controller
@@ -392,15 +370,8 @@ const Settings = () => {
                             margin="dense"
                             type="password"
                             label="Old password"
-                            InputProps={{
-                              endAdornment: (
-                                <InputAdornment position="end">
-                                  <Key />
-                                </InputAdornment>
-                              ),
-                            }}
                             error={fieldError !== undefined}
-                            helperText={fieldError ? fieldError.message || validation.password[fieldError.type] : ''}
+                            helperText={fieldError ? fieldError.message || validationPassword.password[fieldError.type] : ''}
                           />
                         )}
                       />
@@ -426,15 +397,33 @@ const Settings = () => {
                             margin="dense"
                             type="password"
                             label="New password"
-                            InputProps={{
-                              endAdornment: (
-                                <InputAdornment position="end">
-                                  <Key />
-                                </InputAdornment>
-                              ),
-                            }}
                             error={fieldError !== undefined}
-                            helperText={fieldError ? fieldError.message || validation.password[fieldError.type] : ''}
+                            helperText={fieldError ? fieldError.message || validationPassword.password[fieldError.type] : ''}
+                          />
+                        )}
+                      />
+                      <Controller
+                        name="confirm_password"
+                        control={controlPassword}
+                        defaultValue=""
+                        rules={{
+                          required: true,
+                          validate: (password) => password === watchPassword('new_password'),
+                        }}
+                        render={({
+                          field: { onChange, value },
+                          fieldState: { error: fieldError },
+                        }) => (
+                          <TextField
+                            onChange={onChange}
+                            value={value}
+                            required
+                            fullWidth
+                            margin="dense"
+                            type="password"
+                            label="Confirm new password"
+                            error={fieldError !== undefined}
+                            helperText={fieldError ? fieldError.message || validationPassword.confirm_password[fieldError.type] : ''}
                           />
                         )}
                       />
@@ -444,22 +433,14 @@ const Settings = () => {
                         variant="contained"
                         color="primary"
                         fullWidth
-                        endIcon={<Publish />}
                         loading={loadingChangePassword}
-                        loadingPosition="end"
                         sx={{
-                          marginTop: 3,
-                          maxWidth: {
-                            xs: 125,
-                            sm: 175,
-                          },
-                          borderRadius: 3,
+                          mt: 3,
+                          maxWidth: 125,
+                          borderRadius: 2,
                           textTransform: 'none',
                           fontFamily: styles.font_poppins,
-                          fontSize: {
-                            xs: styles.font_extra_small,
-                            sm: styles.font_medium,
-                          },
+                          fontSize: styles.font_small,
                         }}
                         onClick={handleSubmitPassword(handleOnSubmitPassword)}
                       >

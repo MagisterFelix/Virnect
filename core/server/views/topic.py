@@ -1,8 +1,8 @@
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated
 
-from core.server.models.topic import Topic
-from core.server.serializers.topic import TopicListSerializer
+from core.server.models import Topic
+from core.server.serializers import TopicListSerializer
 
 
 class TopicListView(ListAPIView):

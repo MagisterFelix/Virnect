@@ -64,9 +64,8 @@ const Topic = () => {
                   All topics
                 </Typography>
               </MenuItem>
-              {
-              loadingTopics
-                ? (<LinearProgress sx={{ margin: 2 }} />)
+              {loadingTopics
+                ? (<LinearProgress sx={{ m: 2 }} />)
                 : (
                   topics.map(
                     (topic) => (
@@ -97,8 +96,7 @@ const Topic = () => {
                       </MenuItem>
                     ),
                   )
-                )
-            }
+                )}
             </DropdownList>
           )}
         />

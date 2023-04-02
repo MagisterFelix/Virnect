@@ -5,8 +5,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from core.server.models.user import User
-from core.server.serializers.user import UserSerializer
+from core.server.models import User
+from core.server.serializers import UserSerializer
 
 
 class UserView(APIView):

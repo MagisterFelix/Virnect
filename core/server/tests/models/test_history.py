@@ -2,8 +2,7 @@ from datetime import datetime
 
 from django.test import TestCase
 
-from core.server.models.history import History
-from core.server.models.user import User
+from core.server.models import History, User
 from core.server.tests import HISTORIES, USERS
 
 

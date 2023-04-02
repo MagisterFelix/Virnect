@@ -2,8 +2,7 @@ from datetime import datetime
 
 from django.test import TestCase
 
-from core.server.models.report import Report
-from core.server.models.user import User
+from core.server.models import Report, User
 from core.server.tests import REPORTS, USERS
 
 

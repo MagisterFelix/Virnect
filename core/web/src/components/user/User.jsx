@@ -3,7 +3,6 @@ import { useParams } from 'react-router-dom';
 
 import {
   Avatar,
-  Box,
   Container,
   Grid,
   IconButton,
@@ -12,17 +11,10 @@ import {
   Typography,
 } from '@mui/material';
 
-import { LoadingButton } from '@mui/lab';
-
-import {
-  Close,
-  FlagCircle,
-} from '@mui/icons-material';
-
-import { useAuth } from '@context/AuthProvider';
-
 import useAxios from '@api/axios';
 import ENDPOINTS from '@api/endpoints';
+
+import { useAuth } from '@context/AuthProvider';
 
 import NotFound from '@components/404/NotFound';
 import Navbar from '@components/navbar/Navbar';
@@ -38,9 +30,9 @@ import getFormattedTime from '@utils/Time';
 import styles from '@styles/_globals.scss';
 
 const User = () => {
-  const { profile } = useAuth();
-
   const { username } = useParams();
+
+  const { profile } = useAuth();
 
   const [{ loading: loadingUser, data: user, error: errorUser }] = useAxios(
     {
@@ -70,7 +62,7 @@ const User = () => {
       <div className="User">
         <Container>
           <Grid container sx={{ textAlign: 'center' }}>
-            <Grid item xs={5} sm={4}>
+            <Grid item xs={12} md={4}>
               <LightTooltip
                 title={!loadingUser && !user.online && user.last_seen && getLastOnline()}
                 arrow
@@ -82,14 +74,8 @@ const User = () => {
                     <Skeleton
                       variant="circular"
                       sx={{
-                        height: {
-                          xs: 84,
-                          sm: 128,
-                        },
-                        width: {
-                          xs: 84,
-                          sm: 128,
-                        },
+                        height: 128,
+                        width: 128,
                       }}
                     />
                   ) : (
@@ -105,14 +91,8 @@ const User = () => {
                         alt={user.username}
                         src={user.image}
                         sx={{
-                          height: {
-                            xs: 84,
-                            sm: 128,
-                          },
-                          width: {
-                            xs: 84,
-                            sm: 128,
-                          },
+                          height: 128,
+                          width: 128,
                           outline: outline(user),
                         }}
                       />
@@ -129,132 +109,121 @@ const User = () => {
                   setAnchorElUser={setAnchorElUser}
                 />
               )}
-              {loadingUser ? (
-                <Skeleton
-                  variant="text"
-                  sx={{
-                    margin: 'auto',
-                  }}
-                  width="75%"
-                  height={48}
-                />
-              ) : (
+              <Typography
+                sx={{
+                  fontSize: styles.font_medium,
+                  color: styles.color_white,
+                  fontWeight: 'bold',
+                }}
+              >
+                {loadingUser
+                  ? (
+                    <Skeleton
+                      width="75%"
+                      sx={{
+                        m: 'auto',
+                      }}
+                    />
+                  )
+                  : <span>{user.full_name ? user.full_name : user.username}</span>}
+              </Typography>
+              <Tooltip
+                title="Copied to clipboard"
+                disableFocusListener
+                disableTouchListener
+                PopperProps={{
+                  disablePortal: true,
+                }}
+                open={openTooltip}
+                onClose={() => setOpenTooltip(false)}
+              >
                 <Typography
                   sx={{
-                    fontSize: {
-                      xs: styles.font_extra_small,
-                      sm: styles.font_medium,
-                    },
-                    color: styles.color_white,
+                    fontSize: styles.font_small,
+                    color: styles.color_cyan,
                     fontWeight: 'bold',
                   }}
                 >
-                  <span>{user.full_name ? user.full_name : user.username}</span>
+                  {loadingUser
+                    ? (
+                      <Skeleton
+                        width="50%"
+                        sx={{
+                          m: 'auto',
+                        }}
+                      />
+                    )
+                    : (
+                      <span
+                        role="presentation"
+                        style={{ cursor: 'pointer' }}
+                        onClick={handleClickUsername}
+                      >
+                        {`@${user.username}`}
+                      </span>
+                    )}
                 </Typography>
-              )}
-              {loadingUser ? (
-                <Skeleton
-                  variant="text"
-                  sx={{
-                    margin: 'auto',
-                  }}
-                  width="50%"
-                  height={32}
-                />
-              ) : (
-                <Tooltip
-                  title="Copied to clipboard"
-                  disableFocusListener
-                  disableTouchListener
-                  PopperProps={{
-                    disablePortal: true,
-                  }}
-                  open={openTooltip}
-                  onClose={() => setOpenTooltip(false)}
-                >
-                  <Typography
-                    sx={{
-                      fontSize: {
-                        xs: styles.font_extra_small,
-                        sm: styles.font_small,
-                      },
-                      color: styles.color_cyan,
-                      fontWeight: 'bold',
-                    }}
-                  >
-                    <span
-                      role="presentation"
-                      style={{ cursor: 'pointer' }}
-                      onClick={handleClickUsername}
-                    >
-                      {`@${user.username}`}
-                    </span>
-                  </Typography>
-                </Tooltip>
-              )}
+              </Tooltip>
             </Grid>
             <Grid
               item
-              xs={7}
-              sm={8}
+              xs={12}
+              md={8}
               sx={{
                 display: 'flex',
                 alignItems: 'center',
+                mt: {
+                  xs: 5,
+                  md: 0,
+                },
               }}
             >
               <Grid container>
                 <Grid item xs={12} justifyContent="center">
-                  {loadingUser ? (
-                    <Skeleton
-                      variant="text"
-                      sx={{
-                        margin: 'auto',
-                      }}
-                      width="50%"
-                      height={64}
-                    />
-                  ) : (
-                    <Typography
-                      sx={{
-                        textTransform: 'uppercase',
-                        fontSize: {
-                          xs: styles.font_medium,
-                          sm: styles.font_large,
-                        },
-                        color: styles.color_yellow,
-                        fontWeight: 'bold',
-                      }}
-                    >
-                      <span>About</span>
-                    </Typography>
-                  )}
+                  <Typography
+                    sx={{
+                      textTransform: 'uppercase',
+                      fontSize: styles.font_large,
+                      color: styles.color_yellow,
+                      fontWeight: 'bold',
+                    }}
+                  >
+                    {loadingUser
+                      ? (
+                        <Skeleton
+                          width="30%"
+                          sx={{
+                            m: 'auto',
+                          }}
+                        />
+                      )
+                      : <span>About</span>}
+                  </Typography>
                 </Grid>
                 <Grid item xs={12}>
-                  {loadingUser ? (
-                    <Skeleton
-                      variant="rounded"
-                      sx={{
-                        margin: 'auto',
-                      }}
-                      height={140}
-                    />
-                  ) : (
-                    <Typography
-                      sx={{
-                        fontSize: {
-                          xs: styles.font_extra_small,
-                          sm: styles.font_medium,
-                        },
-                        color: styles.color_white,
-                      }}
-                    >
-                      <span>
-                        {user.about.length
-                          ? user.about
-                          : `We don't know much about ${user.username}, but we're sure ${user.username} is great.`}
-                      </span>
-                    </Typography>
-                  )}
+                  <Typography
+                    sx={{
+                      fontSize: styles.font_medium,
+                      color: styles.color_white,
+                    }}
+                  >
+                    {loadingUser
+                      ? (
+                        <Skeleton
+                          width="75%"
+                          sx={{
+                            m: 'auto',
+                          }}
+                        />
+                      )
+                      : (
+                        <span>
+                          {user.about.length
+                            ? user.about
+                            : `We don't know much about ${user.username}, but we're sure ${user.username} is great.`}
+                        </span>
+                      )}
+                  </Typography>
                 </Grid>
               </Grid>
             </Grid>

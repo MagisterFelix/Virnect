@@ -21,9 +21,7 @@ import {
   Send,
 } from '@mui/icons-material';
 
-import useAxios from '@api/axios';
-import ENDPOINTS from '@api/endpoints';
-import handleErrors from '@api/errors';
+import { useAuth } from '@context/AuthProvider';
 
 import styles from '@styles/_globals.scss';
 
@@ -32,16 +30,7 @@ import './Auth.scss';
 const PasswordReset = () => {
   const { uidb64, token } = useParams();
 
-  const [alert, setAlert] = useState(null);
-
-  const [{ loading }, execute] = useAxios(
-    {
-      method: 'POST',
-    },
-    {
-      manual: true,
-    },
-  );
+  const { loading, resetPassword } = useAuth();
 
   const validation = {
     email: {
@@ -61,46 +50,46 @@ const PasswordReset = () => {
     },
   };
 
+  const [alert, setAlert] = useState(null);
   const {
     control, watch, handleSubmit, setError,
   } = useForm();
-  const handleOnSubmit = async (form) => {
+  const handleOnSubmit = (form) => {
     setAlert(null);
-    try {
-      const response = await execute({
-        url: ENDPOINTS.reset_password + ((uidb64 && token) ? `${uidb64}/${token}/` : ''),
-        data: form,
-      });
-      setAlert({ type: 'success', message: response.data.details });
-    } catch (error) {
-      handleErrors(validation, error.response.data.details, setError, setAlert);
-    }
+    resetPassword(uidb64, token, form, validation, setError, setAlert);
   };
 
   return (
     <div className="PasswordReset">
       <Paper
         sx={{
-          m: 2,
           maxWidth: {
-            xs: 0.8,
-            sm: 0.6,
-            md: 0.5,
-            lg: 0.4,
-            xl: 0.3,
+            xs: 0.9,
+            sm: 0.75,
+            md: 0.6,
+            lg: 0.45,
+            xl: 0.35,
           },
           flexGrow: 1,
-          borderRadius: 4,
+          borderRadius: 2,
           overflow: 'hidden',
         }}
       >
         <Grid container>
-          <Grid item xs={12} p={4}>
+          <Grid
+            item
+            xs={12}
+            p={{
+              xs: 3,
+              sm: 4,
+            }}
+          >
             <Grid
               container
               sx={{
                 display: 'flex',
                 justifyContent: 'space-between',
+                mb: 3,
               }}
             >
               <Grid item>
@@ -109,10 +98,7 @@ const PasswordReset = () => {
                     display: 'flex',
                     alignItems: 'center',
                     textTransform: 'uppercase',
-                    fontSize: {
-                      xs: styles.font_medium,
-                      sm: styles.font_large,
-                    },
+                    fontSize: styles.font_large,
                     fontWeight: 'bold',
                   }}
                 >
@@ -122,14 +108,8 @@ const PasswordReset = () => {
                     alt="logo"
                     p={1}
                     sx={{
-                      height: {
-                        xs: 64,
-                        sm: 100,
-                      },
-                      width: {
-                        xs: 64,
-                        sm: 100,
-                      },
+                      height: 64,
+                      width: 64,
                     }}
                   />
                   <span>Virnect</span>
@@ -141,12 +121,9 @@ const PasswordReset = () => {
                   underline="hover"
                   sx={{
                     display: 'inline',
-                    margin: 1,
+                    m: 1,
                     fontFamily: styles.font_poppins,
-                    fontSize: {
-                      xs: styles.font_extra_small,
-                      sm: styles.font_medium,
-                    },
+                    fontSize: styles.font_medium,
                     color: styles.color_grey,
                   }}
                 >
@@ -254,7 +231,7 @@ const PasswordReset = () => {
                       )}
                     />
                   )}
-                {alert && <Alert severity={alert.type} sx={{ textAlign: 'left' }}>{alert.message}</Alert>}
+                {alert && <Alert severity={alert.type} sx={{ textAlign: 'left', my: 1 }}>{alert.message}</Alert>}
                 <LoadingButton
                   type="submit"
                   variant="contained"
@@ -264,18 +241,12 @@ const PasswordReset = () => {
                   loading={loading}
                   loadingPosition="end"
                   sx={{
-                    marginTop: 3,
-                    maxWidth: {
-                      xs: 150,
-                      sm: 300,
-                    },
-                    borderRadius: 3,
+                    mt: 4,
+                    maxWidth: 300,
+                    borderRadius: 2,
                     textTransform: 'none',
                     fontFamily: styles.font_poppins,
-                    fontSize: {
-                      xs: styles.font_extra_small,
-                      sm: styles.font_medium,
-                    },
+                    fontSize: styles.font_medium,
                   }}
                   onClick={handleSubmit(handleOnSubmit)}
                 >

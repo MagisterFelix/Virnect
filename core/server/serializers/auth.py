@@ -9,7 +9,7 @@ from rest_framework.exceptions import AuthenticationFailed, ValidationError
 from rest_framework.serializers import ModelSerializer, Serializer
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-from core.server.models.user import User
+from core.server.models import User
 
 
 class AuthorizationSerializer(TokenObtainPairSerializer):

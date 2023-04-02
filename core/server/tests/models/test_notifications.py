@@ -2,8 +2,7 @@ from datetime import datetime
 
 from django.test import TestCase
 
-from core.server.models.notification import Notification
-from core.server.models.user import User
+from core.server.models import Notification, User
 from core.server.tests import NOTIFICATIONS, USERS
 
 
