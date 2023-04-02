@@ -40,14 +40,7 @@ class UserManager(BaseUserManager, BaseManager):
 
 class User(AbstractUser, PermissionsMixin):
 
-    email = models.EmailField(
-        max_length=150,
-        unique=True,
-        blank=False,
-        null=False,
-        error_messages={
-            "unique": "A user with this email already exists.",
-        })
+    email = models.EmailField(max_length=150, unique=True, blank=False, null=False)
     last_seen = models.DateTimeField(null=True, blank=True)
     image = models.FileField(default=ImageUtils.get_default_avatar,
                              upload_to=ImageUtils.upload_image_to,
