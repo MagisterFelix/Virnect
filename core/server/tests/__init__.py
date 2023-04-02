@@ -26,6 +26,11 @@ TOPICS = {
         "title": "chatting",
         "description": "just chatting",
         "image": "topics/chatting.svg"
+    },
+    "games": {
+        "title": "gaming",
+        "description": "just gaming",
+        "image": "topics/gaming.svg"
     }
 }
 ROOMS = {
