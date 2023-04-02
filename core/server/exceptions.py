@@ -12,7 +12,12 @@ def api_exception_handler(exception, context):
     }
 
     for field, errors in response.data.items():
-        payload["details"].append({field: " ".join(errors).capitalize() if isinstance(errors, list) else errors})
+        if isinstance(errors, list):
+            errors = " ".join(errors)
+
+        payload["details"].append({
+            field: ". ".join(err if err[0].isupper() else err.capitalize() for err in errors.split(". "))
+        })
 
     response.data = payload
 
