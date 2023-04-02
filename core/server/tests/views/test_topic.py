@@ -40,6 +40,18 @@ class TopicListViewTest(APITestCase):
 
         self.assertEqual(response.status_code, 201)
 
+    def test_create_topic_if_not_authenticated(self):
+        data = {
+            "title": TOPICS["games"]["title"],
+            "description": TOPICS["games"]["description"],
+            "image": SimpleUploadedFile(TOPICS["games"]["image"], b"content")
+        }
+
+        request = self.factory.post(path=PATHS["topics"], data=data, format="multipart")
+        response = TopicListView().as_view()(request)
+
+        self.assertEqual(response.status_code, 403)
+
     def test_create_topic_if_not_staff(self):
         data = {
             "title": TOPICS["games"]["title"],
