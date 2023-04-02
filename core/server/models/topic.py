@@ -26,3 +26,4 @@ class Topic(BaseModel):
 
     class Meta:
         db_table = "topic"
+        ordering = ["-title"]

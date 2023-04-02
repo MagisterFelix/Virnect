@@ -31,3 +31,4 @@ class Message(BaseModel):
 
     class Meta:
         db_table = "message"
+        ordering = ["created_at"]

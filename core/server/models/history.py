@@ -17,3 +17,4 @@ class History(BaseModel):
 
     class Meta:
         db_table = "history"
+        ordering = ["-recorded_at"]

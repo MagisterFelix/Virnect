@@ -47,3 +47,4 @@ class Room(BaseModel):
 
     class Meta:
         db_table = "room"
+        ordering = ["-created_at"]
