@@ -5,7 +5,6 @@ from django.utils.html import format_html
 
 from .forms import RoomForm
 from .models.history import History
-from .models.language import Language
 from .models.message import Message
 from .models.notification import Notification
 from .models.report import Report
@@ -71,28 +70,6 @@ class TopicAdmin(admin.ModelAdmin):
         ("Information", {
             "fields": (
                 "description", "preview", "image",
-            )
-        }),
-    )
-    readonly_fields = ("preview",)
-
-
-@admin.register(Language)
-class LanguageAdmin(admin.ModelAdmin):
-
-    def preview(self, language):
-        return format_html(f"<img src=\"{language.icon.url}\" style=\"max-width: 128px; max-height: 128px\"/>")
-
-    list_display = ("name",)
-    fieldsets = (
-        (None, {
-            "fields": (
-                "name",
-            )
-        }),
-        ("Information", {
-            "fields": (
-                "preview", "icon",
             )
         }),
     )
