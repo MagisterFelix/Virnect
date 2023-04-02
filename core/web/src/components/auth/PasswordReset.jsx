@@ -21,28 +21,16 @@ import {
   Send,
 } from '@mui/icons-material';
 
-import useAxios from '@api/axios';
-import ENDPOINTS from '@api/endpoints';
-import handleErrors from '@api/errors';
+import { useAuth } from '@context/AuthProvider';
 
 import styles from '@styles/_globals.scss';
 
 import './Auth.scss';
 
-// TODO
 const PasswordReset = () => {
   const { uidb64, token } = useParams();
 
-  const [alert, setAlert] = useState(null);
-
-  const [{ loading }, execute] = useAxios(
-    {
-      method: 'POST',
-    },
-    {
-      manual: true,
-    },
-  );
+  const { loading, resetPassword } = useAuth();
 
   const validation = {
     email: {
@@ -62,20 +50,13 @@ const PasswordReset = () => {
     },
   };
 
+  const [alert, setAlert] = useState(null);
   const {
     control, watch, handleSubmit, setError,
   } = useForm();
-  const handleOnSubmit = async (form) => {
+  const handleOnSubmit = (form) => {
     setAlert(null);
-    try {
-      const response = await execute({
-        url: ENDPOINTS.reset_password + ((uidb64 && token) ? `${uidb64}/${token}/` : ''),
-        data: form,
-      });
-      setAlert({ type: 'success', message: response.data.details });
-    } catch (error) {
-      handleErrors(validation, error.response.data.details, setError, setAlert);
-    }
+    resetPassword(uidb64, token, form, validation, setError, setAlert);
   };
 
   return (
