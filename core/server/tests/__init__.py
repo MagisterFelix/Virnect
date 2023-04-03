@@ -45,6 +45,9 @@ ROOMS = {
 TAGS = {
     "english": {
         "name": "english"
+    },
+    "gaming": {
+        "name": "gaming"
     }
 }
 MESSAGES = {
@@ -82,5 +85,6 @@ PATHS = {
     "user": "/api/user/",
     "report": "/api/report/",
     "topics": "/api/topics/",
+    "tags": "/api/tags/",
     "rooms": "/api/rooms/",
 }
