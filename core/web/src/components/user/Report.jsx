@@ -68,7 +68,6 @@ const Report = ({ user, anchorElUser, setAnchorElUser }) => {
     setAlert(null);
     try {
       const response = await sendReport({
-        method: 'POST',
         data: formData,
       });
       setAlert({ type: 'success', message: response.data.details });
