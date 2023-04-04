@@ -1,5 +1,6 @@
 from collections import OrderedDict
 
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.serializers import ModelSerializer
 
 from core.server.models import Tag
@@ -10,6 +11,14 @@ class TagListSerializer(ModelSerializer):
     class Meta:
         model = Tag
         fields = "__all__"
+
+    def validate(self, attrs):
+        room = attrs["room"]
+
+        if room.host != self.context["request"].user:
+            raise PermissionDenied("User can only create tags for their own rooms.")
+
+        return super(TagListSerializer, self).validate(attrs)
 
     def to_representation(self, instance):
         if self.context["request"].method == "GET":
