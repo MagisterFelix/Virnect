@@ -33,13 +33,13 @@ const Tag = () => {
     const { value } = event.target;
     if (value.length > 0 && value[0] === 'All tags') {
       setSelectedTags(value.slice(1));
-      searchParams.set('tags', value.slice(1).sort().join(','));
+      searchParams.set('tags', value.slice(1).join(','));
     } else if (value.length === 0 || (value.length > 0 && value[value.length - 1] === 'All tags')) {
       setSelectedTags(['All tags']);
       searchParams.delete('tags');
     } else {
       setSelectedTags(value);
-      searchParams.set('tags', value.sort().join(','));
+      searchParams.set('tags', value.join(','));
     }
     navigate(`?${decodeURIComponent(searchParams.toString())}`);
   };
