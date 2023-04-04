@@ -33,10 +33,10 @@ const Authorization = () => {
 
   const validation = {
     username: {
-      required: 'This field may not be blank',
+      required: 'This field may not be blank.',
     },
     password: {
-      required: 'This field may not be blank',
+      required: 'This field may not be blank.',
     },
   };
 

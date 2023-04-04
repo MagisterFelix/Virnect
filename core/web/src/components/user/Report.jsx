@@ -43,7 +43,7 @@ const Report = ({ user, anchorElUser, setAnchorElUser }) => {
 
   const validation = {
     reason: {
-      required: 'This field may not be blank',
+      required: 'This field may not be blank.',
     },
   };
 
