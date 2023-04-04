@@ -4,16 +4,14 @@ import {
   Container,
 } from '@mui/material';
 
+import FilterBar from '@components/main/FilterBar';
 import Navbar from '@components/navbar/Navbar';
-import Topic from '@components/topic/Topic';
-
-import './Home.scss';
 
 const Home = () => (
   <>
     <Navbar />
     <Container>
-      <Topic />
+      <FilterBar />
     </Container>
   </>
 );

@@ -6,12 +6,17 @@ import {
   Box,
   Container,
   Grid,
+  InputAdornment,
   Paper,
   TextField,
   Typography,
 } from '@mui/material';
 
 import { LoadingButton } from '@mui/lab';
+
+import {
+  Image,
+} from '@mui/icons-material';
 
 import useAxios from '@api/axios';
 import ENDPOINTS from '@api/endpoints';
@@ -23,7 +28,7 @@ import Navbar from '@components/navbar/Navbar';
 
 import styles from '@styles/_globals.scss';
 
-import './Settings.scss';
+import './User.scss';
 
 const Settings = () => {
   const { loadingProfile, profile, refetchProfile } = useAuth();
@@ -152,7 +157,10 @@ const Settings = () => {
             <Grid item xs={12} md={7} lg={8}>
               <Paper
                 sx={{
-                  mx: 2,
+                  mr: {
+                    xs: 0,
+                    md: 2,
+                  },
                   p: 2,
                   flexGrow: 1,
                   borderRadius: 2,
@@ -284,6 +292,13 @@ const Settings = () => {
                             type="file"
                             label="Image"
                             InputLabelProps={{ shrink: true }}
+                            InputProps={{
+                              startAdornment: (
+                                <InputAdornment position="start">
+                                  <Image />
+                                </InputAdornment>
+                              ),
+                            }}
                             error={fieldError !== undefined}
                             helperText={fieldError ? fieldError.message || validationProfile.image[fieldError.type] : ''}
                           />
@@ -316,7 +331,10 @@ const Settings = () => {
             <Grid item xs={12} md={5} lg={4}>
               <Paper
                 sx={{
-                  mx: 2,
+                  ml: {
+                    xs: 0,
+                    md: 2,
+                  },
                   my: {
                     xs: 5,
                     md: 0,

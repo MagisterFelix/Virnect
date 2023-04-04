@@ -12,3 +12,9 @@
     background-color: $soft_dark;
   }
 }
+
+input[type='file'] {
+  &::file-selector-button {
+    display: none;
+  }
+}

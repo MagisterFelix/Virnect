@@ -29,7 +29,7 @@ import ENDPOINTS from '@api/endpoints';
 
 import { useAuth } from '@context/AuthProvider';
 
-import './Report.scss';
+import './User.scss';
 
 const Report = ({ user, anchorElUser, setAnchorElUser }) => {
   const { profile } = useAuth();
@@ -84,7 +84,7 @@ const Report = ({ user, anchorElUser, setAnchorElUser }) => {
     setAlert(null);
     setOpenReportDialog(true);
   };
-  const handleCloseReportDialog = () => { setOpenReportDialog(false); };
+  const handleCloseReportDialog = () => setOpenReportDialog(false);
 
   return (
     <div className="Report">
@@ -104,7 +104,9 @@ const Report = ({ user, anchorElUser, setAnchorElUser }) => {
       >
         <MenuItem onClick={handleOpenReportDialog}>
           <FlagCircle sx={{ mr: 1 }} />
-          <Typography textAlign="center">Report</Typography>
+          <Typography textAlign="center">
+            <span>Report</span>
+          </Typography>
         </MenuItem>
       </Menu>
       <Dialog
@@ -121,11 +123,7 @@ const Report = ({ user, anchorElUser, setAnchorElUser }) => {
             }}
           >
             <span>Report</span>
-            <IconButton
-              aria-label="close"
-              sx={{ mr: -1 }}
-              onClick={handleCloseReportDialog}
-            >
+            <IconButton onClick={handleCloseReportDialog} sx={{ mr: -1 }}>
               <Close />
             </IconButton>
           </DialogTitle>
@@ -162,13 +160,14 @@ const Report = ({ user, anchorElUser, setAnchorElUser }) => {
                   {
                     loadingReportOptions
                       ? (<LinearProgress sx={{ m: 2 }} />)
-                      : (reportOptions.actions.POST.reason.choices.map(
-                        (choice) => (
-                          <MenuItem key={choice.value} value={choice.value}>
-                            {choice.display_name}
-                          </MenuItem>
-                        ),
-                      ))
+                      : (
+                        reportOptions.actions.POST.reason.choices.map(
+                          (choice) => (
+                            <MenuItem key={choice.value} value={choice.value}>
+                              {choice.display_name}
+                            </MenuItem>
+                          ),
+                        ))
                     }
                 </TextField>
               )}
