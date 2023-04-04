@@ -4,8 +4,12 @@ from rest_framework.serializers import ModelSerializer
 
 from core.server.models import Room
 
+from .user import UserSerializer
+
 
 class RoomListSerializer(ModelSerializer):
+
+    participants = UserSerializer(many=True, read_only=True)
 
     class Meta:
         model = Room
