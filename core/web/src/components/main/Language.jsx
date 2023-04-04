@@ -47,7 +47,7 @@ const Language = () => {
       && roomOptions.actions.POST.language.choices.find(
         (language) => language.value === languageParam,
       )) {
-      setSelectedLanguage(languageParam || 'All languages');
+      setSelectedLanguage(languageParam);
     }
   }, [searchParams, roomOptions]);
 
@@ -75,7 +75,7 @@ const Language = () => {
         >
           <MenuItem value="All languages">
             <Typography noWrap>
-              <span>All languages</span>
+              <span>🌐 All languages</span>
             </Typography>
           </MenuItem>
           {loadingRoomOptions

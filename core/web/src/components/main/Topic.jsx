@@ -44,7 +44,7 @@ const Topic = () => {
   useEffect(() => {
     const topicParam = searchParams.get('topic');
     if (topics !== undefined && topics.find((topic) => topic.title === topicParam)) {
-      setSelectedTopic(topicParam || 'All topics');
+      setSelectedTopic(topicParam);
     }
   }, [searchParams, topics]);
 
@@ -71,7 +71,7 @@ const Topic = () => {
         >
           <MenuItem value="All topics">
             <Typography noWrap>
-              <span>All topics</span>
+              <span>💬 All topics</span>
             </Typography>
           </MenuItem>
           {loadingTopics

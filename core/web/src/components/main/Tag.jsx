@@ -49,7 +49,7 @@ const Tag = () => {
     if (tags !== undefined && tagsParam !== null) {
       const tagParams = tagsParam.split(',').filter((tag) => tags.map((obj) => obj.name).includes(tag));
       if (tagParams.length !== 0) {
-        setSelectedTags(tagParams || 'All languages');
+        setSelectedTags(tagParams);
       }
     }
   }, [searchParams, tags]);
@@ -69,7 +69,7 @@ const Tag = () => {
             multiple: true,
             value: selectedTags,
             onChange: handleSelectTag,
-            renderValue: (selected) => selected.sort().join(', '),
+            renderValue: (selected) => (selected.indexOf('All tags') > -1 ? `🏷️ ${selected}` : selected.sort().join(', ')),
             MenuProps: {
               style: {
                 maxHeight: 300,
@@ -79,7 +79,7 @@ const Tag = () => {
         >
           <MenuItem value="All tags">
             <Typography noWrap>
-              <span>All tags</span>
+              <span>🏷️ All tags</span>
             </Typography>
           </MenuItem>
           {loadingTags
