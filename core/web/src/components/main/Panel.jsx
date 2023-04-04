@@ -33,7 +33,7 @@ import { DropdownButton } from '@utils/Styles';
 
 import styles from '@styles/_globals.scss';
 
-const FilterBar = () => {
+const Panel = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
@@ -111,7 +111,7 @@ const FilterBar = () => {
   }, [searchParams]);
 
   return (
-    <div className="FilterBar">
+    <div className="Panel">
       <Grid container>
         <Grid container justifyContent="center" spacing={2}>
           <Grid item xs={9} sm={8} md={9} lg={10} mb={2}>
@@ -272,4 +272,4 @@ const FilterBar = () => {
   );
 };
 
-export default FilterBar;
+export default Panel;

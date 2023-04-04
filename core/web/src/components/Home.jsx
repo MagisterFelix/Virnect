@@ -4,14 +4,14 @@ import {
   Container,
 } from '@mui/material';
 
-import FilterBar from '@components/main/FilterBar';
+import Panel from '@components/main/Panel';
 import Navbar from '@components/navbar/Navbar';
 
 const Home = () => (
   <>
     <Navbar />
     <Container>
-      <FilterBar />
+      <Panel />
     </Container>
   </>
 );
