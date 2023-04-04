@@ -114,14 +114,7 @@ const FilterBar = () => {
     <div className="FilterBar">
       <Grid container>
         <Grid container justifyContent="center" spacing={2}>
-          <Grid
-            item
-            xs={9}
-            sm={8}
-            md={9}
-            lg={10}
-            mb={2}
-          >
+          <Grid item xs={9} sm={8} md={9} lg={10} mb={2}>
             <Box
               sx={{
                 display: 'flex',
@@ -152,14 +145,7 @@ const FilterBar = () => {
                 )}
             </Box>
           </Grid>
-          <Grid
-            item
-            xs={3}
-            sm={4}
-            md={3}
-            lg={2}
-            mb={2}
-          >
+          <Grid item xs={3} sm={4} md={3} lg={2} mb={2}>
             <Button
               fullWidth
               variant="contained"
@@ -175,37 +161,16 @@ const FilterBar = () => {
           </Grid>
         </Grid>
         <Grid container justifyContent="center" spacing={2}>
-          <Grid
-            item
-            xs={6}
-            sm={2.5}
-            lg={3}
-          >
+          <Grid item xs={6} sm={2.5} lg={3}>
             <Topic />
           </Grid>
-          <Grid
-            item
-            xs={6}
-            sm={2.5}
-            lg={3}
-          >
+          <Grid item xs={6} sm={2.5} lg={3}>
             <Language />
           </Grid>
-          <Grid
-            item
-            xs={6}
-            sm={3}
-            md={4}
-          >
+          <Grid item xs={6} sm={3} md={4}>
             <Tag />
           </Grid>
-          <Grid
-            item
-            xs={3}
-            sm={2}
-            md={1.5}
-            lg={1}
-          >
+          <Grid item xs={3} sm={2} md={1.5} lg={1}>
             <Box
               sx={{
                 display: 'flex',
@@ -246,13 +211,7 @@ const FilterBar = () => {
               </Menu>
             </Box>
           </Grid>
-          <Grid
-            item
-            xs={3}
-            sm={2}
-            md={1.5}
-            lg={1}
-          >
+          <Grid item xs={3} sm={2} md={1.5} lg={1}>
             <Box
               sx={{
                 display: 'flex',
