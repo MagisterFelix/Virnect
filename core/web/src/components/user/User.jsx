@@ -18,13 +18,9 @@ import { useAuth } from '@context/AuthProvider';
 
 import NotFound from '@components/404/NotFound';
 import Navbar from '@components/navbar/Navbar';
-import Report from '@components/report/Report';
+import Report from '@components/user/Report';
 
-import {
-  LightTooltip,
-  OnlineBadge,
-  outline,
-} from '@utils/Styles';
+import { LightTooltip, OnlineBadge, outline } from '@utils/Styles';
 import getFormattedTime from '@utils/Time';
 
 import styles from '@styles/_globals.scss';
@@ -45,7 +41,10 @@ const User = () => {
   const handleOpenUserMenu = (event) => setAnchorElUser(event.currentTarget);
 
   const [openTooltip, setOpenTooltip] = useState(false);
-  const handleClickUsername = () => { navigator.clipboard.writeText(`@${user.username}`); setOpenTooltip(true); };
+  const handleClickUsername = () => {
+    navigator.clipboard.writeText(`@${user.username}`);
+    setOpenTooltip(true);
+  };
 
   const getLastOnline = () => `Was online ${getFormattedTime(user.last_seen)}`;
 

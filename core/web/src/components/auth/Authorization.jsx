@@ -214,7 +214,6 @@ const Authorization = () => {
                         endAdornment: (
                           <InputAdornment position="end">
                             <IconButton
-                              aria-label="Toggle password visibility"
                               onClick={handleClickShowPassword}
                               onMouseDown={handleMouseDownPassword}
                               edge="end"

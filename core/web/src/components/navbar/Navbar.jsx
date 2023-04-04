@@ -34,23 +34,15 @@ import './Navbar.scss';
 const Navbar = () => {
   const { profile, logout } = useAuth();
 
-  const navigate = useNavigate();
-
-  const navigateToProfile = () => {
-    navigate(`/user/${profile.username}`);
-  };
-
-  const navigateToSettings = () => {
-    navigate('/settings');
-  };
-
-  const handleOnLogout = () => {
-    logout();
-  };
-
   const [anchorElUser, setAnchorElUser] = useState(null);
   const handleOpenUserMenu = (event) => setAnchorElUser(event.currentTarget);
   const handleCloseUserMenu = () => setAnchorElUser(null);
+
+  const navigate = useNavigate();
+
+  const navigateToProfile = () => navigate(`/user/${profile.username}`);
+  const navigateToSettings = () => navigate('/settings');
+  const handleOnLogout = () => logout();
 
   return (
     <div className="Navbar">
@@ -132,15 +124,21 @@ const Navbar = () => {
               >
                 <MenuItem onClick={navigateToProfile}>
                   <AccountCircle sx={{ mr: 1 }} />
-                  <Typography textAlign="center">Profile</Typography>
+                  <Typography textAlign="center">
+                    <span>Profile</span>
+                  </Typography>
                 </MenuItem>
                 <MenuItem onClick={navigateToSettings}>
                   <Settings sx={{ mr: 1 }} />
-                  <Typography textAlign="center">Settings</Typography>
+                  <Typography textAlign="center">
+                    <span>Settings</span>
+                  </Typography>
                 </MenuItem>
                 <MenuItem onClick={handleOnLogout}>
                   <ExitToApp sx={{ mr: 1 }} />
-                  <Typography textAlign="center">Logout</Typography>
+                  <Typography textAlign="center">
+                    <span>Logout</span>
+                  </Typography>
                 </MenuItem>
               </Menu>
             </Box>
