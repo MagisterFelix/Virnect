@@ -149,7 +149,7 @@ const Report = ({ user, anchorElUser, setAnchorElUser }) => {
                   SelectProps={{
                     MenuProps: {
                       style: {
-                        maxHeight: 190,
+                        maxHeight: 300,
                       },
                     },
                   }}
