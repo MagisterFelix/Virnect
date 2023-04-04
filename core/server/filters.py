@@ -7,6 +7,7 @@ from core.server.models import Room, Tag
 class RoomFilter(filters.FilterSet):
 
     search = filters.CharFilter(field_name="title", lookup_expr="icontains")
+    host = filters.CharFilter(field_name="host__username", lookup_expr="iexact")
     topic = filters.CharFilter(field_name="topic__title", lookup_expr="iexact")
     language = filters.CharFilter(method="filter_language")
     is_available = filters.BooleanFilter(method="filter_is_available")
