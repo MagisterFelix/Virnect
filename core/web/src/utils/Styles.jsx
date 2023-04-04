@@ -2,6 +2,7 @@ import React from 'react';
 
 import {
   Badge,
+  Button,
   TextField,
   Tooltip,
   tooltipClasses,
@@ -67,7 +68,7 @@ const LightTooltip = styled(({ className, ...props }) => (
   },
 }));
 
-const DropdownList = styled(TextField)({
+const DropdownTextField = styled(TextField)({
   '& .MuiOutlinedInput-root': {
     '&:hover': {
       background: styles.color_soft_grey,
@@ -81,6 +82,12 @@ const DropdownList = styled(TextField)({
   },
 });
 
+const DropdownButton = styled(Button)({
+  '&:hover': {
+    background: styles.color_dark_grey,
+  },
+});
+
 export {
-  OnlineBadge, outline, LightTooltip, DropdownList,
+  OnlineBadge, outline, LightTooltip, DropdownTextField, DropdownButton,
 };
