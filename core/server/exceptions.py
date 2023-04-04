@@ -15,6 +15,9 @@ def api_exception_handler(exception, context):
         if isinstance(errors, list):
             errors = " ".join(errors)
 
+        if "unique set" in errors:
+            errors = "Values must be unique."
+
         payload["details"].append({
             field: ". ".join(err if err[0].isupper() else err.capitalize() for err in errors.split(". "))
         })
