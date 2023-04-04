@@ -10,6 +10,7 @@ class TagListViewTest(APITestCase):
     @classmethod
     def setUpTestData(cls):
         user = User.objects.create_user(**USERS["user"])
+        User.objects.create_user(**USERS["test"])
         topic = Topic.objects.create(**TOPICS["chatting"])
         room = Room.objects.create(host=user, topic=topic, **ROOMS["just speak"])
         Tag.objects.create(room=room, **TAGS["english"])
@@ -17,6 +18,7 @@ class TagListViewTest(APITestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
         self.user = User.objects.get(id=1)
+        self.test_user = User.objects.get(id=2)
         self.room = Room.objects.get(id=1)
         self.tag = Tag.objects.get(id=1)
 
@@ -46,6 +48,18 @@ class TagListViewTest(APITestCase):
         }
 
         request = self.factory.post(path=PATHS["topics"], data=data, format="multipart")
+        response = TagListView().as_view()(request)
+
+        self.assertEqual(response.status_code, 403)
+
+    def test_create_tag_if_not_host(self):
+        data = {
+            "name": TAGS["gaming"]["name"],
+            "room": self.room.id
+        }
+
+        request = self.factory.post(path=PATHS["topics"], data=data, format="multipart")
+        force_authenticate(request=request, user=self.test_user)
         response = TagListView().as_view()(request)
 
         self.assertEqual(response.status_code, 403)
