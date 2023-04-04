@@ -45,7 +45,7 @@ const Language = () => {
     const languageParam = searchParams.get('language');
     if (roomOptions !== undefined
       && roomOptions.actions.POST.language.choices.find(
-        (language) => language.value === languageParam,
+        (language) => language.display_name === languageParam,
       )) {
       setSelectedLanguage(languageParam);
     }
