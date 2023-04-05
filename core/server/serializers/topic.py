@@ -20,3 +20,23 @@ class TopicListSerializer(ModelSerializer):
         data["details"] = "Topic has been created."
 
         return data
+
+
+class TopicSerializer(ModelSerializer):
+
+    class Meta:
+        model = Topic
+        fields = "__all__"
+
+    def to_representation(self, instance):
+        if self.context["request"].method == "GET":
+            return super(TopicSerializer, self).to_representation(instance)
+
+        data = OrderedDict()
+
+        if self.context["request"].method == "PATCH":
+            data["details"] = "Topic has been updated."
+        elif self.context["request"].method == "DELETE":
+            data["details"] = "Topic has been deleted."
+
+        return data

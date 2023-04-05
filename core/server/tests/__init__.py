@@ -85,6 +85,7 @@ PATHS = {
     "user": "/api/user/",
     "report": "/api/report/",
     "topics": "/api/topics/",
+    "topic": "/api/topic/",
     "tags": "/api/tags/",
     "rooms": "/api/rooms/",
 }
