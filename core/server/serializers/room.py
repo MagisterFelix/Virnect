@@ -34,7 +34,7 @@ class RoomListSerializer(ModelSerializer):
             data["tags"] = TagListSerializer(instance=tags, context=self.context, many=True).data
             data["participants"] = UserSerializer(instance=instance.participants, context=self.context, many=True).data
 
-            if len(instance.key):
+            if len(instance.key) and instance.host != self.context["request"].user:
                 data["key"] = hashlib.sha256(instance.key.encode()).hexdigest()
 
             return data
