@@ -18,7 +18,7 @@ class TagListSerializer(ModelSerializer):
         if room.host != self.context["request"].user:
             raise PermissionDenied("User can only create tags for their own rooms.")
 
-        if Tag.objects.filter(room=room).count() == 5:
+        if Tag.objects.filter(room=room).count() + self.context["count"] > 5:
             raise PermissionDenied("Room cannot have more than 5 tags.")
 
         return super(TagListSerializer, self).validate(attrs)

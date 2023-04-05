@@ -31,7 +31,11 @@ class TagListView(ListCreateAPIView):
         return queryset
 
     def create(self, request):
-        serializer = self.get_serializer(data=request.data, many=isinstance(request.data, list))
+        serializer = self.serializer_class(
+            data=request.data,
+            many=isinstance(request.data, list),
+            context={"request": request, "count": len(request.data) if isinstance(request.data, list) else 1}
+        )
 
         serializer.is_valid(raise_exception=True)
         serializer.save()
