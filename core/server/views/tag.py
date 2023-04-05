@@ -1,5 +1,7 @@
+from rest_framework import status
 from rest_framework.generics import ListCreateAPIView
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
 from core.server.models import Tag
 from core.server.serializers import TagListSerializer
@@ -27,3 +29,13 @@ class TagListView(ListCreateAPIView):
             queryset = queryset.filter(id__in=ids)
 
         return queryset
+
+    def create(self, request):
+        serializer = self.get_serializer(data=request.data, many=isinstance(request.data, list))
+
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        headers = self.get_success_headers(serializer.data)
+
+        return Response(serializer.data, headers=headers, status=status.HTTP_201_CREATED)

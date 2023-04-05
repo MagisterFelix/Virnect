@@ -35,7 +35,21 @@ class TagListViewTest(APITestCase):
             "room": self.room.id
         }
 
-        request = self.factory.post(path=PATHS["topics"], data=data, format="multipart")
+        request = self.factory.post(path=PATHS["tags"], data=data, format="multipart")
+        force_authenticate(request=request, user=self.user)
+        response = TagListView().as_view()(request)
+
+        self.assertEqual(response.status_code, 201)
+
+    def test_create_tags_from_array(self):
+        data = [
+            {
+                "name": TAGS["gaming"]["name"],
+                "room": self.room.id
+            }
+        ]
+
+        request = self.factory.post(path=PATHS["tags"], data=data, format="json")
         force_authenticate(request=request, user=self.user)
         response = TagListView().as_view()(request)
 
@@ -47,7 +61,7 @@ class TagListViewTest(APITestCase):
             "room": self.room.id
         }
 
-        request = self.factory.post(path=PATHS["topics"], data=data, format="multipart")
+        request = self.factory.post(path=PATHS["tags"], data=data, format="multipart")
         response = TagListView().as_view()(request)
 
         self.assertEqual(response.status_code, 403)
@@ -58,7 +72,7 @@ class TagListViewTest(APITestCase):
             "room": self.room.id
         }
 
-        request = self.factory.post(path=PATHS["topics"], data=data, format="multipart")
+        request = self.factory.post(path=PATHS["tags"], data=data, format="multipart")
         force_authenticate(request=request, user=self.test_user)
         response = TagListView().as_view()(request)
 
@@ -71,7 +85,7 @@ class TagListViewTest(APITestCase):
                 "room": self.room.id
             }
 
-            request = self.factory.post(path=PATHS["topics"], data=data, format="multipart")
+            request = self.factory.post(path=PATHS["tags"], data=data, format="multipart")
             force_authenticate(request=request, user=self.user)
             response = TagListView().as_view()(request)
 
@@ -80,7 +94,7 @@ class TagListViewTest(APITestCase):
             "room": self.room.id
         }
 
-        request = self.factory.post(path=PATHS["topics"], data=data, format="multipart")
+        request = self.factory.post(path=PATHS["tags"], data=data, format="multipart")
         force_authenticate(request=request, user=self.user)
         response = TagListView().as_view()(request)
 
