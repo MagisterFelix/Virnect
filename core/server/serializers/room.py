@@ -1,3 +1,4 @@
+import hashlib
 from collections import OrderedDict
 
 from rest_framework.exceptions import PermissionDenied
@@ -32,6 +33,9 @@ class RoomListSerializer(ModelSerializer):
             data["topic"] = TopicSerializer(instance=instance.topic, context=self.context).data
             data["tags"] = TagListSerializer(instance=tags, context=self.context, many=True).data
             data["participants"] = UserSerializer(instance=instance.participants, context=self.context, many=True).data
+
+            if len(instance.key):
+                data["key"] = hashlib.sha256(instance.key.encode()).hexdigest()
 
             return data
 

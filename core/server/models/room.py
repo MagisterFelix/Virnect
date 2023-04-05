@@ -1,5 +1,3 @@
-import hashlib
-
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -43,12 +41,6 @@ class Room(BaseModel):
 
         if self.host_id and Room.objects.filter(host=self.host).count() == 5:
             raise ValidationError("User cannot host more than 5 rooms.", code="invalid")
-
-    def save(self, *args, **kwargs):
-        if self.pk is None and self.key:
-            self.key = hashlib.sha256(self.key.encode()).hexdigest()
-
-        super(Room, self).save(*args, **kwargs)
 
     def __str__(self):
         return self.title

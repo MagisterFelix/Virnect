@@ -74,14 +74,6 @@ class RoomAdmin(admin.ModelAdmin):
 
     form = RoomForm
 
-    def get_readonly_fields(self, _, obj=None):
-        readonly = ["key", "created_at",]
-
-        if obj is None:
-            return readonly[1:]
-
-        return readonly
-
     def is_open(self, room):
         return len(room.key) == 0
 
@@ -99,7 +91,7 @@ class RoomAdmin(admin.ModelAdmin):
             )
         }),
     )
-    readonly_fields = ("key", "created_at",)
+    readonly_fields = ("created_at",)
 
 
 @admin.register(Tag)
