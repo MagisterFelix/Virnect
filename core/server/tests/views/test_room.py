@@ -50,3 +50,27 @@ class RoomListViewTest(APITestCase):
         response = RoomListView().as_view()(request)
 
         self.assertEqual(response.status_code, 403)
+
+    def test_create_room_if_user_already_has_five_rooms(self):
+        for i in range(4):
+            data = {
+                "host": self.user.id,
+                "title": f"room#{i}",
+                "topic": self.topic.id,
+            }
+
+            request = self.factory.post(path=PATHS["rooms"], data=data, format="json")
+            force_authenticate(request=request, user=self.user)
+            response = RoomListView().as_view()(request)
+
+        data = {
+            "host": self.user.id,
+            "title": ROOMS["only english"]["title"],
+            "topic": self.topic.id
+        }
+
+        request = self.factory.post(path=PATHS["rooms"], data=data, format="json")
+        force_authenticate(request=request, user=self.user)
+        response = RoomListView().as_view()(request)
+
+        self.assertEqual(response.status_code, 403)
