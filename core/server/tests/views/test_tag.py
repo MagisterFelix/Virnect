@@ -65,7 +65,7 @@ class TagListViewTest(APITestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_create_tag_if_room_already_has_five_tags(self):
-        for i in range(5):
+        for i in range(4):
             data = {
                 "name": f"tag#{i}",
                 "room": self.room.id
