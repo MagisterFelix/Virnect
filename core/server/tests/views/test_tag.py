@@ -63,3 +63,25 @@ class TagListViewTest(APITestCase):
         response = TagListView().as_view()(request)
 
         self.assertEqual(response.status_code, 403)
+
+    def test_create_tag_if_room_already_has_five_tags(self):
+        for i in range(5):
+            data = {
+                "name": f"tag#{i}",
+                "room": self.room.id
+            }
+
+            request = self.factory.post(path=PATHS["topics"], data=data, format="multipart")
+            force_authenticate(request=request, user=self.user)
+            response = TagListView().as_view()(request)
+
+        data = {
+            "name": TAGS["gaming"]["name"],
+            "room": self.room.id
+        }
+
+        request = self.factory.post(path=PATHS["topics"], data=data, format="multipart")
+        force_authenticate(request=request, user=self.user)
+        response = TagListView().as_view()(request)
+
+        self.assertEqual(response.status_code, 403)
