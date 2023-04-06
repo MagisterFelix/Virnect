@@ -28,13 +28,6 @@ class TopicListViewTest(APITestCase):
 
         self.assertEqual(response.status_code, 200)
 
-    def test_get_topic(self):
-        request = self.factory.get(path=PATHS["topic"], format="json")
-        force_authenticate(request=request, user=self.user)
-        response = TopicView().as_view()(request, id=self.topic.id)
-
-        self.assertEqual(response.status_code, 200)
-
     def test_create_topic(self):
         data = {
             "title": TOPICS["games"]["title"],
@@ -74,6 +67,28 @@ class TopicListViewTest(APITestCase):
         response = TopicListView().as_view()(request)
 
         self.assertEqual(response.status_code, 403)
+
+
+class TopicViewTest(APITestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        User.objects.create_superuser(**USERS["admin"])
+        User.objects.create_user(**USERS["user"])
+        Topic.objects.create(**TOPICS["chatting"])
+
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.admin = User.objects.get(id=1)
+        self.user = User.objects.get(id=2)
+        self.topic = Topic.objects.get(id=1)
+
+    def test_get_topic(self):
+        request = self.factory.get(path=PATHS["topic"], format="json")
+        force_authenticate(request=request, user=self.user)
+        response = TopicView().as_view()(request, id=self.topic.id)
+
+        self.assertEqual(response.status_code, 200)
 
     def test_update_topic(self):
         data = {
