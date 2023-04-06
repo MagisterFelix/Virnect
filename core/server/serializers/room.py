@@ -44,3 +44,35 @@ class RoomListSerializer(ModelSerializer):
         data["details"] = "Room has been created."
 
         return data
+
+
+class RoomSerializer(ModelSerializer):
+
+    class Meta:
+        model = Room
+        exclude = ["host"]
+
+    def to_representation(self, instance):
+        if self.context["request"].method == "GET":
+            data = super(RoomSerializer, self).to_representation(instance)
+
+            tags = Tag.objects.filter(room=instance.id)
+
+            data["host"] = UserSerializer(instance=instance.host, context=self.context).data
+            data["topic"] = TopicSerializer(instance=instance.topic, context=self.context).data
+            data["tags"] = TagListSerializer(instance=tags, context=self.context, many=True).data
+            data["participants"] = UserSerializer(instance=instance.participants, context=self.context, many=True).data
+
+            if len(instance.key) and instance.host != self.context["request"].user:
+                data["key"] = hashlib.sha256(instance.key.encode()).hexdigest()
+
+            return data
+
+        data = OrderedDict()
+
+        if self.context["request"].method == "PATCH":
+            data["details"] = "Room has been updated."
+        elif self.context["request"].method == "DELETE":
+            data["details"] = "Room has been deleted."
+
+        return data
