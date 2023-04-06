@@ -1,9 +1,9 @@
 from rest_framework import status
 from rest_framework.generics import ListCreateAPIView
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from core.server.models import Tag
+from core.server.permissions import IsOwnerOrReadOnly
 from core.server.serializers import TagListSerializer
 
 
@@ -11,7 +11,7 @@ class TagListView(ListCreateAPIView):
 
     queryset = Tag.objects.all()
     serializer_class = TagListSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsOwnerOrReadOnly,)
 
     def get_queryset(self):
         queryset = super(TagListView, self).get_queryset()
