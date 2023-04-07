@@ -65,6 +65,7 @@ const LightTooltip = styled(({ className, ...props }) => (
   },
   [`& .${tooltipClasses.arrow}`]: {
     color: theme.palette.common.white,
+    border: 0,
   },
 }));
 
