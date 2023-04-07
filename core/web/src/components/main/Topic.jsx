@@ -20,6 +20,7 @@ import './Main.scss';
 
 const Topic = () => {
   const [searchParams] = useSearchParams();
+
   const navigate = useNavigate();
 
   const [{ loading: loadingTopics, data: topics }] = useAxios(

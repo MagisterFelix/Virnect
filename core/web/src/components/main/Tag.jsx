@@ -19,6 +19,7 @@ import './Main.scss';
 
 const Tag = () => {
   const [searchParams] = useSearchParams();
+
   const navigate = useNavigate();
 
   const [{ loading: loadingTags, data: tags }] = useAxios(

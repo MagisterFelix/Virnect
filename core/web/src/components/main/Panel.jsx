@@ -34,6 +34,7 @@ import styles from '@styles/_globals.scss';
 
 const Panel = () => {
   const [searchParams] = useSearchParams();
+
   const navigate = useNavigate();
 
   const [searchTerm, setSearchTerm] = useState('');
