@@ -51,7 +51,7 @@ const AuthProvider = ({ children }) => {
         url: ENDPOINTS.authorization,
         data: form,
       });
-      await refetchProfile();
+      window.location.reload();
     } catch (err) {
       handleErrors(validation, err.response.data.details, setError, setAlert);
     }
@@ -67,7 +67,7 @@ const AuthProvider = ({ children }) => {
         url: ENDPOINTS.authorization,
         data: form,
       });
-      await refetchProfile();
+      window.location.reload();
     } catch (err) {
       handleErrors(validation, err.response.data.details, setError, setAlert);
     }
