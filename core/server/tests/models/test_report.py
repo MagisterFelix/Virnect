@@ -17,7 +17,7 @@ class ReportTest(TestCase):
         Report.objects.create(sender=sender, suspect=suspect, **REPORTS["text abuse"])
 
     def test_report_fields(self):
-        report = Report.objects.get(id=1)
+        report = Report.objects.get(pk=1)
 
         self.assertIsInstance(report.sender, User)
         self.assertEqual(report.sender.username, USERS["user"]["username"])
@@ -39,7 +39,7 @@ class ReportTest(TestCase):
         self.assertFalse(report.is_viewed)
 
     def test_report_setting_is_viewed_on_verdict(self):
-        report = Report.objects.get(id=1)
+        report = Report.objects.get(pk=1)
 
         self.assertFalse(report.is_viewed)
 
@@ -50,21 +50,21 @@ class ReportTest(TestCase):
 
     def test_report_removing_on_deleting_sender(self):
         before_deleting = Report.objects.count()
-        User.objects.get(id=2).delete()
+        User.objects.get(pk=2).delete()
         after_deleting = Report.objects.count()
 
         self.assertGreater(before_deleting, after_deleting)
 
     def test_report_removing_on_deleting_suspect(self):
         before_deleting = Report.objects.count()
-        User.objects.get(id=3).delete()
+        User.objects.get(pk=3).delete()
         after_deleting = Report.objects.count()
 
         self.assertGreater(before_deleting, after_deleting)
 
     def test_report_setting_to_none_on_deleting_moderator_who_reviewed(self):
         before_deleting = Report.objects.count()
-        User.objects.get(id=1).delete()
+        User.objects.get(pk=1).delete()
         after_deleting = Report.objects.count()
 
         self.assertEqual(before_deleting, after_deleting)

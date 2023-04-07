@@ -32,13 +32,13 @@ import styles from '@styles/_globals.scss';
 import './Navbar.scss';
 
 const Navbar = () => {
+  const navigate = useNavigate();
+
   const { profile, logout } = useAuth();
 
   const [anchorElUser, setAnchorElUser] = useState(null);
   const handleOpenUserMenu = (event) => setAnchorElUser(event.currentTarget);
   const handleCloseUserMenu = () => setAnchorElUser(null);
-
-  const navigate = useNavigate();
 
   const navigateToProfile = () => navigate(`/user/${profile.username}`);
   const navigateToSettings = () => navigate('/settings');

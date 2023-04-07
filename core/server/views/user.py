@@ -1,42 +1,52 @@
-from rest_framework import status
-from rest_framework.exceptions import MethodNotAllowed, NotFound
+from django.shortcuts import get_object_or_404
+from rest_framework.exceptions import NotFound
+from rest_framework.generics import RetrieveAPIView, RetrieveUpdateAPIView
 from rest_framework.parsers import JSONParser, MultiPartParser
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework.views import APIView
 
 from core.server.models import User
-from core.server.serializers import UserSerializer
+from core.server.serializers import ProfileSerializer, UserSerializer
 
 
-class UserView(APIView):
+class ProfileView(RetrieveUpdateAPIView):
 
-    serializer_class = UserSerializer
+    queryset = User.objects.all()
+    serializer_class = ProfileSerializer
     permission_classes = (IsAuthenticated,)
     parser_classes = (JSONParser, MultiPartParser,)
 
-    def get(self, request, username=None):
-        user = User.objects.get_or_none(username=username) if username is not None else request.user
+    def get_object(self):
+        queryset = self.get_queryset()
 
-        if user is None or not user.is_active:
+        obj = get_object_or_404(queryset, pk=self.request.user.id)
+        self.check_object_permissions(self.request, obj)
+
+        return obj
+
+    def get_serializer_context(self):
+        context = super(ProfileView, self).get_serializer_context()
+
+        if self.request.data.get("password") is None and self.request.data.get("new_password") is None:
+            context["action"] = "update"
+        else:
+            context["action"] = "change"
+
+        return context
+
+
+class UserView(RetrieveAPIView):
+
+    lookup_field = "username"
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def retrieve(self, request, *args, **kwargs):
+        response = super(UserView, self).retrieve(request, *args, **kwargs)
+
+        if not response.data["is_active"]:
             raise NotFound("No user was found.")
 
-        serializer = self.serializer_class(instance=user, context={"request": request})
-        data = serializer.data
-        username is not None and data.pop("email")
+        response.data.pop("email")
 
-        return Response(data=data, status=status.HTTP_200_OK)
-
-    def patch(self, request, username=None):
-        if username is not None:
-            raise MethodNotAllowed(request.method)
-
-        context = {
-            "action": "update" if request.data.get("password") is None else "change"
-        }
-
-        serializer = self.serializer_class(instance=request.user, data=request.data, context=context)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return response

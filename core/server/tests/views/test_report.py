@@ -2,10 +2,10 @@ from rest_framework.test import APIRequestFactory, APITestCase, force_authentica
 
 from core.server.models import User
 from core.server.tests import PATHS, REPORTS, USERS
-from core.server.views import ReportView
+from core.server.views import ReportListView
 
 
-class ReportViewTest(APITestCase):
+class ReportListViewTest(APITestCase):
 
     @classmethod
     def setUpTestData(cls):
@@ -14,8 +14,8 @@ class ReportViewTest(APITestCase):
 
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.admin = User.objects.get(id=1)
-        self.user = User.objects.get(id=2)
+        self.admin = User.objects.get(pk=1)
+        self.user = User.objects.get(pk=2)
 
     def test_create_report(self):
         data = {
@@ -24,9 +24,9 @@ class ReportViewTest(APITestCase):
             "reason": REPORTS["text abuse"]["reason"]
         }
 
-        request = self.factory.post(path=PATHS["report"], data=data, format="json")
+        request = self.factory.post(path=PATHS["reports"], data=data, format="json")
         force_authenticate(request=request, user=self.user)
-        response = ReportView().as_view()(request)
+        response = ReportListView().as_view()(request)
 
         self.assertEqual(response.status_code, 201)
 
@@ -36,9 +36,9 @@ class ReportViewTest(APITestCase):
             "sender": self.admin.id
         }
 
-        request = self.factory.post(path=PATHS["report"], data=data, format="json")
+        request = self.factory.post(path=PATHS["reports"], data=data, format="json")
         force_authenticate(request=request, user=self.user)
-        response = ReportView().as_view()(request)
+        response = ReportListView().as_view()(request)
 
         self.assertEqual(response.status_code, 400)
 
@@ -49,8 +49,8 @@ class ReportViewTest(APITestCase):
             "reason": "invalid"
         }
 
-        request = self.factory.post(path=PATHS["report"], data=data, format="json")
+        request = self.factory.post(path=PATHS["reports"], data=data, format="json")
         force_authenticate(request=request, user=self.user)
-        response = ReportView().as_view()(request)
+        response = ReportListView().as_view()(request)
 
         self.assertEqual(response.status_code, 400)

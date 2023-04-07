@@ -18,15 +18,15 @@ import { DropdownTextField } from '@utils/Styles';
 import './Main.scss';
 
 const Tag = () => {
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+
   const [{ loading: loadingTags, data: tags }] = useAxios(
     {
       url: `${ENDPOINTS.tags}?unique=true`,
       method: 'GET',
     },
   );
-
-  const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
 
   const [selectedTags, setSelectedTags] = useState(['All tags']);
   const handleSelectTag = (event) => {

@@ -6,6 +6,7 @@ import {
   Container,
   Grid,
   IconButton,
+  Menu,
   Skeleton,
   Tooltip,
   Typography,
@@ -17,6 +18,7 @@ import ENDPOINTS from '@api/endpoints';
 import { useAuth } from '@context/AuthProvider';
 
 import NotFound from '@components/404/NotFound';
+import RoomList from '@components/main/RoomList';
 import Navbar from '@components/navbar/Navbar';
 import Report from '@components/user/Report';
 
@@ -39,6 +41,7 @@ const User = () => {
 
   const [anchorElUser, setAnchorElUser] = useState(null);
   const handleOpenUserMenu = (event) => setAnchorElUser(event.currentTarget);
+  const handleCloseUserMenu = () => setAnchorElUser(null);
 
   const [openTooltip, setOpenTooltip] = useState(false);
   const handleClickUsername = () => {
@@ -96,14 +99,23 @@ const User = () => {
                   )}
                 </IconButton>
               </LightTooltip>
-              {!loadingUser && profile.username !== username
-              && (
-                <Report
-                  profile={profile}
-                  user={user}
-                  anchorElUser={anchorElUser}
-                  setAnchorElUser={setAnchorElUser}
-                />
+              {profile.username !== username && (
+              <Menu
+                anchorEl={anchorElUser}
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'center',
+                }}
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'center',
+                }}
+                open={Boolean(anchorElUser)}
+                onClose={handleCloseUserMenu}
+                sx={{ mt: 1 }}
+              >
+                {!loadingUser && <Report user={user} />}
+              </Menu>
               )}
               <Typography
                 sx={{
@@ -168,7 +180,7 @@ const User = () => {
               sx={{
                 display: 'flex',
                 alignItems: 'center',
-                mt: {
+                my: {
                   xs: 5,
                   md: 0,
                 },

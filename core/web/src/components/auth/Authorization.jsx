@@ -42,9 +42,9 @@ const Authorization = () => {
 
   const [alert, setAlert] = useState(null);
   const { control, handleSubmit, setError } = useForm();
-  const handleOnSubmit = (form) => {
+  const handleOnSubmit = async (form) => {
     setAlert(null);
-    login(form, validation, setError, setAlert);
+    await login(form, validation, setError, setAlert);
   };
 
   const [showPassword, setShowPassword] = useState(false);

@@ -1,7 +1,7 @@
-from rest_framework.exceptions import NotFound, ValidationError
+from rest_framework.exceptions import NotFound
 from rest_framework.permissions import SAFE_METHODS, IsAdminUser, IsAuthenticated
 
-from .models import Room
+from .models import Room, Tag
 
 
 class IsAdminUserOrReadOnly(IsAdminUser):
@@ -14,29 +14,36 @@ class IsAdminUserOrReadOnly(IsAdminUser):
 class IsOwnerOrReadOnly(IsAuthenticated):
 
     def has_permission(self, request, view):
+        if request.method in SAFE_METHODS:
+            return True
+
         is_authenticated = super(IsOwnerOrReadOnly, self).has_permission(request, view)
 
-        if request.method in SAFE_METHODS:
-            return is_authenticated
+        if not is_authenticated:
+            return False
 
-        room = None
+        if "room" in request.path and request.method != "POST":
+            room = Room.objects.get_or_none(title=view.kwargs.get("title"))
 
-        if "room" in request.path:
-            room = Room.objects.get_or_none(id=view.kwargs.get("id"))
-        elif "tag" in request.path:
-            if isinstance(request.data, list):
-                ids = set(data.get("room") for data in request.data)
-                if len(ids) == 0 or None in ids:
-                    raise ValidationError("Room ids must be provided.")
+            if room is None:
+                raise NotFound()
 
-                if len(ids) != 1:
-                    raise ValidationError("Room ids must be the same.")
+            return room.host == request.user
 
-                room = Room.objects.get_or_none(id=ids.pop())
+        if "tag" in request.path:
+            if request.method == "POST":
+                room = Room.objects.get_or_none(pk=request.data.get("room"))
             else:
-                room = Room.objects.get_or_none(id=request.data.get("room"))
+                tag = Tag.objects.get_or_none(pk=view.kwargs.get("pk"))
 
-        if room is None:
-            raise NotFound()
+                if tag is None:
+                    raise NotFound()
 
-        return is_authenticated and room.host == request.user
+                room = Room.objects.get_or_none(pk=tag.room.id)
+
+            if room is None:
+                raise NotFound()
+
+            return room.host == request.user
+
+        return True

@@ -13,7 +13,7 @@ class TopicTest(TestCase):
         Topic.objects.create(**TOPICS["chatting"])
 
     def test_topic_fields(self):
-        topic = Topic.objects.get(id=1)
+        topic = Topic.objects.get(pk=1)
 
         self.assertIsInstance(topic.title, str)
         self.assertEqual(topic.title, TOPICS["chatting"]["title"])

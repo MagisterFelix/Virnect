@@ -17,7 +17,7 @@ class MessageTest(TestCase):
         Message.objects.create(room=room, author=host, **MESSAGES["greetings"])
 
     def test_message_fields(self):
-        message = Message.objects.get(id=1)
+        message = Message.objects.get(pk=1)
 
         self.assertIsInstance(message.room, Room)
         self.assertEqual(message.room.title, ROOMS["only english"]["title"])
@@ -36,9 +36,9 @@ class MessageTest(TestCase):
         self.assertIsNone(message.updated_at)
 
     def test_message_answering(self):
-        room = Room.objects.get(id=1)
-        message = Message.objects.get(id=1)
-        author = User.objects.get(id=1)
+        room = Room.objects.get(pk=1)
+        message = Message.objects.get(pk=1)
+        author = User.objects.get(pk=1)
 
         reply = Message.objects.create(room=room, author=author, reply_to=message, **MESSAGES["reply"])
 
@@ -46,13 +46,13 @@ class MessageTest(TestCase):
         self.assertIsInstance(reply.reply_to, Message)
 
     def test_message_updating(self):
-        message = Message.objects.get(id=1)
+        message = Message.objects.get(pk=1)
 
         self.assertIsNone(message.updated_at)
 
         message.text = "Greetings"
         message.save()
-        message = Message.objects.get(id=1)
+        message = Message.objects.get(pk=1)
 
         self.assertEqual(message.text, "Greetings")
         self.assertIsNotNone(message.updated_at)
@@ -60,14 +60,14 @@ class MessageTest(TestCase):
 
     def test_message_removing_on_deleting_room(self):
         before_deleting = Message.objects.count()
-        Room.objects.get(id=1).delete()
+        Room.objects.get(pk=1).delete()
         after_deleting = Message.objects.count()
 
         self.assertGreater(before_deleting, after_deleting)
 
     def test_message_removing_on_deleting_author(self):
         before_deleting = Message.objects.count()
-        User.objects.get(id=1).delete()
+        User.objects.get(pk=1).delete()
         after_deleting = Message.objects.count()
 
         self.assertGreater(before_deleting, after_deleting)

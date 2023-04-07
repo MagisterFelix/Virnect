@@ -16,10 +16,10 @@ class RoomListViewTest(APITestCase):
 
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.user = User.objects.get(id=1)
-        self.test = User.objects.get(id=2)
-        self.topic = Topic.objects.get(id=1)
-        self.room = Room.objects.get(id=1)
+        self.user = User.objects.get(pk=1)
+        self.test = User.objects.get(pk=2)
+        self.topic = Topic.objects.get(pk=1)
+        self.room = Room.objects.get(pk=1)
 
     def test_get_rooms(self):
         request = self.factory.get(path=PATHS["rooms"], format="json")
@@ -89,15 +89,15 @@ class RoomViewTest(APITestCase):
 
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.user = User.objects.get(id=1)
-        self.test = User.objects.get(id=2)
-        self.topic = Topic.objects.get(id=1)
-        self.room = Room.objects.get(id=1)
+        self.user = User.objects.get(pk=1)
+        self.test_user = User.objects.get(pk=2)
+        self.topic = Topic.objects.get(pk=1)
+        self.room = Room.objects.get(pk=1)
 
     def test_get_room(self):
         request = self.factory.get(path=PATHS["room"], format="json")
         force_authenticate(request=request, user=self.user)
-        response = RoomListView().as_view()(request, id=self.room.id)
+        response = RoomView().as_view()(request, title=self.room.title)
 
         self.assertEqual(response.status_code, 200)
 
@@ -107,9 +107,9 @@ class RoomViewTest(APITestCase):
             "topic": self.topic.id
         }
 
-        request = self.factory.patch(path=PATHS["room"], data=data, format="multipart")
+        request = self.factory.patch(path=PATHS["room"], data=data, format="json")
         force_authenticate(request=request, user=self.user)
-        response = RoomView().as_view()(request, id=self.room.id)
+        response = RoomView().as_view()(request, title=self.room.title)
 
         self.assertEqual(response.status_code, 200)
 
@@ -119,8 +119,8 @@ class RoomViewTest(APITestCase):
             "topic": self.topic.id
         }
 
-        request = self.factory.patch(path=PATHS["room"], data=data, format="multipart")
-        response = RoomView().as_view()(request, id=self.room.id)
+        request = self.factory.patch(path=PATHS["room"], data=data, format="json")
+        response = RoomView().as_view()(request, title=self.room.title)
 
         self.assertEqual(response.status_code, 403)
 
@@ -129,9 +129,9 @@ class RoomViewTest(APITestCase):
             "title": ROOMS["only english"]["title"]
         }
 
-        request = self.factory.patch(path=PATHS["room"], data=data, format="multipart")
+        request = self.factory.patch(path=PATHS["room"], data=data, format="json")
         force_authenticate(request=request, user=self.user)
-        response = RoomView().as_view()(request, id=self.room.id + 1)
+        response = RoomView().as_view()(request, title=self.room.title + "1")
 
         self.assertEqual(response.status_code, 404)
 
@@ -140,35 +140,35 @@ class RoomViewTest(APITestCase):
             "title": ROOMS["only english"]["title"]
         }
 
-        request = self.factory.patch(path=PATHS["room"], data=data, format="multipart")
-        force_authenticate(request=request, user=self.test)
-        response = RoomView().as_view()(request, id=self.room.id)
+        request = self.factory.patch(path=PATHS["room"], data=data, format="json")
+        force_authenticate(request=request, user=self.test_user)
+        response = RoomView().as_view()(request, title=self.room.title)
 
         self.assertEqual(response.status_code, 403)
 
     def test_delete_room(self):
-        request = self.factory.delete(path=PATHS["room"], format="multipart")
+        request = self.factory.delete(path=PATHS["room"], format="json")
         force_authenticate(request=request, user=self.user)
-        response = RoomView().as_view()(request, id=self.room.id)
+        response = RoomView().as_view()(request, title=self.room.title)
 
         self.assertEqual(response.status_code, 204)
 
     def test_delete_room_if_not_authenticated(self):
-        request = self.factory.delete(path=PATHS["room"], format="multipart")
-        response = RoomView().as_view()(request, id=self.room.id)
+        request = self.factory.delete(path=PATHS["room"], format="json")
+        response = RoomView().as_view()(request, title=self.room.title)
 
         self.assertEqual(response.status_code, 403)
 
     def test_delete_room_if_not_exists(self):
-        request = self.factory.delete(path=PATHS["room"], format="multipart")
+        request = self.factory.delete(path=PATHS["room"], format="json")
         force_authenticate(request=request, user=self.user)
-        response = RoomView().as_view()(request, id=self.room.id + 1)
+        response = RoomView().as_view()(request, title=self.room.title + "1")
 
         self.assertEqual(response.status_code, 404)
 
     def test_delete_room_if_not_host(self):
-        request = self.factory.delete(path=PATHS["room"], format="multipart")
-        force_authenticate(request=request, user=self.test)
-        response = RoomView().as_view()(request, id=self.room.id)
+        request = self.factory.delete(path=PATHS["room"], format="json")
+        force_authenticate(request=request, user=self.test_user)
+        response = RoomView().as_view()(request, title=self.room.title)
 
         self.assertEqual(response.status_code, 403)

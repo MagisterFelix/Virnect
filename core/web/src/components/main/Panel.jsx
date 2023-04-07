@@ -13,9 +13,8 @@ import {
   MenuItem,
   Typography,
   useMediaQuery,
+  useTheme,
 } from '@mui/material';
-
-import { useTheme } from '@emotion/react';
 
 import {
   Add,

@@ -70,7 +70,7 @@ class AuthorizationMiddleware:
 
         user_id = TokenBackend(algorithm=settings.SIMPLE_JWT["ALGORITHM"],
                                signing_key=settings.SIMPLE_JWT["SIGNING_KEY"]).decode(data["token"])["user_id"]
-        User.objects.get(id=user_id).update_last_seen()
+        User.objects.get(pk=user_id).update_last_seen()
 
         response = self.get_response(request)
 

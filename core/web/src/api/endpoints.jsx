@@ -5,9 +5,12 @@ const ENDPOINTS = {
   reset_password: '/api/reset-password/',
   profile: '/api/profile/',
   user: '/api/user/',
-  report: '/api/report/',
+  report: '/api/reports/',
   topics: '/api/topics/',
   tags: '/api/tags/',
+  tag: '/api/tag/',
+  rooms: '/api/rooms/',
+  room: '/api/room/',
 };
 
 export default ENDPOINTS;

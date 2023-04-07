@@ -5,13 +5,13 @@ from rest_framework.permissions import IsAuthenticated
 from core.server.filters import RoomFilter
 from core.server.models import Room
 from core.server.permissions import IsOwnerOrReadOnly
-from core.server.serializers import RoomListSerializer, RoomSerializer
+from core.server.serializers import RoomSerializer
 
 
 class RoomListView(ListCreateAPIView):
 
     queryset = Room.objects.all()
-    serializer_class = RoomListSerializer
+    serializer_class = RoomSerializer
     permission_classes = (IsAuthenticated,)
     filterset_class = RoomFilter
     pagination_class = PageNumberPagination
@@ -20,7 +20,7 @@ class RoomListView(ListCreateAPIView):
 
 class RoomView(RetrieveUpdateDestroyAPIView):
 
-    lookup_field = "id"
+    lookup_field = "title"
     queryset = Room.objects.all()
     serializer_class = RoomSerializer
     permission_classes = (IsOwnerOrReadOnly,)

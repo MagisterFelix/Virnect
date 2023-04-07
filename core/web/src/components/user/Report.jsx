@@ -10,7 +10,6 @@ import {
   DialogTitle,
   IconButton,
   LinearProgress,
-  Menu,
   MenuItem,
   TextField,
   Typography,
@@ -21,19 +20,14 @@ import { LoadingButton } from '@mui/lab';
 import {
   Close,
   FlagCircle,
-  Send,
 } from '@mui/icons-material';
 
 import useAxios from '@api/axios';
 import ENDPOINTS from '@api/endpoints';
 
-import { useAuth } from '@context/AuthProvider';
-
 import './User.scss';
 
-const Report = ({ user, anchorElUser, setAnchorElUser }) => {
-  const { profile } = useAuth();
-
+const Report = ({ user }) => {
   const [{ loading: loadingReportOptions, data: reportOptions }] = useAxios(
     {
       url: ENDPOINTS.report,
@@ -61,7 +55,6 @@ const Report = ({ user, anchorElUser, setAnchorElUser }) => {
   const { control, handleSubmit, reset } = useForm();
   const handleOnSubmit = async (form) => {
     const formData = {
-      sender: profile.id,
       suspect: user.id,
       ...form,
     };
@@ -72,13 +65,12 @@ const Report = ({ user, anchorElUser, setAnchorElUser }) => {
       });
       setAlert({ type: 'success', message: response.data.details });
     } catch (err) {
-      setAlert({ type: 'error', message: 'Something went wrong...' });
+      setAlert({ type: 'error', message: err.response.data.details });
     }
   };
 
   const [openReportDialog, setOpenReportDialog] = useState(false);
   const handleOpenReportDialog = () => {
-    setAnchorElUser(null);
     reset();
     setAlert(null);
     setOpenReportDialog(true);
@@ -87,27 +79,12 @@ const Report = ({ user, anchorElUser, setAnchorElUser }) => {
 
   return (
     <div className="Report">
-      <Menu
-        anchorEl={anchorElUser}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'center',
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'center',
-        }}
-        open={Boolean(anchorElUser)}
-        onClose={() => setAnchorElUser(null)}
-        sx={{ mt: 1 }}
-      >
-        <MenuItem onClick={handleOpenReportDialog}>
-          <FlagCircle sx={{ mr: 1 }} />
-          <Typography textAlign="center">
-            <span>Report</span>
-          </Typography>
-        </MenuItem>
-      </Menu>
+      <MenuItem onClick={handleOpenReportDialog}>
+        <FlagCircle sx={{ mr: 1 }} />
+        <Typography textAlign="center">
+          <span>Report</span>
+        </Typography>
+      </MenuItem>
       <Dialog
         fullWidth
         open={openReportDialog}
@@ -177,7 +154,6 @@ const Report = ({ user, anchorElUser, setAnchorElUser }) => {
             <LoadingButton
               loading={loadingReport}
               onClick={handleSubmit(handleOnSubmit)}
-              endIcon={<Send />}
             >
               <span>Send</span>
             </LoadingButton>

@@ -1,6 +1,6 @@
 from .auth import AuthorizationView, DeauthorizationView, PasswordResetConfirmView, PasswordResetView, RegistrationView
-from .report import ReportView
+from .report import ReportListView
 from .room import RoomListView, RoomView
-from .tag import TagListView
+from .tag import TagListView, TagView
 from .topic import TopicListView, TopicView
-from .user import UserView
+from .user import ProfileView, UserView

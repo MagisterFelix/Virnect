@@ -2,7 +2,7 @@ from rest_framework.test import APIRequestFactory, APITestCase, force_authentica
 
 from core.server.models import User
 from core.server.tests import PATHS, USERS
-from core.server.views import UserView
+from core.server.views import ProfileView, UserView
 
 
 class UserViewTest(APITestCase):
@@ -15,12 +15,12 @@ class UserViewTest(APITestCase):
 
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.user = User.objects.get(id=2)
+        self.user = User.objects.get(pk=2)
 
     def test_getting_profile(self):
         request = self.factory.get(path=PATHS["profile"], format="json")
         force_authenticate(request=request, user=self.user)
-        response = UserView().as_view()(request)
+        response = ProfileView().as_view()(request)
 
         self.assertEqual(response.status_code, 200)
 
@@ -38,7 +38,7 @@ class UserViewTest(APITestCase):
 
         request = self.factory.patch(path=PATHS["profile"], data=data, format="json")
         force_authenticate(request=request, user=self.user)
-        response = UserView().as_view()(request)
+        response = ProfileView().as_view()(request)
 
         self.assertEqual(response.status_code, 200)
 
@@ -51,7 +51,7 @@ class UserViewTest(APITestCase):
 
         request = self.factory.patch(path=PATHS["profile"], data=data, format="json")
         force_authenticate(request=request, user=self.user)
-        response = UserView().as_view()(request)
+        response = ProfileView().as_view()(request)
 
         self.assertEqual(response.status_code, 400)
 
@@ -63,7 +63,7 @@ class UserViewTest(APITestCase):
 
         request = self.factory.patch(path=PATHS["profile"], data=data, format="json")
         force_authenticate(request=request, user=self.user)
-        response = UserView().as_view()(request)
+        response = ProfileView().as_view()(request)
 
         self.assertEqual(response.status_code, 200)
 
@@ -75,7 +75,7 @@ class UserViewTest(APITestCase):
 
         request = self.factory.patch(path=PATHS["profile"], data=data, format="json")
         force_authenticate(request=request, user=self.user)
-        response = UserView().as_view()(request)
+        response = ProfileView().as_view()(request)
 
         self.assertEqual(response.status_code, 400)
 

@@ -12,8 +12,6 @@ class UserSerializer(ModelSerializer):
     online = serializers.BooleanField(source="is_online", read_only=True)
     full_name = serializers.CharField(source="get_full_name", read_only=True)
 
-    new_password = serializers.CharField(max_length=128, required=False, write_only=True)
-
     class Meta:
         model = User
         exclude = ("date_joined", "last_login", "groups", "user_permissions",)
@@ -39,9 +37,20 @@ class UserSerializer(ModelSerializer):
             }
         }
 
+
+class ProfileSerializer(UserSerializer):
+
+    new_password = serializers.CharField(max_length=128, required=False, write_only=True)
+
     def validate(self, attrs):
-        if attrs.get("new_password") is None:
+        if attrs.get("password") is None and attrs.get("new_password") is None:
             return super(UserSerializer, self).validate(attrs)
+
+        if attrs.get("password") is None and attrs.get("new_password") is not None:
+            raise ValidationError({"password": "This field is required."})
+
+        if attrs.get("password") is not None and attrs.get("new_password") is None:
+            raise ValidationError({"new_password": "This field is required."})
 
         if not self.instance.check_password(attrs.get("password")):
             raise ValidationError({"password": "Password mismatch."})
@@ -58,14 +67,16 @@ class UserSerializer(ModelSerializer):
         return instance
 
     def to_representation(self, instance):
-        if self.context.get("action") is None:
-            return super(UserSerializer, self).to_representation(instance)
-
         data = OrderedDict()
 
-        if self.context["action"] == "update":
+        data["user"] = super(UserSerializer, self).to_representation(instance)
+
+        if self.context["request"].method == "GET":
+            return data["user"]
+
+        if self.context.get("action") == "update":
             data["details"] = "Profile has been updated."
-        else:
+        elif self.context.get("action") == "change":
             data["details"] = "Password has been changed."
 
         return data

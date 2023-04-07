@@ -19,15 +19,15 @@ import styles from '@styles/_globals.scss';
 import './Main.scss';
 
 const Topic = () => {
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+
   const [{ loading: loadingTopics, data: topics }] = useAxios(
     {
       url: ENDPOINTS.topics,
       method: 'GET',
     },
   );
-
-  const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
 
   const [selectedTopic, setSelectedTopic] = useState('All topics');
   const handleSelectTopic = (event) => {

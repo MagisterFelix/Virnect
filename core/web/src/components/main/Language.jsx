@@ -19,15 +19,16 @@ import styles from '@styles/_globals.scss';
 import './Main.scss';
 
 const Language = () => {
+  const [searchParams] = useSearchParams();
+
+  const navigate = useNavigate();
+
   const [{ loading: loadingRoomOptions, data: roomOptions }] = useAxios(
     {
       url: ENDPOINTS.rooms,
       method: 'OPTIONS',
     },
   );
-
-  const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
 
   const [selectedLanguage, setSelectedLanguage] = useState('All languages');
   const handleSelectLanguage = (event) => {
@@ -59,7 +60,6 @@ const Language = () => {
           borderRadius: 1,
         }}
       >
-
         <DropdownTextField
           fullWidth
           select

@@ -1,16 +1,14 @@
-from rest_framework import status
-from rest_framework.generics import ListCreateAPIView
-from rest_framework.response import Response
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 
 from core.server.models import Tag
 from core.server.permissions import IsOwnerOrReadOnly
-from core.server.serializers import TagListSerializer
+from core.server.serializers import TagSerializer
 
 
 class TagListView(ListCreateAPIView):
 
     queryset = Tag.objects.all()
-    serializer_class = TagListSerializer
+    serializer_class = TagSerializer
     permission_classes = (IsOwnerOrReadOnly,)
 
     def get_queryset(self):
@@ -30,16 +28,9 @@ class TagListView(ListCreateAPIView):
 
         return queryset
 
-    def create(self, request):
-        serializer = self.serializer_class(
-            data=request.data,
-            many=isinstance(request.data, list),
-            context={"request": request, "count": len(request.data) if isinstance(request.data, list) else 1}
-        )
 
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
+class TagView(RetrieveUpdateDestroyAPIView):
 
-        headers = self.get_success_headers(serializer.data)
-
-        return Response(serializer.data, headers=headers, status=status.HTTP_201_CREATED)
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer
+    permission_classes = (IsOwnerOrReadOnly,)

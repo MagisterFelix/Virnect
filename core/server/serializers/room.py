@@ -6,44 +6,9 @@ from rest_framework.serializers import ModelSerializer
 
 from core.server.models import Room, Tag
 
-from .tag import TagListSerializer
+from .tag import TagSerializer
 from .topic import TopicSerializer
 from .user import UserSerializer
-
-
-class RoomListSerializer(ModelSerializer):
-
-    class Meta:
-        model = Room
-        fields = "__all__"
-
-    def validate(self, attrs):
-        if Room.objects.filter(host=self.context["request"].user).count() == 5:
-            raise PermissionDenied("User cannot host more than 5 rooms.")
-
-        return super(RoomListSerializer, self).validate(attrs)
-
-    def to_representation(self, instance):
-        if self.context["request"].method == "GET":
-            data = super(RoomListSerializer, self).to_representation(instance)
-
-            tags = Tag.objects.filter(room=instance.id)
-
-            data["host"] = UserSerializer(instance=instance.host, context=self.context).data
-            data["topic"] = TopicSerializer(instance=instance.topic, context=self.context).data
-            data["tags"] = TagListSerializer(instance=tags, context=self.context, many=True).data
-            data["participants"] = UserSerializer(instance=instance.participants, context=self.context, many=True).data
-
-            if len(instance.key) and instance.host != self.context["request"].user:
-                data["key"] = hashlib.sha256(instance.key.encode()).hexdigest()
-
-            return data
-
-        data = OrderedDict()
-
-        data["details"] = "Room has been created."
-
-        return data
 
 
 class RoomSerializer(ModelSerializer):
@@ -52,25 +17,45 @@ class RoomSerializer(ModelSerializer):
         model = Room
         exclude = ["host"]
 
+    def validate(self, attrs):
+        user = self.context["request"].user
+
+        if self.context["request"].method == "POST" and Room.objects.filter(host=user).count() == 5:
+            raise PermissionDenied("User cannot host more than 5 rooms.")
+
+        attrs["host"] = user
+
+        return super(RoomSerializer, self).validate(attrs)
+
     def to_representation(self, instance):
-        if self.context["request"].method == "GET":
-            data = super(RoomSerializer, self).to_representation(instance)
-
-            tags = Tag.objects.filter(room=instance.id)
-
-            data["host"] = UserSerializer(instance=instance.host, context=self.context).data
-            data["topic"] = TopicSerializer(instance=instance.topic, context=self.context).data
-            data["tags"] = TagListSerializer(instance=tags, context=self.context, many=True).data
-            data["participants"] = UserSerializer(instance=instance.participants, context=self.context, many=True).data
-
-            if len(instance.key) and instance.host != self.context["request"].user:
-                data["key"] = hashlib.sha256(instance.key.encode()).hexdigest()
-
-            return data
-
         data = OrderedDict()
 
-        if self.context["request"].method == "PATCH":
+        data["room"] = super(RoomSerializer, self).to_representation(instance)
+
+        self.context["related"] = True
+
+        data["room"]["host"] = UserSerializer(instance=instance.host, context=self.context).data
+        data["room"]["topic"] = TopicSerializer(instance=instance.topic, context=self.context).data
+        data["room"]["tags"] = TagSerializer(
+            instance=Tag.objects.filter(room=instance.id),
+            context=self.context,
+            many=True
+        ).data
+        data["room"]["participants"] = UserSerializer(
+            instance=instance.participants,
+            context=self.context,
+            many=True
+        ).data
+
+        if len(instance.key) > 0 and instance.host != self.context["request"].user:
+            data["room"]["key"] = hashlib.sha256(instance.key.encode()).hexdigest()
+
+        if self.context["request"].method == "GET":
+            return data["room"]
+
+        if self.context["request"].method == "POST":
+            data["details"] = "Room has been created."
+        elif self.context["request"].method == "PATCH":
             data["details"] = "Room has been updated."
         elif self.context["request"].method == "DELETE":
             data["details"] = "Room has been deleted."

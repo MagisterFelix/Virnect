@@ -117,25 +117,3 @@ class AuthorizationUtils:
         response = AuthorizationUtils._get_response(request, message, status.HTTP_401_UNAUTHORIZED)
         AuthorizationUtils.remove_auth_cookies(response)
         return response
-
-
-class ExceptionUtils:
-
-    @staticmethod
-    def process_error(data):
-        payload = {
-            "details": []
-        }
-
-        for field, errors in data.items():
-            if isinstance(errors, list):
-                errors = " ".join(errors)
-
-            if "unique set" in errors:
-                errors = "Values must be unique."
-
-            payload["details"].append({
-                field: ". ".join(err if err[0].isupper() else err.capitalize() for err in errors.split(". "))
-            })
-
-        return payload

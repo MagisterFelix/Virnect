@@ -83,10 +83,11 @@ PATHS = {
     "sign-out": "/api/sign-out/",
     "profile": "/api/profile/",
     "user": "/api/user/",
-    "report": "/api/report/",
+    "reports": "/api/reports/",
     "topics": "/api/topics/",
     "topic": "/api/topic/",
     "tags": "/api/tags/",
+    "tag": "/api/tag/",
     "rooms": "/api/rooms/",
     "room": "/api/room/",
 }

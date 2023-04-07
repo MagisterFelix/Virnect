@@ -1,7 +1,5 @@
 from rest_framework.views import exception_handler
 
-from .utils import ExceptionUtils
-
 
 def api_exception_handler(exception, context):
     response = exception_handler(exception, context)
@@ -9,16 +7,21 @@ def api_exception_handler(exception, context):
     if response is None:
         return response
 
-    if isinstance(response.data, list):
-        payload = []
+    payload = {
+        "details": []
+    }
 
-        for data in response.data:
-            payload.append(ExceptionUtils.process_error(data))
+    for field, errors in response.data.items():
+        if isinstance(errors, list):
+            errors = " ".join(errors)
 
-        response.data = payload
+        if "unique set" in errors:
+            errors = "Values must be unique."
 
-        return response
+        payload["details"].append({
+            field: ". ".join(err if err[0].isupper() else err.capitalize() for err in errors.split(". "))
+        })
 
-    response.data = ExceptionUtils.process_error(response.data)
+    response.data = payload
 
     return response

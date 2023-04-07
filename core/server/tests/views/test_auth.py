@@ -182,7 +182,7 @@ class DeauthorizationViewTest(APITestCase):
 
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.user = User.objects.get(id=1)
+        self.user = User.objects.get(pk=1)
 
     def test_deauthorization(self):
         request = self.factory.post(path=PATHS["sign-out"], format="json")
