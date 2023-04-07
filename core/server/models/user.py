@@ -12,13 +12,13 @@ class UserManager(BaseUserManager, BaseManager):
 
     def create_user(self, username, email, password, **extra_fields):
         if username is None or username == "":
-            raise ValueError("Users must have an username.")
+            raise ValueError("User must have an username.")
 
         if email is None or email == "":
-            raise ValueError("Users must have an email.")
+            raise ValueError("User must have an email.")
 
         if password is None or password == "":
-            raise ValueError("Users must have a password.")
+            raise ValueError("User must have a password.")
 
         user = self.model(
             username=username,
