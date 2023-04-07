@@ -18,7 +18,6 @@ import ENDPOINTS from '@api/endpoints';
 import { useAuth } from '@context/AuthProvider';
 
 import NotFound from '@components/404/NotFound';
-import RoomList from '@components/main/RoomList';
 import Navbar from '@components/navbar/Navbar';
 import Report from '@components/user/Report';
 
