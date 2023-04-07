@@ -120,11 +120,11 @@ const GuestRoutes = () => {
   return !profile ? <Outlet /> : <Navigate to="/" replace />;
 };
 
-const UserRoutes = () => {
+const AuthorizedRoutes = () => {
   const { profile } = useAuth();
   return profile ? <Outlet /> : <Navigate to="/sign-in" replace />;
 };
 
 export {
-  useAuth, AuthProvider, GuestRoutes, UserRoutes,
+  useAuth, AuthProvider, GuestRoutes, AuthorizedRoutes,
 };
