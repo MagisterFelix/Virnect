@@ -214,7 +214,7 @@ const RoomProvider = ({ children }) => {
 
 const ProtectedRoomRoute = () => {
   const { room } = useRoom();
-  return room ? <Room /> : <Navigate to="/" replace />;
+  return room ? <Room /> : <Navigate to="/" state={{ notification: { type: 'error', message: 'You cannot join this room.' } }} replace />;
 };
 
 export {
