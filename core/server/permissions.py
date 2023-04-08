@@ -47,3 +47,16 @@ class IsOwnerOrReadOnly(IsAuthenticated):
             return room.host == request.user
 
         return True
+
+
+class IsParticipant(IsAuthenticated):
+
+    def has_permission(self, request, view):
+        is_authenticated = super(IsParticipant, self).has_permission(request, view)
+
+        room = Room.objects.get_or_none(title=view.kwargs.get("title"))
+
+        if room is None:
+            raise NotFound()
+
+        return is_authenticated and request.user in room.participants.all()

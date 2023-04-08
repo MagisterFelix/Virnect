@@ -4,7 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from core.server.filters import RoomFilter
 from core.server.models import Room
-from core.server.permissions import IsOwnerOrReadOnly
+from core.server.permissions import IsOwnerOrReadOnly, IsParticipant
 from core.server.serializers import ConnectingSerializer, DisconnectingSerializer, RoomSerializer
 
 
@@ -24,6 +24,11 @@ class RoomView(RetrieveUpdateDestroyAPIView):
     queryset = Room.objects.all()
     serializer_class = RoomSerializer
     permission_classes = (IsOwnerOrReadOnly,)
+
+    def get_permissions(self):
+        if self.request.method == "GET":
+            return (IsParticipant(),)
+        return super(RoomView, self).get_permissions()
 
 
 class ConnectingView(UpdateAPIView):

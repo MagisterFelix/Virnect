@@ -69,17 +69,20 @@ class ConnectingSerializer(Serializer):
     key = serializers.CharField(max_length=16, required=False, write_only=True)
 
     def validate(self, attrs):
-        if len(self.instance.key) > 0 and attrs.get("key") is None:
-            raise PermissionDenied("Key must be provided.")
-
-        if len(self.instance.key) > 0 and attrs.get("key") != self.instance.key:
-            raise PermissionDenied("Key mismatch.")
-
         if self.instance.participants.count() == self.instance.number_of_participants:
             raise PermissionDenied("Room is full.")
 
         if Room.objects.filter(participants__in=[self.context["request"].user]).count() != 0:
             raise PermissionDenied("User is already in room.")
+
+        if self.instance.host == self.context["request"].user:
+            return super(ConnectingSerializer, self).validate(attrs)
+
+        if len(self.instance.key) > 0 and attrs.get("key") is None:
+            raise PermissionDenied("Key must be provided.")
+
+        if len(self.instance.key) > 0 and attrs.get("key") != self.instance.key:
+            raise PermissionDenied("Key mismatch.")
 
         return super(ConnectingSerializer, self).validate(attrs)
 

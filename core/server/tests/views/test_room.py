@@ -95,11 +95,22 @@ class RoomViewTest(APITestCase):
         self.room = Room.objects.get(pk=1)
 
     def test_get_room(self):
+        request = self.factory.patch(path=PATHS["connect"], format="json")
+        force_authenticate(request=request, user=self.user)
+        response = ConnectingView().as_view()(request, room=self.room.title)
+
         request = self.factory.get(path=PATHS["room"], format="json")
         force_authenticate(request=request, user=self.user)
         response = RoomView().as_view()(request, title=self.room.title)
 
         self.assertEqual(response.status_code, 200)
+
+    def test_get_room_if_not_participant(self):
+        request = self.factory.get(path=PATHS["room"], format="json")
+        force_authenticate(request=request, user=self.user)
+        response = RoomView().as_view()(request, title=self.room.title)
+
+        self.assertEqual(response.status_code, 403)
 
     def test_update_room(self):
         data = {
