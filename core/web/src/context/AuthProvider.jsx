@@ -83,7 +83,7 @@ const AuthProvider = ({ children }) => {
   const resetPassword = async (uidb64, token, form, validation, setError, setAlert) => {
     try {
       const response = await execute({
-        url: ENDPOINTS.reset_password + ((uidb64 && token) ? `${uidb64}/${token}/` : ''),
+        url: ENDPOINTS.password_reset + ((uidb64 && token) ? `${uidb64}/${token}/` : ''),
         data: form,
       });
       setAlert({ type: 'success', message: response.data.details });
