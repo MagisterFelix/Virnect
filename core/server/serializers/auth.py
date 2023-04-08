@@ -29,7 +29,7 @@ class AuthorizationSerializer(TokenObtainPairSerializer):
 
         return super(AuthorizationSerializer, self).validate(attrs)
 
-    def to_representation(self, instance):
+    def to_representation(self, _):
         data = OrderedDict()
 
         data["details"] = "User has been authorized."
@@ -39,7 +39,7 @@ class AuthorizationSerializer(TokenObtainPairSerializer):
 
 class DeauthorizationSerializer(Serializer):
 
-    def to_representation(self, instance):
+    def to_representation(self, _):
         data = OrderedDict()
 
         data["details"] = "User has been deauthorized."
@@ -62,7 +62,7 @@ class RegistrationSerializer(ModelSerializer):
         user = User.objects.create_user(**validated_data)
         return user
 
-    def to_representation(self, instance):
+    def to_representation(self, _):
         data = OrderedDict()
 
         data["details"] = "User has been registered."
@@ -89,7 +89,7 @@ class PasswordResetSerializer(Serializer):
 
         return validated_data
 
-    def to_representation(self, instance):
+    def to_representation(self, _):
         data = OrderedDict()
 
         data["details"] = "Email has been sent."
@@ -123,7 +123,7 @@ class PasswordResetConfirmSerializer(Serializer):
 
         return super(PasswordResetConfirmSerializer, self).validate(attrs)
 
-    def to_representation(self, instance):
+    def to_representation(self, _):
         data = OrderedDict()
 
         data["details"] = "Password has been reset."
