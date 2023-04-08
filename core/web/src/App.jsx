@@ -9,7 +9,7 @@ import '@fontsource/roboto/900.css';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 import { AuthorizedRoutes, AuthProvider, GuestRoutes } from '@context/AuthProvider';
-import { RoomProvider } from '@context/RoomProvider';
+import { ProtectedRoomRoute, RoomListProvider, RoomProvider } from '@context/RoomDataProvider';
 
 import NotFound from '@components/404/NotFound';
 import Authorization from '@components/auth/Authorization';
@@ -45,17 +45,25 @@ const App = () => (
             <Route
               path="/"
               element={(
-                <RoomProvider>
+                <RoomListProvider>
                   <Home />
+                </RoomListProvider>
+              )}
+            />
+            <Route
+              path="/room/:title"
+              element={(
+                <RoomProvider>
+                  <ProtectedRoomRoute />
                 </RoomProvider>
               )}
             />
             <Route
               path="/user/:username"
               element={(
-                <RoomProvider>
+                <RoomListProvider>
                   <User />
-                </RoomProvider>
+                </RoomListProvider>
               )}
             />
             <Route path="/settings" element={<Settings />} />

@@ -29,7 +29,7 @@ import {
   Title,
 } from '@mui/icons-material';
 
-import { useRoom } from '@context/RoomProvider';
+import { useRoom } from '@context/RoomDataProvider';
 
 const ConfirmationForm = ({ onConfirm }) => {
   const [openDialog, setOpenDialog] = useState(false);

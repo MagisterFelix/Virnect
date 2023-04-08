@@ -22,6 +22,8 @@ import {
   useMediaQuery,
 } from '@mui/material';
 
+import { LoadingButton } from '@mui/lab';
+
 import {
   AccessTime,
   Close,
@@ -31,7 +33,7 @@ import {
 } from '@mui/icons-material';
 
 import { useAuth } from '@context/AuthProvider';
-import { useRoom } from '@context/RoomProvider';
+import { useRoom } from '@context/RoomDataProvider';
 
 import { ConfirmationForm, RoomForm } from '@utils/Forms';
 import { LightTooltip } from '@utils/Styles';
@@ -47,7 +49,7 @@ const RoomList = ({ editable }) => {
   const isUnderMd = useMediaQuery((theme) => theme.breakpoints.down('md'));
 
   const {
-    loadingRoomData: loadingRooms, roomData: rooms, error, deleteRoom,
+    loading, loadingRoomList, roomList, notFound, deleteRoom, connect,
   } = useRoom();
 
   const [selectedRoom, setSelectedRoom] = useState(null);
@@ -55,38 +57,29 @@ const RoomList = ({ editable }) => {
   const handleOpenTooltip = (room) => setSelectedRoom(room);
   const handleCloseToolTip = () => setSelectedRoom(null);
 
-  const validationKey = {
+  const validation = {
     key: {
       required: 'This field may not be blank.',
     },
   };
 
-  const [alertKey, setAlertKey] = useState(null);
-  const { control: controlKey, handleSubmit: handleSubmitKey, reset: resetKey } = useForm();
-  const handleOnSubmitKey = (form) => {
-    setAlertKey(null);
-    crypto.subtle.digest('SHA-256', new TextEncoder().encode(form.key))
-      .then((hashBuffer) => {
-        if (!Array.from(new Uint8Array(hashBuffer)).map((b) => b.toString(16).padStart(2, '0')).join('') === selectedRoom.key) {
-          setAlertKey({ type: 'error', message: 'Key mismatch.' });
-        }
-      });
+  const [alert, setAlert] = useState(null);
+  const {
+    control, handleSubmit, setError, reset,
+  } = useForm();
+  const handleOnConnect = async (form) => {
+    setAlert(null);
+    await connect(selectedRoom, form, validation, setError, setAlert);
   };
 
   const [openVerificationDialog, setOpenVerificationDialog] = useState(false);
   const handleOpenVerificationDialog = (room) => {
     setSelectedRoom(room);
-    resetKey();
-    setAlertKey(null);
+    reset();
+    setAlert(null);
     setOpenVerificationDialog(true);
   };
   const handleCloseVerificationDialog = () => setOpenVerificationDialog(false);
-
-  const handleOnJoin = (room) => {
-    if (room.key.length !== 0 && profile.id !== room.host.id) {
-      handleOpenVerificationDialog(room);
-    }
-  };
 
   const [alertRoomEditing, setAlertRoomEditing] = useState(null);
   const formRoomEditing = useForm();
@@ -103,7 +96,16 @@ const RoomList = ({ editable }) => {
     await deleteRoom(room);
   };
 
-  if (!loadingRooms && rooms.results.length === 0) {
+  const handleOnJoin = async (room) => {
+    if (room.key.length !== 0 && profile.id !== room.host.id) {
+      setSelectedRoom(room);
+      handleOpenVerificationDialog(room);
+    } else {
+      await connect(room, {}, {}, setError, setAlert);
+    }
+  };
+
+  if (!loadingRoomList && roomList.results.length === 0) {
     return (
       <div className="Nothing" style={{ textAlign: 'center' }}>
         <Box
@@ -119,7 +121,7 @@ const RoomList = ({ editable }) => {
           color: styles.color_white,
         }}
         >
-          <span>{error}</span>
+          <span>{notFound}</span>
         </Typography>
       </div>
     );
@@ -127,13 +129,13 @@ const RoomList = ({ editable }) => {
 
   return (
     <div className="Rooms">
-      {loadingRooms
+      {loadingRoomList
         ? (
           <>
             <Skeleton variant="rounded" height={270} sx={{ mt: 4, borderRadius: 2 }} />
             <Skeleton variant="rounded" height={270} sx={{ my: 4, borderRadius: 2 }} />
           </>
-        ) : rooms.results.map(
+        ) : roomList.results.map(
           (room) => (
             <Paper
               key={room.id}
@@ -301,7 +303,8 @@ const RoomList = ({ editable }) => {
                   >
                     <ButtonGroup variant="contained" sx={{ minWidth: editable ? 150 : 100 }}>
                       <Button
-                        disabled={room.number_of_participants === room.participants.length}
+                        disabled={room.number_of_participants === room.participants.length
+                           || room.participants.map((user) => user.id).includes(profile.id)}
                         onClick={() => handleOnJoin(room)}
                         endIcon={room.key.length !== 0 && profile.id !== room.host.id && <Lock />}
                         sx={{
@@ -347,7 +350,7 @@ const RoomList = ({ editable }) => {
         <DialogContent>
           <Controller
             name="key"
-            control={controlKey}
+            control={control}
             defaultValue=""
             rules={{
               required: true,
@@ -364,16 +367,19 @@ const RoomList = ({ editable }) => {
                 margin="dense"
                 label="Key"
                 error={fieldError !== undefined}
-                helperText={fieldError ? fieldError.message || validationKey.key[fieldError.type] : ''}
+                helperText={fieldError ? fieldError.message || validation.key[fieldError.type] : ''}
               />
             )}
           />
-          {alertKey && <Alert severity={alertKey.type} sx={{ textAlign: 'left', mt: 1 }}>{alertKey.message}</Alert>}
+          {alert && <Alert severity={alert.type} sx={{ textAlign: 'left', mt: 1 }}>{alert.message}</Alert>}
         </DialogContent>
         <DialogActions sx={{ mx: 1 }}>
-          <Button onClick={handleSubmitKey(handleOnSubmitKey)}>
+          <LoadingButton
+            loading={loading}
+            onClick={handleSubmit(handleOnConnect)}
+          >
             <span>Try</span>
-          </Button>
+          </LoadingButton>
         </DialogActions>
       </Dialog>
       {editable && selectedRoom && (

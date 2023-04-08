@@ -11,6 +11,7 @@ const ENDPOINTS = {
   tag: '/api/tag/',
   rooms: '/api/rooms/',
   room: '/api/room/',
+  connecting: '/api/connect/',
 };
 
 export default ENDPOINTS;
