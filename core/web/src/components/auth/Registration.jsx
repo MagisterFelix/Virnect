@@ -222,6 +222,7 @@ const Registration = () => {
                       value={value}
                       required
                       fullWidth
+                      margin="dense"
                       type="email"
                       label="Email"
                       InputProps={{
@@ -232,7 +233,7 @@ const Registration = () => {
                         ),
                       }}
                       sx={{
-                        myY: 1,
+                        my: 1,
                       }}
                       error={fieldError !== undefined}
                       helperText={fieldError ? fieldError.message || validation.email[fieldError.type] : ''}

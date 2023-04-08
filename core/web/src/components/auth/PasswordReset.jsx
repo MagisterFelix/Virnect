@@ -242,7 +242,7 @@ const PasswordReset = () => {
                   loadingPosition="end"
                   sx={{
                     mt: 4,
-                    maxWidth: 300,
+                    maxWidth: 250,
                     borderRadius: 2,
                     textTransform: 'none',
                     fontFamily: styles.font_poppins,
