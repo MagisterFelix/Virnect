@@ -18,6 +18,7 @@ import ENDPOINTS from '@api/endpoints';
 import { useAuth } from '@context/AuthProvider';
 
 import NotFound from '@components/404/NotFound';
+import RoomList from '@components/main/RoomList';
 import Navbar from '@components/navbar/Navbar';
 import Report from '@components/user/Report';
 
@@ -234,7 +235,30 @@ const User = () => {
                 </Grid>
               </Grid>
             </Grid>
+            <Grid container>
+              <Grid item xs={12} sx={{ mt: 2 }}>
+                <Typography
+                  sx={{
+                    fontSize: styles.font_large,
+                    color: styles.color_yellow,
+                    fontWeight: 'bold',
+                  }}
+                >
+                  {loadingUser
+                    ? (
+                      <Skeleton
+                        width="30%"
+                        sx={{
+                          m: 'auto',
+                        }}
+                      />
+                    )
+                    : <span>Host of rooms:</span>}
+                </Typography>
+              </Grid>
+            </Grid>
           </Grid>
+          <RoomList editable={!loadingUser && profile.username === username} />
         </Container>
       </div>
     </>

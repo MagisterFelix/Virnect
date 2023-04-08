@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import {
@@ -28,6 +29,7 @@ import Language from '@components/main/Language';
 import Tag from '@components/main/Tag';
 import Topic from '@components/main/Topic';
 
+import { RoomForm } from '@utils/Forms';
 import { DropdownButton } from '@utils/Styles';
 
 import styles from '@styles/_globals.scss';
@@ -52,6 +54,16 @@ const Panel = () => {
     setSearchTerm('');
     searchParams.delete('search');
     navigate(`?${decodeURIComponent(searchParams.toString())}`);
+  };
+
+  const [alert, setAlert] = useState(null);
+  const formRoomCreation = useForm();
+
+  const [openRoomCreationDialog, setOpenRoomCreationDialog] = useState(false);
+  const handleOpenRoomCreationDialog = () => {
+    formRoomCreation.reset();
+    setAlert(null);
+    setOpenRoomCreationDialog(true);
   };
 
   const [selectedExtra, setSelectedExtra] = useState([]);
@@ -149,6 +161,7 @@ const Panel = () => {
             <Button
               fullWidth
               variant="contained"
+              onClick={handleOpenRoomCreationDialog}
               sx={{
                 height: '100%',
                 textTransform: 'none',
@@ -158,6 +171,13 @@ const Panel = () => {
               <Add />
               <span style={{ display: useMediaQuery(useTheme().breakpoints.down('sm')) ? 'none' : 'flex' }}>Add room</span>
             </Button>
+            <RoomForm
+              form={formRoomCreation}
+              alert={alert}
+              setAlert={setAlert}
+              openDialog={openRoomCreationDialog}
+              setOpenDialog={setOpenRoomCreationDialog}
+            />
           </Grid>
         </Grid>
         <Grid container justifyContent="center" spacing={2}>

@@ -9,6 +9,7 @@ import '@fontsource/roboto/900.css';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 import { AuthorizedRoutes, AuthProvider, GuestRoutes } from '@context/AuthProvider';
+import { RoomProvider } from '@context/RoomProvider';
 
 import NotFound from '@components/404/NotFound';
 import Authorization from '@components/auth/Authorization';
@@ -41,8 +42,22 @@ const App = () => (
             <Route path="/reset-password/:uidb64?/:token?" element={<PasswordReset />} />
           </Route>
           <Route element={<AuthorizedRoutes />}>
-            <Route path="/" element={<Home />} />
-            <Route path="/user/:username" element={<User />} />
+            <Route
+              path="/"
+              element={(
+                <RoomProvider>
+                  <Home />
+                </RoomProvider>
+              )}
+            />
+            <Route
+              path="/user/:username"
+              element={(
+                <RoomProvider>
+                  <User />
+                </RoomProvider>
+              )}
+            />
             <Route path="/settings" element={<Settings />} />
           </Route>
           <Route path="*" element={<NotFound />} />
