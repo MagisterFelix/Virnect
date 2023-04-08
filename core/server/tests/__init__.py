@@ -90,4 +90,6 @@ PATHS = {
     "tag": "/api/tag/",
     "rooms": "/api/rooms/",
     "room": "/api/room/",
+    "connect": "/api/connect/",
+    "disconnect": "/api/disconnect/",
 }

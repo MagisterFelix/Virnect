@@ -1,11 +1,11 @@
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, UpdateAPIView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 
 from core.server.filters import RoomFilter
 from core.server.models import Room
 from core.server.permissions import IsOwnerOrReadOnly
-from core.server.serializers import RoomSerializer
+from core.server.serializers import ConnectingSerializer, DisconnectingSerializer, RoomSerializer
 
 
 class RoomListView(ListCreateAPIView):
@@ -24,3 +24,21 @@ class RoomView(RetrieveUpdateDestroyAPIView):
     queryset = Room.objects.all()
     serializer_class = RoomSerializer
     permission_classes = (IsOwnerOrReadOnly,)
+
+
+class ConnectingView(UpdateAPIView):
+
+    lookup_field = "title"
+    lookup_url_kwarg = "room"
+    queryset = Room.objects.all()
+    serializer_class = ConnectingSerializer
+    permission_classes = (IsAuthenticated,)
+
+
+class DisconnectingView(UpdateAPIView):
+
+    lookup_field = "title"
+    lookup_url_kwarg = "room"
+    queryset = Room.objects.all()
+    serializer_class = DisconnectingSerializer
+    permission_classes = (IsAuthenticated,)

@@ -1,8 +1,9 @@
 import hashlib
 from collections import OrderedDict
 
+from rest_framework import serializers
 from rest_framework.exceptions import PermissionDenied
-from rest_framework.serializers import ModelSerializer
+from rest_framework.serializers import ModelSerializer, Serializer
 
 from core.server.models import Room, Tag
 
@@ -60,4 +61,57 @@ class RoomSerializer(ModelSerializer):
         elif self.context["request"].method == "DELETE":
             data["details"] = "Room has been deleted."
 
+        return data
+
+
+class ConnectingSerializer(Serializer):
+
+    key = serializers.CharField(max_length=16, required=False, write_only=True)
+
+    def validate(self, attrs):
+        if len(self.instance.key) > 0 and attrs.get("key") is None:
+            raise PermissionDenied("Key must be provided.")
+
+        if len(self.instance.key) > 0 and attrs.get("key") != self.instance.key:
+            raise PermissionDenied("Key mismatch.")
+
+        if self.instance.participants.count() == self.instance.number_of_participants:
+            raise PermissionDenied("Room is full.")
+
+        if Room.objects.filter(participants__in=[self.context["request"].user]).count() != 0:
+            raise PermissionDenied("User is already in room.")
+
+        return super(ConnectingSerializer, self).validate(attrs)
+
+    def update(self, instance, _):
+        instance.participants.add(self.context["request"].user)
+        instance.save()
+        return instance
+
+    def to_representation(self, _):
+        data = {
+            "details": "User has been connected."
+        }
+        return data
+
+
+class DisconnectingSerializer(Serializer):
+
+    def validate(self, attrs):
+        user = self.context["request"].user
+
+        if user not in self.instance.participants.all():
+            raise PermissionDenied("User is not in room.")
+
+        return super(DisconnectingSerializer, self).validate(attrs)
+
+    def update(self, instance, _):
+        instance.participants.remove(self.context["request"].user)
+        instance.save()
+        return instance
+
+    def to_representation(self, _):
+        data = {
+            "details": "User has been disconnected."
+        }
         return data
