@@ -3,6 +3,7 @@ import React from 'react';
 import {
   Badge,
   Button,
+  PaginationItem,
   TextField,
   Tooltip,
   tooltipClasses,
@@ -89,6 +90,27 @@ const DropdownButton = styled(Button)({
   },
 });
 
+const LightPaginationItem = styled(PaginationItem)({
+  color: styles.color_white,
+  '&:hover': {
+    backgroundColor: styles.color_white,
+    color: styles.color_black,
+  },
+  '&.Mui-selected': {
+    backgroundColor: styles.color_white,
+    color: styles.color_black,
+    '&:hover': {
+      backgroundColor: styles.color_white,
+    },
+  },
+  '&.MuiPaginationItem-ellipsis': {
+    color: styles.color_white,
+    '&:hover': {
+      backgroundColor: 'transparent',
+    },
+  },
+});
+
 export {
-  OnlineBadge, outline, LightTooltip, DropdownTextField, DropdownButton,
+  OnlineBadge, outline, LightTooltip, DropdownTextField, DropdownButton, LightPaginationItem,
 };

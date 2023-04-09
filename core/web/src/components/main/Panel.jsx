@@ -14,6 +14,7 @@ import {
   ListSubheader,
   Menu,
   MenuItem,
+  Pagination,
   Typography,
   useMediaQuery,
   useTheme,
@@ -31,7 +32,7 @@ import { useRoomData } from '@context/RoomDataProvider';
 
 import { RoomForm } from '@utils/Forms';
 import {
-  DropdownButton, DropdownTextField, LightTooltip,
+  DropdownButton, DropdownTextField, LightPaginationItem, LightTooltip,
 } from '@utils/Styles';
 
 import styles from '@styles/_globals.scss';
@@ -45,7 +46,20 @@ const Panel = () => {
     loadingTopicList, topicList,
     loadingRoomOptions, roomOptions,
     loadingTagList, tagList,
+    pageCount,
   } = useRoomData();
+
+  const [page, setPage] = useState(1);
+  const handleSelectPage = (event, value) => {
+    event.preventDefault();
+    setPage(value);
+    if (value !== 1) {
+      searchParams.set('page', value);
+    } else {
+      searchParams.delete('page');
+    }
+    navigate(`?${decodeURIComponent(searchParams.toString())}`);
+  };
 
   const [searchTerm, setSearchTerm] = useState('');
   const handleSearch = (event) => {
@@ -53,6 +67,8 @@ const Panel = () => {
     setSearchTerm(value);
     if (value) {
       searchParams.set('search', value);
+      setPage(1);
+      searchParams.delete('page');
     } else {
       searchParams.delete('search');
     }
@@ -80,6 +96,8 @@ const Panel = () => {
     setSelectedTopic(value);
     if (value !== 'All topics') {
       searchParams.set('topic', value);
+      setPage(1);
+      searchParams.delete('page');
     } else {
       searchParams.delete('topic');
     }
@@ -92,6 +110,8 @@ const Panel = () => {
     setSelectedLanguage(value);
     if (value !== 'All languages') {
       searchParams.set('language', value);
+      setPage(1);
+      searchParams.delete('page');
     } else {
       searchParams.delete('language');
     }
@@ -104,12 +124,16 @@ const Panel = () => {
     if (value.length > 0 && value[0] === 'All tags') {
       setSelectedTags(value.slice(1));
       searchParams.set('tags', value.slice(1).join(','));
+      setPage(1);
+      searchParams.delete('page');
     } else if (value.length === 0 || (value.length > 0 && value[value.length - 1] === 'All tags')) {
       setSelectedTags(['All tags']);
       searchParams.delete('tags');
     } else {
       setSelectedTags(value);
       searchParams.set('tags', value.join(','));
+      setPage(1);
+      searchParams.delete('page');
     }
     navigate(`?${decodeURIComponent(searchParams.toString())}`);
   };
@@ -129,6 +153,8 @@ const Panel = () => {
     setSelectedExtra(newSelectedValues);
     if (newSelectedValues.indexOf(value) > -1) {
       searchParams.set(value, true);
+      setPage(1);
+      searchParams.delete('page');
     } else {
       searchParams.delete(value);
     }
@@ -151,6 +177,14 @@ const Panel = () => {
   };
 
   useEffect(() => {
+    const pageParam = searchParams.get('page');
+    if (pageParam !== null) {
+      const pageNum = parseInt(pageParam, 10);
+      if (!Number.isNaN(pageNum)) {
+        setPage(pageNum);
+      }
+    }
+
     const searchParam = searchParams.get('search');
     if (searchParam !== null) {
       setSearchTerm(searchParam);
@@ -507,6 +541,17 @@ const Panel = () => {
               </Menu>
             </Box>
           </Grid>
+        </Grid>
+        <Grid container justifyContent="center" mt={4}>
+          {pageCount !== 0 && (
+          <Pagination
+            shape="rounded"
+            count={pageCount}
+            page={page}
+            renderItem={(item) => <LightPaginationItem {...item} />}
+            onChange={handleSelectPage}
+          />
+          )}
         </Grid>
       </Grid>
     </div>
