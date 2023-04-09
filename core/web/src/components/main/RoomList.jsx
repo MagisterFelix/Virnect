@@ -33,7 +33,8 @@ import {
 } from '@mui/icons-material';
 
 import { useAuth } from '@context/AuthProvider';
-import { useRoom } from '@context/RoomDataProvider';
+import { useConnection } from '@context/ConnectionProvider';
+import { useRoomData } from '@context/RoomDataProvider';
 
 import { ConfirmationForm, RoomForm } from '@utils/Forms';
 import { LightTooltip } from '@utils/Styles';
@@ -48,9 +49,11 @@ const RoomList = ({ editable }) => {
 
   const isUnderMd = useMediaQuery((theme) => theme.breakpoints.down('md'));
 
+  const { connect } = useConnection();
+
   const {
-    loading, loadingRoomList, roomList, notFound, deleteRoom, connect,
-  } = useRoom();
+    loading, loadingRoomList, roomList, notFound, deleteRoom,
+  } = useRoomData();
 
   const [selectedRoom, setSelectedRoom] = useState(null);
 
@@ -69,7 +72,7 @@ const RoomList = ({ editable }) => {
   } = useForm();
   const handleOnConnect = async (form) => {
     setAlert(null);
-    await connect(selectedRoom, form, validation, setError, setAlert);
+    await connect(selectedRoom.title, form, validation, setError, setAlert);
   };
 
   const [openVerificationDialog, setOpenVerificationDialog] = useState(false);
@@ -101,7 +104,7 @@ const RoomList = ({ editable }) => {
       setSelectedRoom(room);
       handleOpenVerificationDialog(room);
     } else {
-      await connect(room, {}, {}, setError, setAlert);
+      await connect(room.title, {}, {}, null, null);
     }
   };
 

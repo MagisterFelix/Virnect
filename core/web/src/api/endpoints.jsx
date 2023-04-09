@@ -12,6 +12,7 @@ const ENDPOINTS = {
   rooms: '/api/rooms/',
   room: '/api/room/',
   connecting: '/api/connect/',
+  disconnecting: '/api/disconnect/',
 };
 
 export default ENDPOINTS;

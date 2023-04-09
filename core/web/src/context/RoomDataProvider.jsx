@@ -1,18 +1,18 @@
 import React, {
   createContext,
   useContext,
+  useEffect,
   useMemo,
 } from 'react';
-import {
-  Navigate,
-  useNavigate, useParams, useSearchParams,
-} from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 import useAxios from '@api/axios';
 import ENDPOINTS from '@api/endpoints';
 import handleErrors from '@api/errors';
+
+import { useConnection } from '@context/ConnectionProvider';
+
 import Room from '@components/room/Room';
-import { CircularProgress } from '@mui/material';
 
 const RoomContext = createContext(null);
 
@@ -22,7 +22,7 @@ const RoomListProvider = ({ children }) => {
   const { username } = useParams();
   const [searchParams] = useSearchParams();
 
-  const navigate = useNavigate();
+  const { connect } = useConnection();
 
   const [{ loading: loadingTopics, data: topics }] = useAxios(
     {
@@ -58,20 +58,6 @@ const RoomListProvider = ({ children }) => {
       autoCancel: false,
     },
   );
-
-  const connect = async (roomInstance, form, validation, setError, setAlert) => {
-    setAlert(null);
-    try {
-      await execute({
-        url: `${ENDPOINTS.connecting}${roomInstance.title}/`,
-        method: 'PATCH',
-        data: form,
-      });
-      navigate(`/room/${roomInstance.title}`);
-    } catch (err) {
-      handleErrors(validation, err.response.data.details, setError, setAlert);
-    }
-  };
 
   const getTags = async (roomInstance) => {
     const response = await execute({
@@ -165,7 +151,6 @@ const RoomListProvider = ({ children }) => {
     loadingRoomList,
     roomList,
     loading,
-    connect,
     createRoom,
     updateRoom,
     deleteRoom,
@@ -182,7 +167,7 @@ const RoomListProvider = ({ children }) => {
 const RoomProvider = ({ children }) => {
   const { title } = useParams();
 
-  const [{ loading: loadingRoom, data: room }] = useAxios(
+  const [{ loading: loadingRoom, data: room, error: errorData }] = useAxios(
     {
       url: `${ENDPOINTS.room}${title}/`,
       method: 'GET',
@@ -190,31 +175,48 @@ const RoomProvider = ({ children }) => {
   );
 
   const value = useMemo(() => ({
-    loadingRoom, room,
-  }), [loadingRoom, room]);
+    loadingRoom, room, errorData,
+  }), [loadingRoom, room, errorData]);
 
   return (
     <RoomContext.Provider value={value}>
-      {loadingRoom
-        ? (
-          <div style={{
-            minHeight: '100dvh',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-          >
-            <CircularProgress />
-          </div>
-        )
-        : children}
+      {children}
     </RoomContext.Provider>
   );
 };
 
 const ProtectedRoomRoute = () => {
-  const { room } = useRoom();
-  return room ? <Room /> : <Navigate to="/" state={{ notification: { type: 'error', message: 'You cannot join this room.' } }} replace />;
+  const { title } = useParams();
+
+  const navigate = useNavigate();
+
+  const { connect } = useConnection();
+
+  const { room, errorData } = useRoomData();
+
+  const retry = async () => {
+    await connect(title, {}, {}, null, null);
+  };
+
+  useEffect(() => {
+    if (!room && errorData) {
+      if (errorData.response.status !== 404) {
+        retry();
+      } else {
+        navigate('/', {
+          state: {
+            notification: {
+              type: 'error',
+              message: 'No room was found',
+            },
+          },
+          replace: true,
+        });
+      }
+    }
+  }, [room, errorData]);
+
+  return <Room />;
 };
 
 export {

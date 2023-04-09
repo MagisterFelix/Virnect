@@ -9,6 +9,7 @@ import '@fontsource/roboto/900.css';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 import { AuthorizedRoutes, AuthProvider, GuestRoutes } from '@context/AuthProvider';
+import { ConnectionProvider } from '@context/ConnectionProvider';
 import { ProtectedRoomRoute, RoomListProvider, RoomProvider } from '@context/RoomDataProvider';
 
 import NotFound from '@components/404/NotFound';
@@ -35,41 +36,43 @@ const App = () => (
   <ThemeProvider theme={theme}>
     <AuthProvider>
       <BrowserRouter>
-        <Routes>
-          <Route element={<GuestRoutes />}>
-            <Route path="/sign-in" element={<Authorization />} />
-            <Route path="/sign-up" element={<Registration />} />
-            <Route path="/reset-password/:uidb64?/:token?" element={<PasswordReset />} />
-          </Route>
-          <Route element={<AuthorizedRoutes />}>
-            <Route
-              path="/"
-              element={(
-                <RoomListProvider>
-                  <Home />
-                </RoomListProvider>
-              )}
-            />
-            <Route
-              path="/room/:title"
-              element={(
-                <RoomProvider>
-                  <ProtectedRoomRoute />
-                </RoomProvider>
-              )}
-            />
-            <Route
-              path="/user/:username"
-              element={(
-                <RoomListProvider>
-                  <User />
-                </RoomListProvider>
-              )}
-            />
-            <Route path="/settings" element={<Settings />} />
-          </Route>
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <ConnectionProvider>
+          <Routes>
+            <Route element={<GuestRoutes />}>
+              <Route path="/sign-in" element={<Authorization />} />
+              <Route path="/sign-up" element={<Registration />} />
+              <Route path="/reset-password/:uidb64?/:token?" element={<PasswordReset />} />
+            </Route>
+            <Route element={<AuthorizedRoutes />}>
+              <Route
+                path="/"
+                element={(
+                  <RoomListProvider>
+                    <Home />
+                  </RoomListProvider>
+                )}
+              />
+              <Route
+                path="/room/:title"
+                element={(
+                  <RoomProvider>
+                    <ProtectedRoomRoute />
+                  </RoomProvider>
+                )}
+              />
+              <Route
+                path="/user/:username"
+                element={(
+                  <RoomListProvider>
+                    <User />
+                  </RoomListProvider>
+                )}
+              />
+              <Route path="/settings" element={<Settings />} />
+            </Route>
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </ConnectionProvider>
       </BrowserRouter>
     </AuthProvider>
   </ThemeProvider>
