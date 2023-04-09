@@ -16,7 +16,7 @@ import { CircularProgress } from '@mui/material';
 
 const RoomContext = createContext(null);
 
-const useRoom = () => useContext(RoomContext);
+const useRoomData = () => useContext(RoomContext);
 
 const RoomListProvider = ({ children }) => {
   const { username } = useParams();
@@ -218,5 +218,5 @@ const ProtectedRoomRoute = () => {
 };
 
 export {
-  useRoom, RoomListProvider, RoomProvider, ProtectedRoomRoute,
+  useRoomData, RoomListProvider, RoomProvider, ProtectedRoomRoute,
 };

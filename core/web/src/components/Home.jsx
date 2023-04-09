@@ -22,7 +22,7 @@ const Home = () => {
       toast(message, { type });
       navigate(location.pathname, { replace: true });
     }
-  }, []);
+  }, [location.state]);
 
   return (
     <>

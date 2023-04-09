@@ -29,7 +29,7 @@ import {
   Title,
 } from '@mui/icons-material';
 
-import { useRoom } from '@context/RoomDataProvider';
+import { useRoomData } from '@context/RoomDataProvider';
 
 const ConfirmationForm = ({ onConfirm }) => {
   const [openDialog, setOpenDialog] = useState(false);
@@ -82,7 +82,7 @@ const RoomForm = ({
 
   const {
     loading, loadingTopics, topics, loadingRoomOptions, roomOptions, createRoom, updateRoom,
-  } = useRoom();
+  } = useRoomData();
 
   const validation = {
     title: {

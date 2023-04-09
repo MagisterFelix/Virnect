@@ -8,7 +8,6 @@ import {
   Box,
   Container,
   IconButton,
-  Link,
   Menu,
   MenuItem, Toolbar,
   Typography,
@@ -36,13 +35,14 @@ const Navbar = () => {
 
   const { profile, logout } = useAuth();
 
-  const [anchorElUser, setAnchorElUser] = useState(null);
-  const handleOpenUserMenu = (event) => setAnchorElUser(event.currentTarget);
-  const handleCloseUserMenu = () => setAnchorElUser(null);
-
+  const navigateToMain = () => navigate('/');
   const navigateToProfile = () => navigate(`/user/${profile.username}`);
   const navigateToSettings = () => navigate('/settings');
   const handleOnLogout = () => logout();
+
+  const [anchorElUser, setAnchorElUser] = useState(null);
+  const handleOpenUserMenu = (event) => setAnchorElUser(event.currentTarget);
+  const handleCloseUserMenu = () => setAnchorElUser(null);
 
   return (
     <div className="Navbar">
@@ -54,9 +54,8 @@ const Navbar = () => {
               justifyContent: 'space-between',
             }}
           >
-            <Link
-              href="/"
-              underline="none"
+            <Typography
+              onClick={navigateToMain}
               sx={{
                 display: 'flex',
                 alignItems: 'center',
@@ -64,6 +63,7 @@ const Navbar = () => {
                 color: styles.color_white,
                 fontSize: styles.font_medium,
                 fontWeight: 'bold',
+                cursor: 'pointer',
               }}
             >
               <Box
@@ -78,7 +78,7 @@ const Navbar = () => {
                 }}
               />
               <span style={{ display: useMediaQuery(useTheme().breakpoints.down('sm')) ? 'none' : 'flex' }}>Virnect</span>
-            </Link>
+            </Typography>
             <Box
               sx={{
                 display: 'flex',

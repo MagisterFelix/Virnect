@@ -12,9 +12,10 @@ import {
 import useAxios from '@api/axios';
 import ENDPOINTS from '@api/endpoints';
 
+import { DropdownTextField } from '@utils/Styles';
+
 import styles from '@styles/_globals.scss';
 
-import { DropdownTextField } from '@utils/Styles';
 import './Main.scss';
 
 const Tag = () => {
