@@ -8,6 +8,7 @@ import {
   Box,
   Container,
   IconButton,
+  Link,
   Menu,
   MenuItem, Toolbar,
   Typography,
@@ -35,7 +36,6 @@ const Navbar = () => {
 
   const { profile, logout } = useAuth();
 
-  const navigateToMain = () => navigate('/');
   const navigateToProfile = () => navigate(`/user/${profile.username}`);
   const navigateToSettings = () => navigate('/settings');
   const handleOnLogout = () => logout();
@@ -54,8 +54,9 @@ const Navbar = () => {
               justifyContent: 'space-between',
             }}
           >
-            <Typography
-              onClick={navigateToMain}
+            <Link
+              href="/"
+              underline="none"
               sx={{
                 display: 'flex',
                 alignItems: 'center',
@@ -63,7 +64,6 @@ const Navbar = () => {
                 color: styles.color_white,
                 fontSize: styles.font_medium,
                 fontWeight: 'bold',
-                cursor: 'pointer',
               }}
             >
               <Box
@@ -78,7 +78,7 @@ const Navbar = () => {
                 }}
               />
               <span style={{ display: useMediaQuery(useTheme().breakpoints.down('sm')) ? 'none' : 'flex' }}>Virnect</span>
-            </Typography>
+            </Link>
             <Box
               sx={{
                 display: 'flex',
