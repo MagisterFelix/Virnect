@@ -135,7 +135,7 @@ const RoomList = ({ editable }) => {
 
   return (
     <div className="Rooms">
-      {loadingRoomList
+      {loadingRoomList && !roomList
         ? (
           <>
             <Skeleton variant="rounded" height={270} sx={{ mt: 4, borderRadius: 2 }} />
