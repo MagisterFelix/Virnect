@@ -3,6 +3,7 @@ import React, {
   useContext,
   useEffect,
   useMemo,
+  useState,
 } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
@@ -24,7 +25,7 @@ const RoomListProvider = ({ children }) => {
 
   const { connect } = useConnection();
 
-  const [{ loading: loadingTopics, data: topics }] = useAxios(
+  const [{ loading: loadingTopicList, data: topicList }] = useAxios(
     {
       url: ENDPOINTS.topics,
       method: 'GET',
@@ -38,6 +39,13 @@ const RoomListProvider = ({ children }) => {
     },
   );
 
+  const [{ loading: loadingTagList, data: tagList }, refetchTagList] = useAxios(
+    {
+      url: `${ENDPOINTS.tags}?unique=true`,
+      method: 'GET',
+    },
+  );
+
   const [{ loading: loadingRoomList, data: roomList }, refetchRoomList] = useAxios(
     {
       url: searchParams.toString().length === 0
@@ -46,6 +54,13 @@ const RoomListProvider = ({ children }) => {
       method: 'GET',
     },
   );
+
+  const [pageCount, setPageCount] = useState(0);
+  useEffect(() => {
+    if (roomList) {
+      setPageCount(Math.ceil(roomList.count / 5));
+    }
+  }, [roomList]);
 
   const notFound = (username !== undefined ? 'User hasn\'t created any room yet :(' : 'No rooms were found :(');
 
@@ -59,24 +74,23 @@ const RoomListProvider = ({ children }) => {
     },
   );
 
-  const getTags = async (roomInstance) => {
-    const response = await execute({
+  const getTagsByRoom = async (roomInstance) => {
+    const response = await refetchTagList({
       url: ENDPOINTS.tags,
-      method: 'GET',
     });
     return response.data.filter((tag) => tag.room === roomInstance.id);
   };
 
-  const addTags = async (tags) => {
-    const promises = tags.map((tag) => execute({
+  const addTags = async (toAdd) => {
+    const promises = toAdd.map((tag) => execute({
       url: ENDPOINTS.tags,
       data: tag,
     }));
     await Promise.all(promises);
   };
 
-  const removeTags = async (tags) => {
-    const promises = tags.map((tag) => execute({
+  const removeTags = async (toRemove) => {
+    const promises = toRemove.map((tag) => execute({
       url: `${ENDPOINTS.tag}${tag.id}/`,
       method: 'DELETE',
     }));
@@ -94,7 +108,7 @@ const RoomListProvider = ({ children }) => {
         room: response.data.room.id,
         name: tag,
       })));
-      await connect(response.data.room, {}, {}, setError, setAlert);
+      await connect(response.data.room.title, {}, {}, setError, setAlert);
     } catch (err) {
       handleErrors(validation, err.response.data.details, setError, setAlert);
     }
@@ -117,8 +131,8 @@ const RoomListProvider = ({ children }) => {
         await removeTags(toRemove);
         await addTags(toAdd.map((tag) => ({ room: roomInstance.id, name: tag })));
       }
-      const tags = await getTags(roomInstance);
-      response.data.room.tags = tags;
+      const tagsByRoom = await getTagsByRoom(roomInstance);
+      response.data.room.tags = tagsByRoom;
       setRoom(response.data.room);
       reset({
         title: response.data.room.title,
@@ -144,18 +158,30 @@ const RoomListProvider = ({ children }) => {
   };
 
   const value = useMemo(() => ({
-    loadingTopics,
-    topics,
+    loadingTopicList,
+    topicList,
     loadingRoomOptions,
     roomOptions,
     loadingRoomList,
     roomList,
+    loadingTagList,
+    tagList,
+    pageCount,
+    notFound,
     loading,
     createRoom,
     updateRoom,
     deleteRoom,
-    notFound,
-  }), [loadingTopics, topics, loadingRoomOptions, roomOptions, loadingRoomList, roomList, loading]);
+  }), [
+    loadingTopicList,
+    topicList,
+    loadingRoomOptions,
+    roomOptions,
+    loadingRoomList,
+    roomList,
+    pageCount,
+    loading,
+  ]);
 
   return (
     <RoomContext.Provider value={value}>
@@ -207,7 +233,7 @@ const ProtectedRoomRoute = () => {
           state: {
             notification: {
               type: 'error',
-              message: 'No room was found',
+              message: `The «${title}» room was not found`,
             },
           },
           replace: true,

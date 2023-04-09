@@ -8,6 +8,9 @@ import '@fontsource/roboto/900.css';
 
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.min.css';
+
 import { AuthorizedRoutes, AuthProvider, GuestRoutes } from '@context/AuthProvider';
 import { ConnectionProvider } from '@context/ConnectionProvider';
 import { ProtectedRoomRoute, RoomListProvider, RoomProvider } from '@context/RoomDataProvider';
@@ -34,6 +37,12 @@ const theme = createTheme({
 
 const App = () => (
   <ThemeProvider theme={theme}>
+    <ToastContainer
+      position="top-left"
+      style={{
+        marginTop: '6.5em',
+      }}
+    />
     <AuthProvider>
       <BrowserRouter>
         <ConnectionProvider>

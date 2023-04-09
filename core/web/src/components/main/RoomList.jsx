@@ -32,6 +32,8 @@ import {
   Tag,
 } from '@mui/icons-material';
 
+import { toast } from 'react-toastify';
+
 import { useAuth } from '@context/AuthProvider';
 import { useConnection } from '@context/ConnectionProvider';
 import { useRoomData } from '@context/RoomDataProvider';
@@ -97,6 +99,7 @@ const RoomList = ({ editable }) => {
 
   const handleOnDelete = async (room) => {
     await deleteRoom(room);
+    toast(`The «${room.title}» room has been removed`, { type: 'success' });
   };
 
   const handleOnJoin = async (room) => {
@@ -108,7 +111,7 @@ const RoomList = ({ editable }) => {
     }
   };
 
-  if (!loadingRoomList && roomList.results.length === 0) {
+  if (!loadingRoomList && (!roomList || roomList.results.length === 0)) {
     return (
       <div className="Nothing" style={{ textAlign: 'center' }}>
         <Box
@@ -152,8 +155,9 @@ const RoomList = ({ editable }) => {
             >
               <Grid container>
                 <Grid container p={2}>
-                  <Grid item xs={11} md={6}>
+                  <Grid item xs={11} lg={6}>
                     <Typography
+                      noWrap
                       sx={{
                         display: 'flex',
                         alignItems: 'center',
@@ -173,7 +177,7 @@ const RoomList = ({ editable }) => {
                   <Grid
                     item
                     xs={1}
-                    md={6}
+                    lg={6}
                     sx={{
                       display: 'flex',
                       justifyContent: 'end',
@@ -181,7 +185,13 @@ const RoomList = ({ editable }) => {
                   >
                     {isUnderMd ? room.tags.length !== 0 && (
                       <IconButton
-                        onClick={() => handleOpenTooltip(room)}
+                        onClick={() => {
+                          if (selectedRoom !== room) {
+                            handleOpenTooltip(room);
+                          } else {
+                            handleCloseToolTip();
+                          }
+                        }}
                         sx={{
                           mt: -1,
                           mr: -1,
@@ -189,12 +199,16 @@ const RoomList = ({ editable }) => {
                         }}
                       >
                         <LightTooltip
-                          title={room.tags.map((tag) => tag.name).join(', ')}
+                          title={room.tags.map((tag) => `#${tag.name}`).join(', ')}
                           placement="top"
                           disableFocusListener
                           disableTouchListener
                           open={selectedRoom === room}
                           onClose={handleCloseToolTip}
+                          sx={{
+                            maxWidth: '40%',
+                            textAlign: 'center',
+                          }}
                         >
                           <Tag />
                         </LightTooltip>
@@ -225,6 +239,7 @@ const RoomList = ({ editable }) => {
                 >
                   <Grid item xs={10}>
                     <Typography
+                      noWrap
                       sx={{
                         fontSize: styles.font_medium,
                         fontWeight: 'bold',
@@ -288,7 +303,7 @@ const RoomList = ({ editable }) => {
                         width: 36,
                       }}
                     />
-                    <Typography>
+                    <Typography noWrap>
                       <span>{room.topic.title}</span>
                     </Typography>
                   </Grid>
@@ -324,7 +339,10 @@ const RoomList = ({ editable }) => {
                       </Button>
                       )}
                       {editable && (
-                      <ConfirmationForm onConfirm={() => handleOnDelete(room)} />
+                      <ConfirmationForm
+                        message={`Are you sure you want to delete the «${room.title}» room?`}
+                        onConfirm={() => handleOnDelete(room)}
+                      />
                       )}
                     </ButtonGroup>
                   </Grid>

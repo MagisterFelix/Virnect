@@ -9,6 +9,8 @@ import {
   Grid,
   IconButton,
   InputBase,
+  LinearProgress,
+  ListItemIcon,
   ListSubheader,
   Menu,
   MenuItem,
@@ -25,12 +27,12 @@ import {
   Sort,
 } from '@mui/icons-material';
 
-import Language from '@components/main/Language';
-import Tag from '@components/main/Tag';
-import Topic from '@components/main/Topic';
+import { useRoomData } from '@context/RoomDataProvider';
 
 import { RoomForm } from '@utils/Forms';
-import { DropdownButton } from '@utils/Styles';
+import {
+  DropdownButton, DropdownTextField, LightTooltip,
+} from '@utils/Styles';
 
 import styles from '@styles/_globals.scss';
 
@@ -38,6 +40,12 @@ const Panel = () => {
   const [searchParams] = useSearchParams();
 
   const navigate = useNavigate();
+
+  const {
+    loadingTopicList, topicList,
+    loadingRoomOptions, roomOptions,
+    loadingTagList, tagList,
+  } = useRoomData();
 
   const [searchTerm, setSearchTerm] = useState('');
   const handleSearch = (event) => {
@@ -64,6 +72,46 @@ const Panel = () => {
     formRoomCreation.reset();
     setAlert(null);
     setOpenRoomCreationDialog(true);
+  };
+
+  const [selectedTopic, setSelectedTopic] = useState('All topics');
+  const handleSelectTopic = (event) => {
+    const { value } = event.target;
+    setSelectedTopic(value);
+    if (value !== 'All topics') {
+      searchParams.set('topic', value);
+    } else {
+      searchParams.delete('topic');
+    }
+    navigate(`?${decodeURIComponent(searchParams.toString())}`);
+  };
+
+  const [selectedLanguage, setSelectedLanguage] = useState('All languages');
+  const handleSelectLanguage = (event) => {
+    const { value } = event.target;
+    setSelectedLanguage(value);
+    if (value !== 'All languages') {
+      searchParams.set('language', value);
+    } else {
+      searchParams.delete('language');
+    }
+    navigate(`?${decodeURIComponent(searchParams.toString())}`);
+  };
+
+  const [selectedTags, setSelectedTags] = useState(['All tags']);
+  const handleSelectTag = (event) => {
+    const { value } = event.target;
+    if (value.length > 0 && value[0] === 'All tags') {
+      setSelectedTags(value.slice(1));
+      searchParams.set('tags', value.slice(1).join(','));
+    } else if (value.length === 0 || (value.length > 0 && value[value.length - 1] === 'All tags')) {
+      setSelectedTags(['All tags']);
+      searchParams.delete('tags');
+    } else {
+      setSelectedTags(value);
+      searchParams.set('tags', value.join(','));
+    }
+    navigate(`?${decodeURIComponent(searchParams.toString())}`);
   };
 
   const [selectedExtra, setSelectedExtra] = useState([]);
@@ -107,6 +155,27 @@ const Panel = () => {
     if (searchParam !== null) {
       setSearchTerm(searchParam);
     }
+
+    const topicParam = searchParams.get('topic');
+    if (topicList !== undefined && topicList.find((topic) => topic.title === topicParam)) {
+      setSelectedTopic(topicParam);
+    }
+
+    const languageParam = searchParams.get('language');
+    if (roomOptions !== undefined && roomOptions.actions.POST.language.choices.find(
+      (language) => language.display_name === languageParam,
+    )) {
+      setSelectedLanguage(languageParam);
+    }
+
+    const tagsParam = searchParams.get('tags');
+    if (tagList !== undefined && tagsParam !== null) {
+      const tagParams = tagsParam.split(',').filter((tag) => tagList.map((obj) => obj.name).includes(tag));
+      if (tagParams.length !== 0) {
+        setSelectedTags(tagParams);
+      }
+    }
+
     const isAvailableParam = searchParams.get('is_available');
     const isOpenParam = searchParams.get('is_open');
     if (isAvailableParam !== null && isOpenParam !== null) {
@@ -116,11 +185,12 @@ const Panel = () => {
     } else if (isAvailableParam === null && isOpenParam !== null) {
       setSelectedExtra(['is_open']);
     }
+
     const orderingParam = searchParams.get('ordering');
     if (orderingParam !== null) {
       setSelectedOrdering(orderingParam);
     }
-  }, [searchParams]);
+  }, [searchParams, topicList, roomOptions]);
 
   return (
     <div className="Panel">
@@ -182,13 +252,164 @@ const Panel = () => {
         </Grid>
         <Grid container justifyContent="center" spacing={2}>
           <Grid item xs={6} sm={2.5} lg={3}>
-            <Topic />
+            <Box
+              sx={{
+                bgcolor: styles.color_white,
+                borderRadius: 1,
+              }}
+            >
+              <DropdownTextField
+                fullWidth
+                select
+                SelectProps={{
+                  value: selectedTopic,
+                  onChange: handleSelectTopic,
+                  MenuProps: {
+                    style: {
+                      maxHeight: 300,
+                    },
+                  },
+                }}
+              >
+                <MenuItem value="All topics">
+                  <Typography noWrap>
+                    <span>💬 All topics</span>
+                  </Typography>
+                </MenuItem>
+                {loadingTopicList
+                  ? (<LinearProgress sx={{ m: 2 }} />)
+                  : (
+                    topicList.map(
+                      (topic) => (
+                        <MenuItem key={topic.id} value={topic.title}>
+                          <LightTooltip title={topic.description} placement="left" arrow enterDelay={1000} sx={{ pr: 2 }}>
+                            <ListItemIcon
+                              sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                color: styles.color_black,
+                              }}
+                            >
+                              <Box
+                                component="img"
+                                src={topic.image}
+                                alt={topic.title}
+                                pr={1}
+                                sx={{
+                                  height: 24,
+                                  width: 24,
+                                }}
+                              />
+                              <Typography noWrap>
+                                <span>{topic.title}</span>
+                              </Typography>
+                            </ListItemIcon>
+                          </LightTooltip>
+                        </MenuItem>
+                      ),
+                    )
+                  )}
+              </DropdownTextField>
+            </Box>
           </Grid>
           <Grid item xs={6} sm={2.5} lg={3}>
-            <Language />
+            <Box
+              sx={{
+                bgcolor: styles.color_white,
+                borderRadius: 1,
+              }}
+            >
+              <DropdownTextField
+                fullWidth
+                select
+                SelectProps={{
+                  value: selectedLanguage,
+                  onChange: handleSelectLanguage,
+                  MenuProps: {
+                    style: {
+                      maxHeight: 300,
+                    },
+                  },
+                }}
+              >
+                <MenuItem value="All languages">
+                  <Typography noWrap>
+                    <span>🌐 All languages</span>
+                  </Typography>
+                </MenuItem>
+                {loadingRoomOptions
+                  ? (<LinearProgress sx={{ m: 2 }} />)
+                  : (
+                    roomOptions.actions.POST.language.choices.map(
+                      (language) => (
+                        <MenuItem key={language.value} value={language.display_name}>
+                          <ListItemIcon
+                            sx={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              color: styles.color_black,
+                            }}
+                          >
+                            <Box
+                              component="img"
+                              src={`https://flagcdn.com/${language.value.toLowerCase()}.svg`}
+                              pr={1}
+                              width={24}
+                            />
+                            <Typography noWrap>
+                              <span>{language.display_name}</span>
+                            </Typography>
+                          </ListItemIcon>
+                        </MenuItem>
+                      ),
+                    )
+                  )}
+              </DropdownTextField>
+            </Box>
           </Grid>
           <Grid item xs={6} sm={3} md={4}>
-            <Tag />
+            <Box
+              sx={{
+                bgcolor: styles.color_white,
+                borderRadius: 1,
+              }}
+            >
+              <DropdownTextField
+                fullWidth
+                select
+                SelectProps={{
+                  multiple: true,
+                  value: selectedTags,
+                  onChange: handleSelectTag,
+                  renderValue: (selected) => (selected.indexOf('All tags') > -1 ? `🏷️ ${selected}` : selected.sort().join(', ')),
+                  MenuProps: {
+                    style: {
+                      maxHeight: 300,
+                    },
+                  },
+                }}
+              >
+                <MenuItem value="All tags">
+                  <Typography noWrap>
+                    <span>🏷️ All tags</span>
+                  </Typography>
+                </MenuItem>
+                {loadingTagList
+                  ? (<LinearProgress sx={{ m: 2 }} />)
+                  : (
+                    tagList.map(
+                      (tag) => (
+                        <MenuItem key={tag.id} value={tag.name} sx={{ ml: -1 }}>
+                          <Checkbox checked={selectedTags.indexOf(tag.name) > -1} />
+                          <Typography noWrap>
+                            <span>{tag.name}</span>
+                          </Typography>
+                        </MenuItem>
+                      ),
+                    )
+                  )}
+              </DropdownTextField>
+            </Box>
           </Grid>
           <Grid item xs={3} sm={2} md={1.5} lg={1}>
             <Box

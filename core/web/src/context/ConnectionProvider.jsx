@@ -46,7 +46,7 @@ const ConnectionProvider = ({ children }) => {
           state: {
             notification: {
               type: 'error',
-              message: 'Failed to join the room',
+              message: `Failed to join the «${room}» room`,
             },
           },
           replace: true,
@@ -57,10 +57,10 @@ const ConnectionProvider = ({ children }) => {
 
   const disconnect = async (room) => {
     try {
+      sessionStorage.clear();
       await execute({
         url: `${ENDPOINTS.disconnecting}${room}/`,
       });
-      sessionStorage.clear();
     } catch (err) {
       navigate('/', { replace: true });
     }

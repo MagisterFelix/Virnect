@@ -5,8 +5,7 @@ import {
   Container,
 } from '@mui/material';
 
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.min.css';
+import { toast } from 'react-toastify';
 
 import Panel from '@components/main/Panel';
 import RoomList from '@components/main/RoomList';
@@ -27,7 +26,6 @@ const Home = () => {
   return (
     <>
       <Navbar />
-      <ToastContainer position="top-left" style={{ marginTop: '6.5em' }} />
       <Container>
         <Panel />
         <RoomList />

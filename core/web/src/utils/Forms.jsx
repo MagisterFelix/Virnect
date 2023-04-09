@@ -29,9 +29,11 @@ import {
   Title,
 } from '@mui/icons-material';
 
+import { toast } from 'react-toastify';
+
 import { useRoomData } from '@context/RoomDataProvider';
 
-const ConfirmationForm = ({ onConfirm }) => {
+const ConfirmationForm = ({ message, onConfirm }) => {
   const [openDialog, setOpenDialog] = useState(false);
   const handleOpenDialog = () => setOpenDialog(true);
   const handleCloseDialog = () => setOpenDialog(false);
@@ -51,7 +53,7 @@ const ConfirmationForm = ({ onConfirm }) => {
         </DialogTitle>
         <DialogContent>
           <DialogContentText>
-            <span>Are you confirming this action?</span>
+            <span>{message}</span>
           </DialogContentText>
         </DialogContent>
         <DialogActions>
@@ -81,7 +83,7 @@ const RoomForm = ({
   }, [room]);
 
   const {
-    loading, loadingTopics, topics, loadingRoomOptions, roomOptions, createRoom, updateRoom,
+    loading, loadingTopicList, topicList, loadingRoomOptions, roomOptions, createRoom, updateRoom,
   } = useRoomData();
 
   const validation = {
@@ -110,6 +112,7 @@ const RoomForm = ({
   } = form;
   const handleOnSubmit = async (formData) => {
     await createRoom(formData, validation, setError, setAlert);
+    toast(`The «${formData.title}» room has been created`, { type: 'success' });
   };
   const handleOnEdit = (data) => {
     const formData = Object.entries(data).filter((entry) => {
@@ -221,10 +224,10 @@ const RoomForm = ({
                 error={fieldError !== undefined}
                 helperText={fieldError ? fieldError.message || validation.topic[fieldError.type] : ''}
               >
-                {loadingTopics
+                {loadingTopicList
                   ? (<LinearProgress sx={{ m: 2 }} />)
                   : (
-                    topics.map(
+                    topicList.map(
                       (topic) => (
                         <MenuItem key={topic.id} value={topic.id}>
                           {topic.title}
