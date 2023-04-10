@@ -43,15 +43,22 @@ const Panel = () => {
   const navigate = useNavigate();
 
   const {
+    pageCount,
     loadingTopicList, topicList,
     loadingRoomOptions, roomOptions,
+    loadingRoomList, roomList,
     loadingTagList, tagList,
-    pageCount,
+    setSearchLoading,
   } = useRoomData();
+
+  const underSm = useMediaQuery((theme) => theme.breakpoints.down('sm'));
 
   const [page, setPage] = useState(1);
   const handleSelectPage = (event, value) => {
     event.preventDefault();
+    if (value !== page) {
+      setSearchLoading(true);
+    }
     setPage(value);
     if (value !== 1) {
       searchParams.set('page', value);
@@ -63,6 +70,7 @@ const Panel = () => {
 
   const [searchTerm, setSearchTerm] = useState('');
   const handleSearch = (event) => {
+    setSearchLoading(true);
     const { value } = event.target;
     setSearchTerm(value);
     if (value) {
@@ -75,6 +83,7 @@ const Panel = () => {
     navigate(`?${decodeURIComponent(searchParams.toString())}`);
   };
   const handleClearSearch = () => {
+    setSearchLoading(true);
     setSearchTerm('');
     searchParams.delete('search');
     navigate(`?${decodeURIComponent(searchParams.toString())}`);
@@ -92,6 +101,7 @@ const Panel = () => {
 
   const [selectedTopic, setSelectedTopic] = useState('All topics');
   const handleSelectTopic = (event) => {
+    setSearchLoading(true);
     const { value } = event.target;
     setSelectedTopic(value);
     if (value !== 'All topics') {
@@ -106,6 +116,7 @@ const Panel = () => {
 
   const [selectedLanguage, setSelectedLanguage] = useState('All languages');
   const handleSelectLanguage = (event) => {
+    setSearchLoading(true);
     const { value } = event.target;
     setSelectedLanguage(value);
     if (value !== 'All languages') {
@@ -120,6 +131,7 @@ const Panel = () => {
 
   const [selectedTags, setSelectedTags] = useState(['All tags']);
   const handleSelectTag = (event) => {
+    setSearchLoading(true);
     const { value } = event.target;
     if (value.length > 0 && value[0] === 'All tags') {
       setSelectedTags(value.slice(1));
@@ -143,6 +155,7 @@ const Panel = () => {
   const handleOpenExtra = (event) => setAnchorElExtra(event.currentTarget);
   const handleCloseExtra = () => setAnchorElExtra(null);
   const handleSelectExtra = (value) => () => {
+    setSearchLoading(true);
     const currentIndex = selectedExtra.indexOf(value);
     const newSelectedValues = [...selectedExtra];
     if (currentIndex === -1) {
@@ -225,6 +238,12 @@ const Panel = () => {
       setSelectedOrdering(orderingParam);
     }
   }, [searchParams, topicList, roomOptions]);
+
+  useEffect(() => {
+    if (!loadingRoomList && roomList) {
+      setSearchLoading(false);
+    }
+  }, [loadingRoomList, roomList]);
 
   return (
     <div className="Panel">
@@ -546,6 +565,7 @@ const Panel = () => {
           {pageCount !== 0 && (
           <Pagination
             shape="rounded"
+            size={underSm ? 'small' : 'medium'}
             count={pageCount}
             page={page}
             renderItem={(item) => <LightPaginationItem {...item} />}

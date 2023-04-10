@@ -79,10 +79,7 @@ const Settings = () => {
         });
         const updated = await refetchProfile();
         updated.data.image += `?t=${new Date().getTime()}`;
-        resetProfile({
-          image: updated.data.image,
-          ...updated.data,
-        });
+        resetProfile(updated.data);
         setAlertProfile({ type: 'success', message: response.data.details });
       } catch (err) {
         handleErrors(

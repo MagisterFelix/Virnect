@@ -4,9 +4,11 @@ import React, {
   useEffect,
   useMemo,
 } from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate, Outlet, useNavigate } from 'react-router-dom';
 
 import { CircularProgress } from '@mui/material';
+
+import { toast } from 'react-toastify';
 
 import useAxios from '@api/axios';
 import ENDPOINTS from '@api/endpoints';
@@ -17,6 +19,8 @@ const AuthContext = createContext(null);
 const useAuth = () => useContext(AuthContext);
 
 const AuthProvider = ({ children }) => {
+  const navigate = useNavigate();
+
   const [{ loading: loadingProfile, data: profile }, refetchProfile] = useAxios(
     {
       url: ENDPOINTS.profile,
@@ -86,7 +90,12 @@ const AuthProvider = ({ children }) => {
         url: ENDPOINTS.passwordReset + ((uidb64 && token) ? `${uidb64}/${token}/` : ''),
         data: form,
       });
-      setAlert({ type: 'success', message: response.data.details });
+      if (uidb64 && token) {
+        navigate('/sign-in', { replace: true });
+        toast(response.data.details, { type: 'success' });
+      } else {
+        setAlert({ type: 'success', message: response.data.details });
+      }
     } catch (err) {
       handleErrors(validation, err.response.data.details, setError, setAlert);
     }

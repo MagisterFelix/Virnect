@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
 
 import {
   Alert,
@@ -35,7 +36,6 @@ import {
 import { toast } from 'react-toastify';
 
 import { useAuth } from '@context/AuthProvider';
-import { useConnection } from '@context/ConnectionProvider';
 import { useRoomData } from '@context/RoomDataProvider';
 
 import { ConfirmationForm, RoomForm } from '@utils/Forms';
@@ -47,14 +47,14 @@ import styles from '@styles/_globals.scss';
 import './Main.scss';
 
 const RoomList = ({ editable }) => {
+  const navigate = useNavigate();
+
   const { profile } = useAuth();
 
   const isUnderMd = useMediaQuery((theme) => theme.breakpoints.down('md'));
 
-  const { connect } = useConnection();
-
   const {
-    loading, loadingRoomList, roomList, notFound, deleteRoom,
+    loading, loadingRoomList, roomList, notFound, deleteRoom, searchLoading,
   } = useRoomData();
 
   const [selectedRoom, setSelectedRoom] = useState(null);
@@ -69,12 +69,17 @@ const RoomList = ({ editable }) => {
   };
 
   const [alert, setAlert] = useState(null);
-  const {
-    control, handleSubmit, setError, reset,
-  } = useForm();
-  const handleOnConnect = async (form) => {
+  const { control, handleSubmit, reset } = useForm();
+  const handleOnConnect = (form) => {
     setAlert(null);
-    await connect(selectedRoom.title, form, validation, setError, setAlert);
+    crypto.subtle.digest('SHA-256', new TextEncoder().encode(form.key))
+      .then((hashBuffer) => {
+        if (Array.from(new Uint8Array(hashBuffer)).map((b) => b.toString(16).padStart(2, '0')).join('') !== selectedRoom.key) {
+          setAlert({ type: 'error', message: 'Key mismatch.' });
+        } else {
+          navigate(`/room/${selectedRoom.title}`, { state: { key: form.key } });
+        }
+      });
   };
 
   const [openVerificationDialog, setOpenVerificationDialog] = useState(false);
@@ -99,15 +104,15 @@ const RoomList = ({ editable }) => {
 
   const handleOnDelete = async (room) => {
     await deleteRoom(room);
-    toast(`The «${room.title}» room has been removed`, { type: 'success' });
+    toast(`The «${room.title}» room has been removed.`, { type: 'success' });
   };
 
-  const handleOnJoin = async (room) => {
+  const handleOnJoin = (room) => {
     if (room.key.length !== 0 && profile.id !== room.host.id) {
       setSelectedRoom(room);
       handleOpenVerificationDialog(room);
     } else {
-      await connect(room.title, {}, {}, null, null);
+      navigate(`/room/${room.title}`);
     }
   };
 
@@ -135,7 +140,7 @@ const RoomList = ({ editable }) => {
 
   return (
     <div className="Rooms">
-      {loadingRoomList && !roomList
+      {(loadingRoomList && !roomList) || searchLoading
         ? (
           <>
             <Skeleton variant="rounded" height={270} sx={{ mt: 4, borderRadius: 2 }} />

@@ -34,9 +34,8 @@ class AuthorizationMiddleware:
             return self.get_response(request)
 
         reason = CsrfViewMiddleware(self.get_response).process_view(request, None, (), {})
-        if reason:
-            AuthorizationUtils.remove_auth_cookies(reason)
-            return reason
+        if reason is not None:
+            return AuthorizationUtils.get_invalid_csrftoken_response(request=reason)
 
         access = request.COOKIES.get("access_token")
         refresh = request.COOKIES.get("refresh_token")
