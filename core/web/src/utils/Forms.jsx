@@ -112,7 +112,7 @@ const RoomForm = ({
   } = form;
   const handleOnSubmit = async (formData) => {
     await createRoom(formData, validation, setError, setAlert);
-    toast(`The «${formData.title}» room has been created`, { type: 'success' });
+    toast(`The «${formData.title}» room has been created.`, { type: 'success' });
   };
   const handleOnEdit = (data) => {
     const formData = Object.entries(data).filter((entry) => {

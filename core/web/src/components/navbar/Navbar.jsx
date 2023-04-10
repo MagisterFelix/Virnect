@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 import {
   AppBar,
@@ -32,12 +31,8 @@ import styles from '@styles/_globals.scss';
 import './Navbar.scss';
 
 const Navbar = () => {
-  const navigate = useNavigate();
-
   const { profile, logout } = useAuth();
 
-  const navigateToProfile = () => navigate(`/user/${profile.username}`);
-  const navigateToSettings = () => navigate('/settings');
   const handleOnLogout = () => logout();
 
   const [anchorElUser, setAnchorElUser] = useState(null);
@@ -122,21 +117,43 @@ const Navbar = () => {
                 open={Boolean(anchorElUser)}
                 onClose={handleCloseUserMenu}
               >
-                <MenuItem onClick={navigateToProfile}>
-                  <AccountCircle sx={{ mr: 1 }} />
-                  <Typography textAlign="center">
+                <MenuItem>
+                  <Link
+                    href={`/user/${profile.username}`}
+                    underline="none"
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      color: styles.color_black,
+                    }}
+                  >
+                    <AccountCircle sx={{ mt: -0.25, mr: 1 }} />
                     <span>Profile</span>
-                  </Typography>
+                  </Link>
                 </MenuItem>
-                <MenuItem onClick={navigateToSettings}>
-                  <Settings sx={{ mr: 1 }} />
-                  <Typography textAlign="center">
+                <MenuItem>
+                  <Link
+                    href="/settings"
+                    underline="none"
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      color: styles.color_black,
+                    }}
+                  >
+                    <Settings sx={{ mt: -0.25, mr: 1 }} />
                     <span>Settings</span>
-                  </Typography>
+                  </Link>
                 </MenuItem>
                 <MenuItem onClick={handleOnLogout}>
-                  <ExitToApp sx={{ mr: 1 }} />
-                  <Typography textAlign="center">
+                  <Typography
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      color: styles.color_black,
+                    }}
+                  >
+                    <ExitToApp sx={{ mr: 1 }} />
                     <span>Logout</span>
                   </Typography>
                 </MenuItem>

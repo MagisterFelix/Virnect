@@ -73,7 +73,7 @@ class ConnectingSerializer(Serializer):
             raise PermissionDenied("Room is full.")
 
         if Room.objects.filter(participants__in=[self.context["request"].user]).count() != 0:
-            raise PermissionDenied("User is already in room.")
+            raise PermissionDenied("User is already in the room.")
 
         if self.instance.host == self.context["request"].user:
             return super(ConnectingSerializer, self).validate(attrs)

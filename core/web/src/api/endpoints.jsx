@@ -2,7 +2,7 @@ const ENDPOINTS = {
   authorization: '/api/sign-in/',
   registration: '/api/sign-up/',
   deauthorization: '/api/sign-out/',
-  password_reset: '/api/reset-password/',
+  passwordReset: '/api/reset-password/',
   profile: '/api/profile/',
   user: '/api/user/',
   report: '/api/reports/',
