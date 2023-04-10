@@ -36,7 +36,7 @@ const ConnectionProvider = ({ children }) => {
     } catch (err) {
       navigate('/', {
         state: {
-          notification: {
+          toast: {
             type: 'error',
             message: err.response.status === 404
               ? `The «${room}» room was not found.`

@@ -16,8 +16,8 @@ const Home = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (location.state !== null && location.state.notification !== undefined) {
-      const { type, message } = location.state.notification;
+    if (location.state && location.state.toast !== undefined) {
+      const { type, message } = location.state.toast;
       toast(message, { type });
       navigate(location.pathname, { replace: true });
     }

@@ -245,7 +245,7 @@ const RoomProvider = ({ children }) => {
       } else if (data.type === 'room_delete') {
         navigate('/', {
           state: {
-            notification: {
+            toast: {
               type: 'info',
               message: `The «${title}» room has been deleted.`,
             },
