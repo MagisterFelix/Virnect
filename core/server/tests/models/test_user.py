@@ -17,7 +17,7 @@ class UserTest(TestCase):
         User.objects.create_user(**USERS["user"])
 
     def test_user_fields(self):
-        user = User.objects.get(id=2)
+        user = User.objects.get(pk=2)
         update_last_login(None, user)
         user.update_last_seen()
 
@@ -52,7 +52,7 @@ class UserTest(TestCase):
         self.assertEqual(user._meta.get_field("about").max_length, 1024)
 
     def test_superuser_fields(self):
-        user = User.objects.get(id=1)
+        user = User.objects.get(pk=1)
 
         self.assertEqual(user.username, USERS["admin"]["username"])
         self.assertEqual(user.email, USERS["admin"]["email"])

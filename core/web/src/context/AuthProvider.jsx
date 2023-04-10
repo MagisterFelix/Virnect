@@ -4,9 +4,11 @@ import React, {
   useEffect,
   useMemo,
 } from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate, Outlet, useNavigate } from 'react-router-dom';
 
 import { CircularProgress } from '@mui/material';
+
+import { toast } from 'react-toastify';
 
 import useAxios from '@api/axios';
 import ENDPOINTS from '@api/endpoints';
@@ -17,6 +19,8 @@ const AuthContext = createContext(null);
 const useAuth = () => useContext(AuthContext);
 
 const AuthProvider = ({ children }) => {
+  const navigate = useNavigate();
+
   const [{ loading: loadingProfile, data: profile }, refetchProfile] = useAxios(
     {
       url: ENDPOINTS.profile,
@@ -51,7 +55,7 @@ const AuthProvider = ({ children }) => {
         url: ENDPOINTS.authorization,
         data: form,
       });
-      await refetchProfile();
+      window.location.reload();
     } catch (err) {
       handleErrors(validation, err.response.data.details, setError, setAlert);
     }
@@ -67,7 +71,7 @@ const AuthProvider = ({ children }) => {
         url: ENDPOINTS.authorization,
         data: form,
       });
-      await refetchProfile();
+      window.location.reload();
     } catch (err) {
       handleErrors(validation, err.response.data.details, setError, setAlert);
     }
@@ -83,10 +87,15 @@ const AuthProvider = ({ children }) => {
   const resetPassword = async (uidb64, token, form, validation, setError, setAlert) => {
     try {
       const response = await execute({
-        url: ENDPOINTS.reset_password + ((uidb64 && token) ? `${uidb64}/${token}/` : ''),
+        url: ENDPOINTS.passwordReset + ((uidb64 && token) ? `${uidb64}/${token}/` : ''),
         data: form,
       });
-      setAlert({ type: 'success', message: response.data.details });
+      if (uidb64 && token) {
+        navigate('/sign-in', { replace: true });
+        toast(response.data.details, { type: 'success' });
+      } else {
+        setAlert({ type: 'success', message: response.data.details });
+      }
     } catch (err) {
       handleErrors(validation, err.response.data.details, setError, setAlert);
     }
@@ -120,11 +129,11 @@ const GuestRoutes = () => {
   return !profile ? <Outlet /> : <Navigate to="/" replace />;
 };
 
-const UserRoutes = () => {
+const AuthorizedRoutes = () => {
   const { profile } = useAuth();
   return profile ? <Outlet /> : <Navigate to="/sign-in" replace />;
 };
 
 export {
-  useAuth, AuthProvider, GuestRoutes, UserRoutes,
+  useAuth, AuthProvider, GuestRoutes, AuthorizedRoutes,
 };

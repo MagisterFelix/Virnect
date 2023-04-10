@@ -33,18 +33,18 @@ const Authorization = () => {
 
   const validation = {
     username: {
-      required: 'This field may not be blank',
+      required: 'This field may not be blank.',
     },
     password: {
-      required: 'This field may not be blank',
+      required: 'This field may not be blank.',
     },
   };
 
   const [alert, setAlert] = useState(null);
   const { control, handleSubmit, setError } = useForm();
-  const handleOnSubmit = (form) => {
+  const handleOnSubmit = async (form) => {
     setAlert(null);
-    login(form, validation, setError, setAlert);
+    await login(form, validation, setError, setAlert);
   };
 
   const [showPassword, setShowPassword] = useState(false);
@@ -214,7 +214,6 @@ const Authorization = () => {
                         endAdornment: (
                           <InputAdornment position="end">
                             <IconButton
-                              aria-label="Toggle password visibility"
                               onClick={handleClickShowPassword}
                               onMouseDown={handleMouseDownPassword}
                               edge="end"

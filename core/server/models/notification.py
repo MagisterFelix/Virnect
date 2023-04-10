@@ -24,3 +24,4 @@ class Notification(BaseModel):
 
     class Meta:
         db_table = "notification"
+        ordering = ["is_viewed", "-created_at"]

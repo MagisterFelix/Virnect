@@ -2,6 +2,8 @@ import React from 'react';
 
 import {
   Badge,
+  Button,
+  PaginationItem,
   TextField,
   Tooltip,
   tooltipClasses,
@@ -64,10 +66,11 @@ const LightTooltip = styled(({ className, ...props }) => (
   },
   [`& .${tooltipClasses.arrow}`]: {
     color: theme.palette.common.white,
+    border: 0,
   },
 }));
 
-const DropdownList = styled(TextField)({
+const DropdownTextField = styled(TextField)({
   '& .MuiOutlinedInput-root': {
     '&:hover': {
       background: styles.color_soft_grey,
@@ -81,6 +84,33 @@ const DropdownList = styled(TextField)({
   },
 });
 
+const DropdownButton = styled(Button)({
+  '&:hover': {
+    background: styles.color_dark_grey,
+  },
+});
+
+const LightPaginationItem = styled(PaginationItem)({
+  color: styles.color_white,
+  '&:hover': {
+    backgroundColor: styles.color_white,
+    color: styles.color_black,
+  },
+  '&.Mui-selected': {
+    backgroundColor: styles.color_white,
+    color: styles.color_black,
+    '&:hover': {
+      backgroundColor: styles.color_white,
+    },
+  },
+  '&.MuiPaginationItem-ellipsis': {
+    color: styles.color_white,
+    '&:hover': {
+      backgroundColor: 'transparent',
+    },
+  },
+});
+
 export {
-  OnlineBadge, outline, LightTooltip, DropdownList,
+  OnlineBadge, outline, LightTooltip, DropdownTextField, DropdownButton, LightPaginationItem,
 };

@@ -26,6 +26,11 @@ TOPICS = {
         "title": "chatting",
         "description": "just chatting",
         "image": "topics/chatting.svg"
+    },
+    "games": {
+        "title": "gaming",
+        "description": "just gaming",
+        "image": "topics/gaming.svg"
     }
 }
 ROOMS = {
@@ -40,6 +45,9 @@ ROOMS = {
 TAGS = {
     "english": {
         "name": "english"
+    },
+    "gaming": {
+        "name": "gaming"
     }
 }
 MESSAGES = {
@@ -75,6 +83,13 @@ PATHS = {
     "sign-out": "/api/sign-out/",
     "profile": "/api/profile/",
     "user": "/api/user/",
-    "report": "/api/report/",
+    "reports": "/api/reports/",
     "topics": "/api/topics/",
+    "topic": "/api/topic/",
+    "tags": "/api/tags/",
+    "tag": "/api/tag/",
+    "rooms": "/api/rooms/",
+    "room": "/api/room/",
+    "connect": "/api/connect/",
+    "disconnect": "/api/disconnect/",
 }

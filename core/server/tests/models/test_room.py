@@ -19,7 +19,7 @@ class RoomTest(TestCase):
         room.participants.add(host)
 
     def test_room_fields(self):
-        room = Room.objects.get(id=1)
+        room = Room.objects.get(pk=1)
 
         self.assertIsInstance(room.host, User)
         self.assertEqual(room.host.username, USERS["user"]["username"])
@@ -35,7 +35,7 @@ class RoomTest(TestCase):
         self.assertEqual(room.number_of_participants, 10)
 
         self.assertEqual(room.participants.count(), 1)
-        self.assertIsInstance(room.participants.through.objects.get(id=1).user, User)
+        self.assertIsInstance(room.participants.through.objects.get(pk=1).user, User)
 
         self.assertIsInstance(room.key, str)
         self.assertEqual(room._meta.get_field("key").max_length, 16)
@@ -47,20 +47,20 @@ class RoomTest(TestCase):
             Room.objects.create(**ROOMS["just speak"])
 
     def test_room_creation_without_host(self):
-        topic = Topic.objects.get(id=1)
+        topic = Topic.objects.get(pk=1)
 
         with self.assertRaises(IntegrityError):
             Room.objects.create(topic=topic, **ROOMS["only english"])
 
     def test_room_creation_without_topic(self):
-        host = User.objects.get(id=1)
+        host = User.objects.get(pk=1)
 
         with self.assertRaises(IntegrityError):
             Room.objects.create(host=host, **ROOMS["only english"])
 
     def test_room_creation_with_zero_number_of_participants(self):
-        host = User.objects.get(id=1)
-        topic = Topic.objects.get(id=1)
+        host = User.objects.get(pk=1)
+        topic = Topic.objects.get(pk=1)
 
         with self.assertRaises(ValidationError):
             Room(host=host,
@@ -70,7 +70,7 @@ class RoomTest(TestCase):
 
     def test_room_creation_by_one_user_six_times(self):
         host = User.objects.create_user(**USERS["test"])
-        topic = Topic.objects.get(id=1)
+        topic = Topic.objects.get(pk=1)
 
         for i in range(5):
             Room.objects.create(host=host, topic=topic, title=f"title_{i}")
@@ -79,7 +79,7 @@ class RoomTest(TestCase):
             Room(host=host, topic=topic, title="title_5").full_clean()
 
     def test_room_adding_participant(self):
-        room = Room.objects.get(id=1)
+        room = Room.objects.get(pk=1)
         participant = User.objects.create(**USERS["test"])
 
         count_before = room.participants.count()
@@ -89,8 +89,8 @@ class RoomTest(TestCase):
         self.assertEqual(count_after, count_before + 1)
 
     def test_room_adding_non_unique_participant(self):
-        room = Room.objects.get(id=1)
-        participant = User.objects.get(id=1)
+        room = Room.objects.get(pk=1)
+        participant = User.objects.get(pk=1)
 
         count_before = room.participants.count()
         room.participants.add(participant)
@@ -99,8 +99,8 @@ class RoomTest(TestCase):
         self.assertEqual(count_after, count_before)
 
     def test_room_removing_participant(self):
-        room = Room.objects.get(id=1)
-        participant = User.objects.get(id=1)
+        room = Room.objects.get(pk=1)
+        participant = User.objects.get(pk=1)
 
         count_before = room.participants.count()
         room.participants.remove(participant)
@@ -110,14 +110,14 @@ class RoomTest(TestCase):
 
     def test_room_removing_on_deleting_host(self):
         before_deleting = Room.objects.count()
-        User.objects.get(id=1).delete()
+        User.objects.get(pk=1).delete()
         after_deleting = Room.objects.count()
 
         self.assertGreater(before_deleting, after_deleting)
 
     def test_room_removing_on_deleting_topic(self):
         before_deleting = Room.objects.count()
-        Topic.objects.get(id=1).delete()
+        Topic.objects.get(pk=1).delete()
         after_deleting = Room.objects.count()
 
         self.assertGreater(before_deleting, after_deleting)

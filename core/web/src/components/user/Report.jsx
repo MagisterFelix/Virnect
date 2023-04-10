@@ -10,7 +10,6 @@ import {
   DialogTitle,
   IconButton,
   LinearProgress,
-  Menu,
   MenuItem,
   TextField,
   Typography,
@@ -21,19 +20,14 @@ import { LoadingButton } from '@mui/lab';
 import {
   Close,
   FlagCircle,
-  Send,
 } from '@mui/icons-material';
 
 import useAxios from '@api/axios';
 import ENDPOINTS from '@api/endpoints';
 
-import { useAuth } from '@context/AuthProvider';
+import './User.scss';
 
-import './Report.scss';
-
-const Report = ({ user, anchorElUser, setAnchorElUser }) => {
-  const { profile } = useAuth();
-
+const Report = ({ user }) => {
   const [{ loading: loadingReportOptions, data: reportOptions }] = useAxios(
     {
       url: ENDPOINTS.report,
@@ -43,7 +37,7 @@ const Report = ({ user, anchorElUser, setAnchorElUser }) => {
 
   const validation = {
     reason: {
-      required: 'This field may not be blank',
+      required: 'This field may not be blank.',
     },
   };
 
@@ -61,52 +55,36 @@ const Report = ({ user, anchorElUser, setAnchorElUser }) => {
   const { control, handleSubmit, reset } = useForm();
   const handleOnSubmit = async (form) => {
     const formData = {
-      sender: profile.id,
       suspect: user.id,
       ...form,
     };
     setAlert(null);
     try {
       const response = await sendReport({
-        method: 'POST',
         data: formData,
       });
       setAlert({ type: 'success', message: response.data.details });
     } catch (err) {
-      setAlert({ type: 'error', message: 'Something went wrong...' });
+      setAlert({ type: 'error', message: err.response.data.details });
     }
   };
 
   const [openReportDialog, setOpenReportDialog] = useState(false);
   const handleOpenReportDialog = () => {
-    setAnchorElUser(null);
     reset();
     setAlert(null);
     setOpenReportDialog(true);
   };
-  const handleCloseReportDialog = () => { setOpenReportDialog(false); };
+  const handleCloseReportDialog = () => setOpenReportDialog(false);
 
   return (
     <div className="Report">
-      <Menu
-        anchorEl={anchorElUser}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'center',
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'center',
-        }}
-        open={Boolean(anchorElUser)}
-        onClose={() => setAnchorElUser(null)}
-        sx={{ mt: 1 }}
-      >
-        <MenuItem onClick={handleOpenReportDialog}>
-          <FlagCircle sx={{ mr: 1 }} />
-          <Typography textAlign="center">Report</Typography>
-        </MenuItem>
-      </Menu>
+      <MenuItem onClick={handleOpenReportDialog}>
+        <FlagCircle sx={{ mr: 1 }} />
+        <Typography textAlign="center">
+          <span>Report</span>
+        </Typography>
+      </MenuItem>
       <Dialog
         fullWidth
         open={openReportDialog}
@@ -121,11 +99,7 @@ const Report = ({ user, anchorElUser, setAnchorElUser }) => {
             }}
           >
             <span>Report</span>
-            <IconButton
-              aria-label="close"
-              sx={{ mr: -1 }}
-              onClick={handleCloseReportDialog}
-            >
+            <IconButton onClick={handleCloseReportDialog} sx={{ mr: -1 }}>
               <Close />
             </IconButton>
           </DialogTitle>
@@ -152,7 +126,7 @@ const Report = ({ user, anchorElUser, setAnchorElUser }) => {
                   SelectProps={{
                     MenuProps: {
                       style: {
-                        maxHeight: 190,
+                        maxHeight: 300,
                       },
                     },
                   }}
@@ -162,13 +136,14 @@ const Report = ({ user, anchorElUser, setAnchorElUser }) => {
                   {
                     loadingReportOptions
                       ? (<LinearProgress sx={{ m: 2 }} />)
-                      : (reportOptions.actions.POST.reason.choices.map(
-                        (choice) => (
-                          <MenuItem key={choice.value} value={choice.value}>
-                            {choice.display_name}
-                          </MenuItem>
-                        ),
-                      ))
+                      : (
+                        reportOptions.actions.POST.reason.choices.map(
+                          (choice) => (
+                            <MenuItem key={choice.value} value={choice.value}>
+                              {choice.display_name}
+                            </MenuItem>
+                          ),
+                        ))
                     }
                 </TextField>
               )}
@@ -179,7 +154,6 @@ const Report = ({ user, anchorElUser, setAnchorElUser }) => {
             <LoadingButton
               loading={loadingReport}
               onClick={handleSubmit(handleOnSubmit)}
-              endIcon={<Send />}
             >
               <span>Send</span>
             </LoadingButton>

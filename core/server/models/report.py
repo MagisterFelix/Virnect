@@ -40,3 +40,4 @@ class Report(BaseModel):
 
     class Meta:
         db_table = "report"
+        ordering = ["is_viewed", "-created_at"]

@@ -15,7 +15,7 @@ class HistoryTest(TestCase):
         History.objects.create(owner=owner, **HISTORIES["1970-01-01T00:00:00.0"])
 
     def test_history_fields(self):
-        history = History.objects.get(id=1)
+        history = History.objects.get(pk=1)
 
         self.assertIsInstance(history.owner, User)
         self.assertEqual(history.owner.username, USERS["user"]["username"])
@@ -36,7 +36,7 @@ class HistoryTest(TestCase):
 
     def test_history_removing_on_deleting_owner(self):
         before_deleting = History.objects.count()
-        User.objects.get(id=1).delete()
+        User.objects.get(pk=1).delete()
         after_deleting = History.objects.count()
 
         self.assertGreater(before_deleting, after_deleting)

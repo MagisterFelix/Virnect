@@ -12,9 +12,9 @@ class Room(BaseModel):
     class Language(models.TextChoices):
         AR = "AE", "Arabic"
         ZH = "CN", "Chinese"
-        DE = "DE", "German"
-        FR = "FR", "French"
         EN = "GB", "English"
+        FR = "FR", "French"
+        DE = "DE", "German"
         HI = "IN", "Hindi"
         IN = "UN", "International"
         IT = "IT", "Italian"
@@ -47,3 +47,4 @@ class Room(BaseModel):
 
     class Meta:
         db_table = "room"
+        ordering = ["-created_at"]

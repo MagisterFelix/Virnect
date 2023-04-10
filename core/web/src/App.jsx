@@ -8,13 +8,19 @@ import '@fontsource/roboto/900.css';
 
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
-import { AuthProvider, GuestRoutes, UserRoutes } from '@context/AuthProvider';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.min.css';
+
+import { AuthorizedRoutes, AuthProvider, GuestRoutes } from '@context/AuthProvider';
+import { ConnectionProvider } from '@context/ConnectionProvider';
+import { RoomListProvider, RoomProvider } from '@context/RoomDataProvider';
 
 import NotFound from '@components/404/NotFound';
 import Authorization from '@components/auth/Authorization';
 import PasswordReset from '@components/auth/PasswordReset';
 import Registration from '@components/auth/Registration';
 import Home from '@components/Home';
+import Room from '@components/room/Room';
 import Settings from '@components/user/Settings';
 import User from '@components/user/User';
 
@@ -32,23 +38,53 @@ const theme = createTheme({
 
 const App = () => (
   <ThemeProvider theme={theme}>
-    <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route element={<GuestRoutes />}>
-            <Route path="/sign-in" element={<Authorization />} />
-            <Route path="/sign-up" element={<Registration />} />
-            <Route path="/reset-password/:uidb64?/:token?" element={<PasswordReset />} />
-          </Route>
-          <Route element={<UserRoutes />}>
-            <Route path="/" element={<Home />} />
-            <Route path="/user/:username" element={<User />} />
-            <Route path="/settings" element={<Settings />} />
-          </Route>
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+    <ToastContainer
+      position="top-left"
+      style={{
+        marginTop: '6.5em',
+      }}
+    />
+    <BrowserRouter>
+      <AuthProvider>
+        <ConnectionProvider>
+          <Routes>
+            <Route element={<GuestRoutes />}>
+              <Route path="/sign-in" element={<Authorization />} />
+              <Route path="/sign-up" element={<Registration />} />
+              <Route path="/reset-password/:uidb64?/:token?" element={<PasswordReset />} />
+            </Route>
+            <Route element={<AuthorizedRoutes />}>
+              <Route
+                path="/"
+                element={(
+                  <RoomListProvider>
+                    <Home />
+                  </RoomListProvider>
+                )}
+              />
+              <Route
+                path="/room/:title"
+                element={(
+                  <RoomProvider>
+                    <Room />
+                  </RoomProvider>
+                )}
+              />
+              <Route
+                path="/user/:username"
+                element={(
+                  <RoomListProvider>
+                    <User />
+                  </RoomListProvider>
+                )}
+              />
+              <Route path="/settings" element={<Settings />} />
+            </Route>
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </ConnectionProvider>
+      </AuthProvider>
+    </BrowserRouter>
   </ThemeProvider>
 );
 

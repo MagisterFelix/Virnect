@@ -4,16 +4,21 @@
   width: 10px;
 
   &-track {
-    border-radius: 10px;
     background-color: $white;
   }
 
   &-thumb {
-    border-radius: 10px;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
     background-color: $soft_dark;
   }
 }
 
 .MuiMenu-paper {
   margin-top: 5px;
+}
+
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
+  appearance: none;
 }

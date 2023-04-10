@@ -12,7 +12,15 @@ def api_exception_handler(exception, context):
     }
 
     for field, errors in response.data.items():
-        payload["details"].append({field: " ".join(errors) if isinstance(errors, list) else errors})
+        if isinstance(errors, list):
+            errors = " ".join(errors)
+
+        if "unique set" in errors:
+            errors = "Values must be unique."
+
+        payload["details"].append({
+            field: ". ".join(err if err[0].isupper() else err.capitalize() for err in errors.split(". "))
+        })
 
     response.data = payload
 

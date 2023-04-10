@@ -1,7 +1,9 @@
 from django.urls import path
 
-from core.server.views import (AuthorizationView, DeauthorizationView, PasswordResetConfirmView, PasswordResetView,
-                               RegistrationView, ReportView, TopicListView, UserView)
+from core.server.views import (AuthorizationView, ConnectingView, DeauthorizationView, DisconnectingView,
+                               PasswordResetConfirmView, PasswordResetView, ProfileView, RegistrationView,
+                               ReportListView, RoomListView, RoomView, TagListView, TagView, TopicListView, TopicView,
+                               UserView)
 
 urlpatterns = [
     path("sign-in/", AuthorizationView().as_view(), name="sign-in"),
@@ -9,8 +11,15 @@ urlpatterns = [
     path("sign-out/", DeauthorizationView().as_view(), name="sign-out"),
     path("reset-password/", PasswordResetView().as_view(), name="reset-password"),
     path("reset-password/<uidb64>/<token>/", PasswordResetConfirmView().as_view(), name="reset-password-confirm"),
-    path("profile/", UserView().as_view(), name="profile"),
+    path("profile/", ProfileView().as_view(), name="profile"),
     path("user/<username>/", UserView().as_view(), name="user"),
-    path("report/", ReportView().as_view(), name="report"),
+    path("reports/", ReportListView().as_view(), name="reports"),
     path("topics/", TopicListView().as_view(), name="topics"),
+    path("topic/<pk>/", TopicView().as_view(), name="topic"),
+    path("tags/", TagListView().as_view(), name="tags"),
+    path("tag/<pk>/", TagView().as_view(), name="tag"),
+    path("rooms/", RoomListView().as_view(), name="rooms"),
+    path("room/<title>/", RoomView().as_view(), name="room"),
+    path("connect/<room>/", ConnectingView().as_view(), name="connect"),
+    path("disconnect/<room>/", DisconnectingView().as_view(), name="disconnect"),
 ]

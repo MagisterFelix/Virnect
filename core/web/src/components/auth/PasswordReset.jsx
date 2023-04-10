@@ -54,9 +54,9 @@ const PasswordReset = () => {
   const {
     control, watch, handleSubmit, setError,
   } = useForm();
-  const handleOnSubmit = (form) => {
+  const handleOnSubmit = async (form) => {
     setAlert(null);
-    resetPassword(uidb64, token, form, validation, setError, setAlert);
+    await resetPassword(uidb64, token, form, validation, setError, setAlert);
   };
 
   return (
@@ -242,7 +242,7 @@ const PasswordReset = () => {
                   loadingPosition="end"
                   sx={{
                     mt: 4,
-                    maxWidth: 300,
+                    maxWidth: 250,
                     borderRadius: 2,
                     textTransform: 'none',
                     fontFamily: styles.font_poppins,

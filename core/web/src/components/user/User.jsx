@@ -6,6 +6,7 @@ import {
   Container,
   Grid,
   IconButton,
+  Menu,
   Skeleton,
   Tooltip,
   Typography,
@@ -17,14 +18,11 @@ import ENDPOINTS from '@api/endpoints';
 import { useAuth } from '@context/AuthProvider';
 
 import NotFound from '@components/404/NotFound';
+import RoomList from '@components/main/RoomList';
 import Navbar from '@components/navbar/Navbar';
-import Report from '@components/report/Report';
+import Report from '@components/user/Report';
 
-import {
-  LightTooltip,
-  OnlineBadge,
-  outline,
-} from '@utils/Styles';
+import { LightTooltip, OnlineBadge, outline } from '@utils/Styles';
 import getFormattedTime from '@utils/Time';
 
 import styles from '@styles/_globals.scss';
@@ -43,14 +41,15 @@ const User = () => {
 
   const [anchorElUser, setAnchorElUser] = useState(null);
   const handleOpenUserMenu = (event) => setAnchorElUser(event.currentTarget);
+  const handleCloseUserMenu = () => setAnchorElUser(null);
 
   const [openTooltip, setOpenTooltip] = useState(false);
-  const handleClickUsername = () => { navigator.clipboard.writeText(`@${user.username}`); setOpenTooltip(true); };
-
-  const getLastOnline = () => {
-    const datetime = new Date(new Date(user.last_seen) - new Date().getTimezoneOffset() * 60000);
-    return `Was online ${getFormattedTime(datetime)}`;
+  const handleClickUsername = () => {
+    navigator.clipboard.writeText(`@${user.username}`);
+    setOpenTooltip(true);
   };
+
+  const getLastOnline = () => `Was online ${getFormattedTime(user.last_seen)}`;
 
   if (!loadingUser && errorUser) {
     return <NotFound />;
@@ -100,14 +99,23 @@ const User = () => {
                   )}
                 </IconButton>
               </LightTooltip>
-              {!loadingUser && profile.username !== username
-              && (
-                <Report
-                  profile={profile}
-                  user={user}
-                  anchorElUser={anchorElUser}
-                  setAnchorElUser={setAnchorElUser}
-                />
+              {profile.username !== username && (
+              <Menu
+                anchorEl={anchorElUser}
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'center',
+                }}
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'center',
+                }}
+                open={Boolean(anchorElUser)}
+                onClose={handleCloseUserMenu}
+                sx={{ mt: 1 }}
+              >
+                {!loadingUser && <Report user={user} />}
+              </Menu>
               )}
               <Typography
                 sx={{
@@ -172,7 +180,7 @@ const User = () => {
               sx={{
                 display: 'flex',
                 alignItems: 'center',
-                mt: {
+                my: {
                   xs: 5,
                   md: 0,
                 },
@@ -227,7 +235,30 @@ const User = () => {
                 </Grid>
               </Grid>
             </Grid>
+            <Grid container>
+              <Grid item xs={12} sx={{ mt: 2 }}>
+                <Typography
+                  sx={{
+                    fontSize: styles.font_large,
+                    color: styles.color_yellow,
+                    fontWeight: 'bold',
+                  }}
+                >
+                  {loadingUser
+                    ? (
+                      <Skeleton
+                        width="30%"
+                        sx={{
+                          m: 'auto',
+                        }}
+                      />
+                    )
+                    : <span>Host of rooms:</span>}
+                </Typography>
+              </Grid>
+            </Grid>
           </Grid>
+          <RoomList editable={!loadingUser && profile.username === username} />
         </Container>
       </div>
     </>

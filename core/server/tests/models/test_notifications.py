@@ -15,7 +15,7 @@ class NotificationTest(TestCase):
         Notification.objects.create(recipient=recipient, **NOTIFICATIONS["message reply"])
 
     def test_notification_fields(self):
-        notification = Notification.objects.get(id=1)
+        notification = Notification.objects.get(pk=1)
 
         self.assertIsInstance(notification.recipient, User)
         self.assertEqual(notification.recipient.username, USERS["user"]["username"])
@@ -34,7 +34,7 @@ class NotificationTest(TestCase):
 
     def test_notification_removing_on_deleting_recipient(self):
         before_deleting = Notification.objects.count()
-        User.objects.get(id=1).delete()
+        User.objects.get(pk=1).delete()
         after_deleting = Notification.objects.count()
 
         self.assertGreater(before_deleting, after_deleting)

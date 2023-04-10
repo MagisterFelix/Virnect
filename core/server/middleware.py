@@ -34,9 +34,8 @@ class AuthorizationMiddleware:
             return self.get_response(request)
 
         reason = CsrfViewMiddleware(self.get_response).process_view(request, None, (), {})
-        if reason:
-            AuthorizationUtils.remove_auth_cookies(reason)
-            return reason
+        if reason is not None:
+            return AuthorizationUtils.get_invalid_csrftoken_response(request=reason)
 
         access = request.COOKIES.get("access_token")
         refresh = request.COOKIES.get("refresh_token")
@@ -70,7 +69,7 @@ class AuthorizationMiddleware:
 
         user_id = TokenBackend(algorithm=settings.SIMPLE_JWT["ALGORITHM"],
                                signing_key=settings.SIMPLE_JWT["SIGNING_KEY"]).decode(data["token"])["user_id"]
-        User.objects.get(id=user_id).update_last_seen()
+        User.objects.get(pk=user_id).update_last_seen()
 
         response = self.get_response(request)
 

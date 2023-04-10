@@ -22,3 +22,4 @@ class Tag(BaseModel):
     class Meta:
         db_table = "tag"
         unique_together = (("room", "name",))
+        ordering = ["name"]

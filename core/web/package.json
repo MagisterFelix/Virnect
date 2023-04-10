@@ -21,7 +21,9 @@
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.43.2",
     "react-router-dom": "^6.8.1",
-    "sass": "^1.58.3"
+    "react-toastify": "^9.1.2",
+    "sass": "^1.58.3",
+    "websocket": "^1.0.34"
   },
   "scripts": {
     "start": "craco start",
