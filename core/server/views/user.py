@@ -4,8 +4,9 @@ from rest_framework.generics import RetrieveAPIView, RetrieveUpdateAPIView
 from rest_framework.parsers import JSONParser, MultiPartParser
 from rest_framework.permissions import IsAuthenticated
 
-from core.server.models import User
+from core.server.models import Room, User
 from core.server.serializers import ProfileSerializer, UserSerializer
+from core.server.utils import WebSocketsUtils
 
 
 class ProfileView(RetrieveUpdateAPIView):
@@ -32,6 +33,15 @@ class ProfileView(RetrieveUpdateAPIView):
             context["action"] = "change"
 
         return context
+
+    def update(self, request, *args, **kwargs):
+        response = super(ProfileView, self).update(request, *args, **kwargs)
+
+        room = Room.objects.filter(participants__in=[request.user])
+        if response.status_code == 200 and room.exists():
+            WebSocketsUtils.update_room(room.first().title)
+
+        return response
 
 
 class UserView(RetrieveAPIView):

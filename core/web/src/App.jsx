@@ -13,13 +13,14 @@ import 'react-toastify/dist/ReactToastify.min.css';
 
 import { AuthorizedRoutes, AuthProvider, GuestRoutes } from '@context/AuthProvider';
 import { ConnectionProvider } from '@context/ConnectionProvider';
-import { ProtectedRoomRoute, RoomListProvider, RoomProvider } from '@context/RoomDataProvider';
+import { RoomListProvider, RoomProvider } from '@context/RoomDataProvider';
 
 import NotFound from '@components/404/NotFound';
 import Authorization from '@components/auth/Authorization';
 import PasswordReset from '@components/auth/PasswordReset';
 import Registration from '@components/auth/Registration';
 import Home from '@components/Home';
+import Room from '@components/room/Room';
 import Settings from '@components/user/Settings';
 import User from '@components/user/User';
 
@@ -43,8 +44,8 @@ const App = () => (
         marginTop: '6.5em',
       }}
     />
-    <AuthProvider>
-      <BrowserRouter>
+    <BrowserRouter>
+      <AuthProvider>
         <ConnectionProvider>
           <Routes>
             <Route element={<GuestRoutes />}>
@@ -65,7 +66,7 @@ const App = () => (
                 path="/room/:title"
                 element={(
                   <RoomProvider>
-                    <ProtectedRoomRoute />
+                    <Room />
                   </RoomProvider>
                 )}
               />
@@ -82,8 +83,8 @@ const App = () => (
             <Route path="*" element={<NotFound />} />
           </Routes>
         </ConnectionProvider>
-      </BrowserRouter>
-    </AuthProvider>
+      </AuthProvider>
+    </BrowserRouter>
   </ThemeProvider>
 );
 

@@ -5,15 +5,17 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import {
+  useLocation, useNavigate, useParams, useSearchParams,
+} from 'react-router-dom';
+
+import { w3cwebsocket as W3CWebSocket } from 'websocket';
 
 import useAxios from '@api/axios';
 import ENDPOINTS from '@api/endpoints';
 import handleErrors from '@api/errors';
 
 import { useConnection } from '@context/ConnectionProvider';
-
-import Room from '@components/room/Room';
 
 const RoomContext = createContext(null);
 
@@ -23,7 +25,7 @@ const RoomListProvider = ({ children }) => {
   const { username } = useParams();
   const [searchParams] = useSearchParams();
 
-  const { connect } = useConnection();
+  const navigate = useNavigate();
 
   const [{ loading: loadingTopicList, data: topicList }] = useAxios(
     {
@@ -53,7 +55,12 @@ const RoomListProvider = ({ children }) => {
         : `${ENDPOINTS.rooms}?${decodeURIComponent(searchParams.toString())}`,
       method: 'GET',
     },
+    {
+      autoCancel: false,
+    },
   );
+
+  const socket = useMemo(() => new W3CWebSocket(ENDPOINTS.wsRoomList), []);
 
   const [pageCount, setPageCount] = useState(0);
   useEffect(() => {
@@ -108,7 +115,7 @@ const RoomListProvider = ({ children }) => {
         room: response.data.room.id,
         name: tag,
       })));
-      await connect(response.data.room.title, {}, {}, setError, setAlert);
+      navigate(`/room/${response.data.room.title}`);
     } catch (err) {
       handleErrors(validation, err.response.data.details, setError, setAlert);
     }
@@ -131,6 +138,9 @@ const RoomListProvider = ({ children }) => {
         await removeTags(toRemove);
         await addTags(toAdd.map((tag) => ({ room: roomInstance.id, name: tag })));
       }
+      socket.send(JSON.stringify({
+        type: 'room_list_update',
+      }));
       const tagsByRoom = await getTagsByRoom(roomInstance);
       response.data.room.tags = tagsByRoom;
       setRoom(response.data.room);
@@ -142,7 +152,6 @@ const RoomListProvider = ({ children }) => {
         number_of_participants: response.data.room.number_of_participants,
         key: response.data.room.key,
       });
-      await refetchRoomList();
       setAlert({ type: 'success', message: response.data.details });
     } catch (err) {
       handleErrors(validation, err.response.data.details, setError, setAlert);
@@ -154,8 +163,18 @@ const RoomListProvider = ({ children }) => {
       url: `${ENDPOINTS.room}${roomInstance.title}/`,
       method: 'DELETE',
     });
-    await refetchRoomList();
   };
+
+  useEffect(() => {
+    socket.onmessage = async (message) => {
+      const data = JSON.parse(message.data);
+      if (data.type === 'room_list_update') {
+        await refetchRoomList();
+      }
+    };
+  }, [socket, refetchRoomList]);
+
+  const [searchLoading, setSearchLoading] = useState(false);
 
   const value = useMemo(() => ({
     loadingTopicList,
@@ -172,6 +191,8 @@ const RoomListProvider = ({ children }) => {
     createRoom,
     updateRoom,
     deleteRoom,
+    searchLoading,
+    setSearchLoading,
   }), [
     loadingTopicList,
     topicList,
@@ -181,6 +202,7 @@ const RoomListProvider = ({ children }) => {
     roomList,
     pageCount,
     loading,
+    searchLoading,
   ]);
 
   return (
@@ -193,16 +215,60 @@ const RoomListProvider = ({ children }) => {
 const RoomProvider = ({ children }) => {
   const { title } = useParams();
 
-  const [{ loading: loadingRoom, data: room, error: errorData }] = useAxios(
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const { connect, disconnect } = useConnection();
+
+  const [{ loading: loadingRoom, data: room }, fetchRoom] = useAxios(
     {
       url: `${ENDPOINTS.room}${title}/`,
       method: 'GET',
     },
+    {
+      manual: true,
+      autoCancel: false,
+    },
   );
 
+  const socket = useMemo(() => new W3CWebSocket(`${ENDPOINTS.wsRoom}${title}/`), []);
+
+  useEffect(() => {
+    socket.onopen = async () => {
+      await connect(title, location.state ? location.state.key : null);
+    };
+
+    socket.onmessage = async (message) => {
+      const data = JSON.parse(message.data);
+      if (data.type === 'room_update') {
+        await fetchRoom();
+      } else if (data.type === 'room_delete') {
+        navigate('/', {
+          state: {
+            notification: {
+              type: 'info',
+              message: `The «${title}» room has been deleted.`,
+            },
+          },
+          replace: true,
+        });
+      }
+    };
+
+    const handleBeforeUnload = async () => {
+      await disconnect(title);
+      socket.close();
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [socket, fetchRoom, title, location.state]);
+
   const value = useMemo(() => ({
-    loadingRoom, room, errorData,
-  }), [loadingRoom, room, errorData]);
+    loadingRoom, room,
+  }), [loadingRoom, room]);
 
   return (
     <RoomContext.Provider value={value}>
@@ -211,40 +277,6 @@ const RoomProvider = ({ children }) => {
   );
 };
 
-const ProtectedRoomRoute = () => {
-  const { title } = useParams();
-
-  const navigate = useNavigate();
-
-  const { connect } = useConnection();
-
-  const { room, errorData } = useRoomData();
-
-  const retry = async () => {
-    await connect(title, {}, {}, null, null);
-  };
-
-  useEffect(() => {
-    if (!room && errorData) {
-      if (errorData.response.status !== 404) {
-        retry();
-      } else {
-        navigate('/', {
-          state: {
-            notification: {
-              type: 'error',
-              message: `The «${title}» room was not found`,
-            },
-          },
-          replace: true,
-        });
-      }
-    }
-  }, [room, errorData]);
-
-  return <Room />;
-};
-
 export {
-  useRoomData, RoomListProvider, RoomProvider, ProtectedRoomRoute,
+  useRoomData, RoomListProvider, RoomProvider,
 };

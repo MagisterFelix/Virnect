@@ -1,21 +1,18 @@
 import React, {
   createContext,
   useContext,
-  useEffect,
   useMemo,
 } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import useAxios from '@api/axios';
 import ENDPOINTS from '@api/endpoints';
-import handleErrors from '@api/errors';
 
 const ConnectionContext = createContext(null);
 
 const useConnection = () => useContext(ConnectionContext);
 
 const ConnectionProvider = ({ children }) => {
-  const location = useLocation();
   const navigate = useNavigate();
 
   const [{ loading }, execute] = useAxios(
@@ -27,37 +24,32 @@ const ConnectionProvider = ({ children }) => {
     },
   );
 
-  const connect = async (room, form, validation, setError, setAlert) => {
-    if (setAlert !== null) {
-      setAlert(null);
-    }
+  const connect = async (room, key) => {
+    const form = {
+      key,
+    };
     try {
       await execute({
         url: `${ENDPOINTS.connecting}${room}/`,
         data: form,
       });
-      navigate(`/room/${room}`);
-      sessionStorage.setItem('room', room);
     } catch (err) {
-      if (setError !== null && setAlert !== null) {
-        handleErrors(validation, err.response.data.details, setError, setAlert);
-      } else {
-        navigate('/', {
-          state: {
-            notification: {
-              type: 'error',
-              message: `Failed to join the «${room}» room`,
-            },
+      navigate('/', {
+        state: {
+          notification: {
+            type: 'error',
+            message: err.response.status === 404
+              ? `The «${room}» room was not found.`
+              : `Failed to join the «${room}» room. ${err.response.data.details[0].detail}`,
           },
-          replace: true,
-        });
-      }
+        },
+        replace: true,
+      });
     }
   };
 
   const disconnect = async (room) => {
     try {
-      sessionStorage.clear();
       await execute({
         url: `${ENDPOINTS.disconnecting}${room}/`,
       });
@@ -65,13 +57,6 @@ const ConnectionProvider = ({ children }) => {
       navigate('/', { replace: true });
     }
   };
-
-  useEffect(() => {
-    const room = sessionStorage.getItem('room');
-    if (room !== null && location.pathname !== `/room/${room}`) {
-      disconnect(room);
-    }
-  }, [location.pathname]);
 
   const value = useMemo(() => ({
     loading, connect, disconnect,

@@ -6,6 +6,7 @@ from core.server.filters import RoomFilter
 from core.server.models import Room
 from core.server.permissions import IsOwnerOrReadOnly, IsParticipant
 from core.server.serializers import ConnectingSerializer, DisconnectingSerializer, RoomSerializer
+from core.server.utils import WebSocketsUtils
 
 
 class RoomListView(ListCreateAPIView):
@@ -30,6 +31,24 @@ class RoomView(RetrieveUpdateDestroyAPIView):
             return (IsParticipant(),)
         return super(RoomView, self).get_permissions()
 
+    def update(self, request, *args, **kwargs):
+        response = super(RoomView, self).update(request, *args, **kwargs)
+
+        if response.status_code == 200:
+            WebSocketsUtils.update_room(kwargs["title"])
+            WebSocketsUtils.update_room_list()
+
+        return response
+
+    def destroy(self, request, *args, **kwargs):
+        response = super(RoomView, self).destroy(request, *args, **kwargs)
+
+        if response.status_code == 204:
+            WebSocketsUtils.delete_room(kwargs["title"])
+            WebSocketsUtils.update_room_list()
+
+        return response
+
 
 class ConnectingView(UpdateAPIView):
 
@@ -39,6 +58,15 @@ class ConnectingView(UpdateAPIView):
     serializer_class = ConnectingSerializer
     permission_classes = (IsAuthenticated,)
 
+    def update(self, request, *args, **kwargs):
+        response = super(ConnectingView, self).update(request, *args, **kwargs)
+
+        if response.status_code == 200:
+            WebSocketsUtils.update_room(kwargs["room"])
+            WebSocketsUtils.update_room_list()
+
+        return response
+
 
 class DisconnectingView(UpdateAPIView):
 
@@ -47,3 +75,12 @@ class DisconnectingView(UpdateAPIView):
     queryset = Room.objects.all()
     serializer_class = DisconnectingSerializer
     permission_classes = (IsAuthenticated,)
+
+    def update(self, request, *args, **kwargs):
+        response = super(DisconnectingView, self).update(request, *args, **kwargs)
+
+        if response.status_code == 200:
+            WebSocketsUtils.update_room(kwargs["room"])
+            WebSocketsUtils.update_room_list()
+
+        return response

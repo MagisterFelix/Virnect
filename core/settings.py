@@ -20,6 +20,7 @@ DEBUG = config("DJANGO_DEBUG", default=False, cast=bool)
 ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
+    "daphne",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -64,6 +65,30 @@ TEMPLATES = [
         },
     },
 ]
+
+ASGI_APPLICATION = "core.asgi.application"
+
+if DEBUG:
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels.layers.InMemoryChannelLayer",
+        }
+    }
+else:
+    REDIS_PASSWORD = config("REDIS_PASSWORD", default="")
+    REDIS_HOST = config("REDIS_HOST", default="localhost")
+    REDIS_PORT = config('REDIS_PORT', default=6379, cast=int)
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels_redis.core.RedisChannelLayer",
+            "CONFIG": {
+                "hosts": [
+                    f"redis://:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}/0"
+                ],
+                "symmetric_encryption_keys": [SECRET_KEY],
+            },
+        },
+    }
 
 WSGI_APPLICATION = "core.wsgi.application"
 

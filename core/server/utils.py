@@ -1,6 +1,9 @@
+import hashlib
 import os
 import random
 
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.utils import timezone
@@ -80,22 +83,25 @@ class AuthorizationUtils:
 
     @staticmethod
     def set_auth_cookies(response, data):
-        cookies = [
-            {
+        cookies = []
+
+        if data.get("access") is not None:
+            cookies.append({
                 "key": settings.SIMPLE_JWT["AUTH_COOKIE_ACCESS_TOKEN"],
-                "value": data.get("access"),
+                "value": data["access"],
                 "expires": timezone.now() + settings.SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"],
                 "httponly": settings.SIMPLE_JWT["AUTH_COOKIE_HTTP_ONLY"],
                 "samesite": settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
-            },
-            {
+            })
+
+        if data.get("refresh") is not None:
+            cookies.append({
                 "key": settings.SIMPLE_JWT["AUTH_COOKIE_REFRESH_TOKEN"],
                 "value": data.get("refresh"),
                 "expires": timezone.now() + settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"],
                 "httponly": settings.SIMPLE_JWT["AUTH_COOKIE_HTTP_ONLY"],
                 "samesite": settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
-            }
-        ]
+            })
 
         for cookie in cookies:
             response.set_cookie(**cookie)
@@ -104,6 +110,13 @@ class AuthorizationUtils:
     def remove_auth_cookies(response):
         response.delete_cookie("access_token")
         response.delete_cookie("refresh_token")
+
+    @staticmethod
+    def get_invalid_csrftoken_response(request):
+        message = "CSRF token is invalid or not provided."
+        response = AuthorizationUtils._get_response(request, message, status.HTTP_403_FORBIDDEN)
+        AuthorizationUtils.remove_auth_cookies(response)
+        return response
 
     @staticmethod
     def get_missed_credentials_response(request):
@@ -117,3 +130,38 @@ class AuthorizationUtils:
         response = AuthorizationUtils._get_response(request, message, status.HTTP_401_UNAUTHORIZED)
         AuthorizationUtils.remove_auth_cookies(response)
         return response
+
+
+class WebSocketsUtils:
+
+    @staticmethod
+    def _send_to_group(group, event):
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(group, event)
+
+    @staticmethod
+    def update_room_list():
+        WebSocketsUtils._send_to_group(
+            "room-list",
+            {
+                "type": "room_list_update"
+            }
+        )
+
+    @staticmethod
+    def update_room(room):
+        WebSocketsUtils._send_to_group(
+            f"room-{hashlib.sha256(room.encode()).hexdigest()}",
+            {
+                "type": "room_update"
+            }
+        )
+
+    @staticmethod
+    def delete_room(room):
+        WebSocketsUtils._send_to_group(
+            f"room-{hashlib.sha256(room.encode()).hexdigest()}",
+            {
+                "type": "room_delete"
+            }
+        )
