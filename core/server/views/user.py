@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import NotFound
-from rest_framework.generics import RetrieveAPIView, RetrieveUpdateAPIView
+from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.parsers import JSONParser, MultiPartParser
 from rest_framework.permissions import IsAuthenticated
 
@@ -50,6 +50,11 @@ class UserView(RetrieveAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = (IsAuthenticated,)
+
+    def get_permissions(self):
+        if self.request.method in ["PATCH", "PUT"]:
+            return (IsAdminUser(),)
+        return super(UserView, self).get_permissions()
 
     def retrieve(self, request, *args, **kwargs):
         response = super(UserView, self).retrieve(request, *args, **kwargs)

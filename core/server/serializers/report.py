@@ -33,7 +33,7 @@ class ReportSerializer(ModelSerializer):
         else:
             data["report"]["reviewed_by"] = None
 
-        if self.context["request"].method == "GET":
+        if self.context["request"].method == "GET" or self.context.get("related"):
             return data["report"]
 
         if self.context["request"].method == "POST":
