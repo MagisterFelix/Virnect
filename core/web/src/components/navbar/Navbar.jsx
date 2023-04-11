@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+
+import { w3cwebsocket as W3CWebSocket } from 'websocket';
 
 import {
   AppBar,
@@ -6,10 +8,12 @@ import {
   Badge,
   Box,
   Container,
+  Divider,
   IconButton,
   Link,
   Menu,
-  MenuItem, Toolbar,
+  MenuItem,
+  Popover, Toolbar,
   Typography,
   useMediaQuery,
   useTheme,
@@ -22,7 +26,11 @@ import {
   Settings,
 } from '@mui/icons-material';
 
+import ENDPOINTS from '@api/endpoints';
+
 import { useAuth } from '@context/AuthProvider';
+
+import Notification from '@components/navbar/Notification';
 
 import { OnlineBadge } from '@utils/Styles';
 
@@ -31,13 +39,34 @@ import styles from '@styles/_globals.scss';
 import './Navbar.scss';
 
 const Navbar = () => {
-  const { profile, logout } = useAuth();
+  const {
+    profile, logout, notificationList, refetchNotificationList, viewNotification,
+  } = useAuth();
+
+  const underSm = useMediaQuery(useTheme().breakpoints.down('sm'));
+
+  const notifications = notificationList.filter((notification) => notification.content);
 
   const handleOnLogout = () => logout();
 
   const [anchorElUser, setAnchorElUser] = useState(null);
   const handleOpenUserMenu = (event) => setAnchorElUser(event.currentTarget);
   const handleCloseUserMenu = () => setAnchorElUser(null);
+
+  const [anchorElNotification, setAnchorElNotification] = useState(null);
+  const handleOpenNotificationMenu = (event) => setAnchorElNotification(event.currentTarget);
+  const handleCloseNotificationMenu = () => setAnchorElNotification(null);
+
+  const socket = useMemo(() => new W3CWebSocket(`${ENDPOINTS.wsNotificationList}${profile.username}/`), []);
+
+  useEffect(() => {
+    socket.onmessage = async (message) => {
+      const data = JSON.parse(message.data);
+      if (data.type === 'notification_list_update') {
+        await refetchNotificationList();
+      }
+    };
+  }, [socket, refetchNotificationList]);
 
   return (
     <div className="Navbar">
@@ -72,7 +101,7 @@ const Navbar = () => {
                   width: 64,
                 }}
               />
-              <span style={{ display: useMediaQuery(useTheme().breakpoints.down('sm')) ? 'none' : 'flex' }}>Virnect</span>
+              <span style={{ display: underSm ? 'none' : 'flex' }}>Virnect</span>
             </Link>
             <Box
               sx={{
@@ -80,11 +109,60 @@ const Navbar = () => {
                 alignItems: 'center',
               }}
             >
-              <IconButton size="large" sx={{ color: styles.color_white }}>
-                <Badge max={9} color="primary">
+              <IconButton size="large" onClick={handleOpenNotificationMenu} sx={{ pr: 2, color: styles.color_white }}>
+                <Badge
+                  max={9}
+                  badgeContent={notifications.filter(
+                    (notification) => !notification.is_viewed,
+                  ).length}
+                  color="primary"
+                >
                   <Notifications fontSize="large" sx={{ color: styles.color_white }} />
                 </Badge>
               </IconButton>
+              <Popover
+                anchorEl={anchorElNotification}
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'center',
+                }}
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'center',
+                }}
+                open={Boolean(anchorElNotification)}
+                onClose={handleCloseNotificationMenu}
+                PaperProps={{
+                  style: {
+                    maxHeight: 500,
+                    maxWidth: !underSm && 500,
+                  },
+                }}
+                sx={{ mt: 1 }}
+              >
+                {notifications.length !== 0 ? notificationList.map((notification) => (
+                  notification.content && (
+                  <div
+                    className="Notification"
+                    key={notification.id}
+                    style={{
+                      backgroundColor: notification.is_viewed
+                        ? styles.color_white
+                        : styles.color_soft_neon,
+                    }}
+                  >
+                    <Typography sx={{ p: 2 }}>
+                      {Notification(notification, viewNotification)}
+                    </Typography>
+                    <Divider />
+                  </div>
+                  )
+                )) : (
+                  <Typography sx={{ p: 2 }}>
+                    <span>No notifications</span>
+                  </Typography>
+                )}
+              </Popover>
               <IconButton onClick={handleOpenUserMenu} sx={{ pr: 0 }}>
                 <OnlineBadge
                   overlap="circular"

@@ -101,13 +101,49 @@ const AuthProvider = ({ children }) => {
     }
   };
 
+  const [{
+    loading: loadingNotificationList,
+    data: notificationList,
+  }, refetchNotificationList] = useAxios(
+    {
+      url: ENDPOINTS.notifications,
+      method: 'GET',
+    },
+    {
+      autoCancel: false,
+    },
+  );
+
+  const viewNotification = async (notification, isViewed) => {
+    const formData = {
+      is_viewed: isViewed,
+    };
+    await execute({
+      url: `${ENDPOINTS.notification}${notification}/`,
+      method: 'PATCH',
+      data: formData,
+    });
+    await refetchNotificationList();
+  };
+
   const value = useMemo(() => ({
-    loading, loadingProfile, profile, refetchProfile, login, register, logout, resetPassword,
-  }), [loading, loadingProfile, profile]);
+    loading,
+    loadingProfile,
+    profile,
+    refetchProfile,
+    login,
+    register,
+    logout,
+    resetPassword,
+    loadingNotificationList,
+    notificationList,
+    refetchNotificationList,
+    viewNotification,
+  }), [loading, loadingProfile, profile, loadingNotificationList, notificationList]);
 
   return (
     <AuthContext.Provider value={value}>
-      {loadingProfile && !profile
+      {(loadingProfile || loadingNotificationList) && (!profile || !notificationList)
         ? (
           <div style={{
             minHeight: '100dvh',

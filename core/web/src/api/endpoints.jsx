@@ -17,8 +17,11 @@ const ENDPOINTS = {
   room: '/api/room/',
   connecting: '/api/connect/',
   disconnecting: '/api/disconnect/',
+  notifications: '/api/notifications/',
+  notification: '/api/notification/',
   wsRoomList: `${baseWS}/room-list/`,
   wsRoom: `${baseWS}/room/`,
+  wsNotificationList: `${baseWS}/notification-list/`,
 };
 
 export default ENDPOINTS;
