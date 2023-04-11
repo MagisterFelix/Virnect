@@ -1,8 +1,4 @@
-import React, {
-  createContext,
-  useContext,
-  useMemo,
-} from 'react';
+import React, { createContext, useContext, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import useAxios from '@api/axios';
