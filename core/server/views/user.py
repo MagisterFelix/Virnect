@@ -1,10 +1,12 @@
+import json
+
 from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import NotFound
 from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.parsers import JSONParser, MultiPartParser
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 
-from core.server.models import Room, User
+from core.server.models import Notification, Room, User
 from core.server.serializers import ProfileSerializer, UserSerializer
 from core.server.utils import WebSocketsUtils
 
@@ -63,5 +65,18 @@ class UserView(RetrieveUpdateAPIView):
             raise NotFound("No user was found.")
 
         response.data.pop("email")
+
+        return response
+
+    def update(self, request, *args, **kwargs):
+        response = super(UserView, self).update(request, *args, **kwargs)
+
+        if response.status_code == 200 and request.data.get("is_staff") is not None:
+            Notification.objects.create(
+                recipient=User.objects.get(username=kwargs["username"]),
+                notification_type=Notification.NotificationType.STATUS_CHANGE,
+                content=json.dumps({"promoted": response.data["is_staff"]})
+            )
+            WebSocketsUtils.update_notification_list(kwargs["username"])
 
         return response
