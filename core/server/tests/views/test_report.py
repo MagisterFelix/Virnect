@@ -26,9 +26,9 @@ class ReportListViewTest(APITestCase):
 
     def test_create_report(self):
         data = {
+            "reason": REPORTS["text abuse"]["reason"],
             "sender": self.admin.id,
-            "suspect": self.user.id,
-            "reason": REPORTS["text abuse"]["reason"]
+            "accused": self.user.id
         }
 
         request = self.factory.post(path=PATHS["reports"], data=data, format="json")
@@ -39,8 +39,8 @@ class ReportListViewTest(APITestCase):
 
     def test_create_report_if_no_reason(self):
         data = {
-            "suspect": self.user.id,
-            "sender": self.admin.id
+            "sender": self.admin.id,
+            "accused": self.user.id
         }
 
         request = self.factory.post(path=PATHS["reports"], data=data, format="json")
@@ -51,9 +51,9 @@ class ReportListViewTest(APITestCase):
 
     def test_create_report_if_invalid_reason(self):
         data = {
-            "suspect": self.user.id,
+            "reason": "invalid",
             "sender": self.admin.id,
-            "reason": "invalid"
+            "accused": self.user.id
         }
 
         request = self.factory.post(path=PATHS["reports"], data=data, format="json")
@@ -69,7 +69,7 @@ class ReportViewTest(APITestCase):
     def setUpTestData(cls):
         admin = User.objects.create_superuser(**USERS["admin"])
         user = User.objects.create_user(**USERS["user"])
-        Report.objects.create(sender=admin, suspect=user, **REPORTS["text abuse"])
+        Report.objects.create(sender=admin, accused=user, **REPORTS["text abuse"])
 
     def setUp(self):
         self.factory = APIRequestFactory()
@@ -86,7 +86,7 @@ class ReportViewTest(APITestCase):
 
     def test_update_report(self):
         data = {
-            "verdict": 0
+            "verdict": 1
         }
 
         request = self.factory.patch(path=PATHS["report"], data=data, format="multipart")
@@ -97,20 +97,20 @@ class ReportViewTest(APITestCase):
 
     def test_update_report_if_not_authenticated(self):
         data = {
-            "verdict": 0
+            "verdict": 1
         }
 
-        request = self.factory.patch(path=PATHS["topic"], data=data, format="multipart")
+        request = self.factory.patch(path=PATHS["report"], data=data, format="multipart")
         response = ReportView().as_view()(request)
 
         self.assertEqual(response.status_code, 403)
 
     def test_update_report_if_not_exists(self):
         data = {
-            "verdict": 0
+            "verdict": 1
         }
 
-        request = self.factory.patch(path=PATHS["topic"], data=data, format="multipart")
+        request = self.factory.patch(path=PATHS["report"], data=data, format="multipart")
         force_authenticate(request=request, user=self.admin)
         response = ReportView().as_view()(request, pk=self.report.id + 1)
 
@@ -118,10 +118,10 @@ class ReportViewTest(APITestCase):
 
     def test_update_report_if_not_staff(self):
         data = {
-            "verdict": 0
+            "verdict": 1
         }
 
-        request = self.factory.post(path=PATHS["topic"], data=data, format="multipart")
+        request = self.factory.post(path=PATHS["report"], data=data, format="multipart")
         force_authenticate(request=request, user=self.user)
         response = ReportView().as_view()(request, pk=self.report.id)
 

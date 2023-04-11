@@ -15,7 +15,7 @@ class ReportSerializer(ModelSerializer):
     def validate(self, attrs):
         if self.context["request"].method == "POST":
             attrs["sender"] = self.context["request"].user
-        elif self.context["request"].method == "PATCH":
+        elif self.context["request"].method == "PATCH" and attrs.get("verdict"):
             attrs["reviewed_by"] = self.context["request"].user
 
         return super(ReportSerializer, self).validate(attrs)
@@ -26,7 +26,7 @@ class ReportSerializer(ModelSerializer):
         data["report"] = super(ReportSerializer, self).to_representation(instance)
 
         data["report"]["sender"] = UserSerializer(instance=instance.sender, context=self.context).data
-        data["report"]["suspect"] = UserSerializer(instance=instance.suspect, context=self.context).data
+        data["report"]["accused"] = UserSerializer(instance=instance.accused, context=self.context).data
 
         if instance.reviewed_by is not None:
             data["report"]["reviewed_by"] = UserSerializer(instance=instance.reviewed_by, context=self.context).data

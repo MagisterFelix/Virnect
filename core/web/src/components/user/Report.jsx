@@ -55,7 +55,7 @@ const Report = ({ user }) => {
   const { control, handleSubmit, reset } = useForm();
   const handleOnSubmit = async (form) => {
     const formData = {
-      suspect: user.id,
+      accused: user.id,
       ...form,
     };
     setAlert(null);

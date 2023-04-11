@@ -144,7 +144,7 @@ class ReportAdmin(admin.ModelAdmin):
 
         super(ReportAdmin, self).save_model(request, obj, form, change)
 
-    list_display = ("reason", "sender", "suspect", "verdict", "reviewed_by", "created_at", "is_viewed",)
+    list_display = ("reason", "sender", "accused", "verdict", "reviewed_by", "created_at", "is_viewed",)
     fieldsets = (
         (None, {
             "fields": (
@@ -153,7 +153,7 @@ class ReportAdmin(admin.ModelAdmin):
         }),
         ("Information", {
             "fields": (
-                "sender", "suspect", "verdict", "reviewed_by", "created_at", "is_viewed",
+                "sender", "accused", "verdict", "reviewed_by", "created_at", "is_viewed",
             )
         }),
     )

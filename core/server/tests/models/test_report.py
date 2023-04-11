@@ -12,9 +12,9 @@ class ReportTest(TestCase):
     def setUpTestData(cls):
         User.objects.create_user(**USERS["admin"])
         sender = User.objects.create_user(**USERS["user"])
-        suspect = User.objects.create_user(**USERS["test"])
+        accused = User.objects.create_user(**USERS["test"])
 
-        Report.objects.create(sender=sender, suspect=suspect, **REPORTS["text abuse"])
+        Report.objects.create(sender=sender, accused=accused, **REPORTS["text abuse"])
 
     def test_report_fields(self):
         report = Report.objects.get(pk=1)
@@ -22,8 +22,8 @@ class ReportTest(TestCase):
         self.assertIsInstance(report.sender, User)
         self.assertEqual(report.sender.username, USERS["user"]["username"])
 
-        self.assertIsInstance(report.suspect, User)
-        self.assertEqual(report.suspect.username, USERS["test"]["username"])
+        self.assertIsInstance(report.accused, User)
+        self.assertEqual(report.accused.username, USERS["test"]["username"])
 
         self.assertIsInstance(report.reason, int)
         self.assertEqual(report.reason, REPORTS["text abuse"]["reason"])
@@ -55,7 +55,7 @@ class ReportTest(TestCase):
 
         self.assertGreater(before_deleting, after_deleting)
 
-    def test_report_removing_on_deleting_suspect(self):
+    def test_report_removing_on_deleting_accused(self):
         before_deleting = Report.objects.count()
         User.objects.get(pk=3).delete()
         after_deleting = Report.objects.count()
