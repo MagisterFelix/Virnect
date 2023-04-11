@@ -1,8 +1,4 @@
-import React, {
-  createContext,
-  useContext,
-  useMemo,
-} from 'react';
+import React, { createContext, useContext, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import useAxios from '@api/axios';
@@ -36,7 +32,7 @@ const ConnectionProvider = ({ children }) => {
     } catch (err) {
       navigate('/', {
         state: {
-          notification: {
+          toast: {
             type: 'error',
             message: err.response.status === 404
               ? `The «${room}» room was not found.`

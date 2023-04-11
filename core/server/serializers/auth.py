@@ -19,7 +19,7 @@ class AuthorizationSerializer(TokenObtainPairSerializer):
 
         user = User.objects.get_or_none(Q(username=attr) | Q(email=attr))
 
-        if user is None:
+        if user is None or not user.check_password(attrs.get("password")):
             raise AuthenticationFailed("No user was found with these credentials.")
 
         if not user.is_active:

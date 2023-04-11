@@ -22,7 +22,7 @@ class Report(BaseModel):
         WARNING = 2, "Warning"
 
     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sender")
-    suspect = models.ForeignKey(User, on_delete=models.CASCADE, related_name="suspect")
+    accused = models.ForeignKey(User, on_delete=models.CASCADE, related_name="accused")
     reason = models.IntegerField(choices=Reason.choices)
     verdict = models.IntegerField(choices=Verdict.choices, default=Verdict.NO_VERDICT)
     reviewed_by = models.ForeignKey(User, on_delete=models.SET_NULL, related_name="reviewed_by", null=True, blank=True)

@@ -140,6 +140,15 @@ class WebSocketsUtils:
         async_to_sync(channel_layer.group_send)(group, event)
 
     @staticmethod
+    def update_notification_list(user):
+        WebSocketsUtils._send_to_group(
+            f"notification-list-{hashlib.sha256(user.encode()).hexdigest()}",
+            {
+                "type": "notification_list_update"
+            }
+        )
+
+    @staticmethod
     def update_room_list():
         WebSocketsUtils._send_to_group(
             "room-list",

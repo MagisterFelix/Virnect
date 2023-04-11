@@ -30,7 +30,7 @@ import './User.scss';
 const Report = ({ user }) => {
   const [{ loading: loadingReportOptions, data: reportOptions }] = useAxios(
     {
-      url: ENDPOINTS.report,
+      url: ENDPOINTS.reports,
       method: 'OPTIONS',
     },
   );
@@ -43,7 +43,7 @@ const Report = ({ user }) => {
 
   const [{ loading: loadingReport }, sendReport] = useAxios(
     {
-      url: ENDPOINTS.report,
+      url: ENDPOINTS.reports,
       method: 'POST',
     },
     {
@@ -55,7 +55,7 @@ const Report = ({ user }) => {
   const { control, handleSubmit, reset } = useForm();
   const handleOnSubmit = async (form) => {
     const formData = {
-      suspect: user.id,
+      accused: user.id,
       ...form,
     };
     setAlert(null);

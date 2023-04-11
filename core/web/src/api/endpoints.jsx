@@ -7,16 +7,21 @@ const ENDPOINTS = {
   passwordReset: '/api/reset-password/',
   profile: '/api/profile/',
   user: '/api/user/',
-  report: '/api/reports/',
+  reports: '/api/reports/',
+  report: '/api/report/',
   topics: '/api/topics/',
+  topic: '/api/topic/',
   tags: '/api/tags/',
   tag: '/api/tag/',
   rooms: '/api/rooms/',
   room: '/api/room/',
   connecting: '/api/connect/',
   disconnecting: '/api/disconnect/',
+  notifications: '/api/notifications/',
+  notification: '/api/notification/',
   wsRoomList: `${baseWS}/room-list/`,
   wsRoom: `${baseWS}/room/`,
+  wsNotificationList: `${baseWS}/notification-list/`,
 };
 
 export default ENDPOINTS;

@@ -335,7 +335,7 @@ const Panel = () => {
                     topicList.map(
                       (topic) => (
                         <MenuItem key={topic.id} value={topic.title}>
-                          <LightTooltip title={topic.description} placement="left" arrow enterDelay={1000} sx={{ pr: 2 }}>
+                          <LightTooltip title={topic.description} placement="left" arrow enterDelay={500} sx={{ pr: 2 }}>
                             <ListItemIcon
                               sx={{
                                 display: 'flex',

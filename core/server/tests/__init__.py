@@ -66,7 +66,7 @@ REPORTS = {
 NOTIFICATIONS = {
     "message reply": {
         "notification_type": 3,
-        "content": "message=1,mentioned_by=admin,room=just speak"
+        "content": "{\"room\": 1, \"user\": 1, \"message\": 4}"
     }
 }
 HISTORIES = {
@@ -84,6 +84,7 @@ PATHS = {
     "profile": "/api/profile/",
     "user": "/api/user/",
     "reports": "/api/reports/",
+    "report": "/api/report/",
     "topics": "/api/topics/",
     "topic": "/api/topic/",
     "tags": "/api/tags/",
@@ -92,4 +93,6 @@ PATHS = {
     "room": "/api/room/",
     "connect": "/api/connect/",
     "disconnect": "/api/disconnect/",
+    "notifications": "/api/notifications/",
+    "notification": "/api/notification/",
 }

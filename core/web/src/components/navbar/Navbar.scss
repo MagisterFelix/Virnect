@@ -1,3 +1,9 @@
+@use '@styles/globals' as *;
+
 .Navbar {
   margin-bottom: 8em;
+}
+
+.MuiPopover-paper::-webkit-scrollbar {
+  display: none;
 }

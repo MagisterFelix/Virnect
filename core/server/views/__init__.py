@@ -1,5 +1,6 @@
 from .auth import AuthorizationView, DeauthorizationView, PasswordResetConfirmView, PasswordResetView, RegistrationView
-from .report import ReportListView
+from .notification import NotificationListView, NotificationView
+from .report import ReportListView, ReportView
 from .room import ConnectingView, DisconnectingView, RoomListView, RoomView
 from .tag import TagListView, TagView
 from .topic import TopicListView, TopicView
