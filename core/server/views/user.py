@@ -44,7 +44,7 @@ class ProfileView(RetrieveUpdateAPIView):
         return response
 
 
-class UserView(RetrieveAPIView):
+class UserView(RetrieveUpdateAPIView):
 
     lookup_field = "username"
     queryset = User.objects.all()
