@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import NotFound
 from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.parsers import JSONParser, MultiPartParser
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
 
 from core.server.models import Room, User
 from core.server.serializers import ProfileSerializer, UserSerializer
