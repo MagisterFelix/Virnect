@@ -84,7 +84,7 @@ class ReportViewTest(APITestCase):
 
         self.assertEqual(response.status_code, 200)
 
-    def test_review_report(self):
+    def test_update_report(self):
         data = {
             "verdict": 0
         }
@@ -95,7 +95,7 @@ class ReportViewTest(APITestCase):
 
         self.assertEqual(response.status_code, 200)
 
-    def test_review_report_if_not_authenticated(self):
+    def test_update_report_if_not_authenticated(self):
         data = {
             "verdict": 0
         }
@@ -105,7 +105,7 @@ class ReportViewTest(APITestCase):
 
         self.assertEqual(response.status_code, 403)
 
-    def test_review_report_if_not_exists(self):
+    def test_update_report_if_not_exists(self):
         data = {
             "verdict": 0
         }
@@ -116,7 +116,7 @@ class ReportViewTest(APITestCase):
 
         self.assertEqual(response.status_code, 404)
 
-    def test_review_report_if_not_staff(self):
+    def test_update_report_if_not_staff(self):
         data = {
             "verdict": 0
         }
