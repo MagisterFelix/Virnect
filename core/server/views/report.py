@@ -25,8 +25,8 @@ class ReportView(RetrieveUpdateAPIView):
         response = super(ReportView, self).update(request, *args, **kwargs)
 
         if response.status_code == 200 and response.data["report"]["verdict"]:
-            sender = User.objects.get(id=response.data["report"]["sender"]["id"])
-            accused = User.objects.get(id=response.data["report"]["accused"]["id"])
+            sender = User.objects.get(pk=response.data["report"]["sender"]["id"])
+            accused = User.objects.get(pk=response.data["report"]["accused"]["id"])
 
             if response.data["report"]["verdict"] == 1:
                 accused.is_active = False
