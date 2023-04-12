@@ -22,7 +22,7 @@ class IsOwnerOrReadOnly(IsAuthenticated):
         if not is_authenticated:
             return False
 
-        if "room" in request.path and request.method != "POST":
+        if request.path.startswith("/api/room") and request.method != "POST":
             room = Room.objects.get_or_none(title=view.kwargs.get("title"))
 
             if room is None:
@@ -30,7 +30,7 @@ class IsOwnerOrReadOnly(IsAuthenticated):
 
             return room.host == request.user
 
-        if "tag" in request.path:
+        if request.path.startswith("/api/tag"):
             if request.method == "POST":
                 room = Room.objects.get_or_none(pk=request.data.get("room"))
             else:

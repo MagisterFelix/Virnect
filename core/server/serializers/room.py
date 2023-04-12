@@ -29,6 +29,8 @@ class RoomSerializer(ModelSerializer):
         return super(RoomSerializer, self).validate(attrs)
 
     def to_representation(self, instance):
+        related = self.context.get("related")
+
         data = OrderedDict()
 
         data["room"] = super(RoomSerializer, self).to_representation(instance)
@@ -51,7 +53,7 @@ class RoomSerializer(ModelSerializer):
         if len(instance.key) > 0 and instance.host != self.context["request"].user:
             data["room"]["key"] = hashlib.sha256(instance.key.encode()).hexdigest()
 
-        if self.context["request"].method == "GET" or self.context.get("related"):
+        if self.context["request"].method == "GET" or related:
             return data["room"]
 
         if self.context["request"].method == "POST":
