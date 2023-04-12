@@ -70,7 +70,7 @@ NOTIFICATIONS = {
     }
 }
 HISTORIES = {
-    "1970-01-01T00:00:00.0": {
+    "1970-01-01T00:00:00.0Z": {
         "topic": "chatting",
         "tags": "english",
         "language": "english"
@@ -95,4 +95,6 @@ PATHS = {
     "disconnect": "/api/disconnect/",
     "notifications": "/api/notifications/",
     "notification": "/api/notification/",
+    "messages": "/api/messages/",
+    "message": "/api/message/",
 }

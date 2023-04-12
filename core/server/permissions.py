@@ -1,7 +1,7 @@
 from rest_framework.exceptions import NotFound
 from rest_framework.permissions import SAFE_METHODS, IsAdminUser, IsAuthenticated
 
-from .models import Room, Tag
+from .models import Message, Room, Tag
 
 
 class IsAdminUserOrReadOnly(IsAdminUser):
@@ -46,7 +46,15 @@ class IsOwnerOrReadOnly(IsAuthenticated):
 
             return room.host == request.user
 
-        return True
+        if request.path.startswith("/api/message"):
+            message = Message.objects.get_or_none(pk=view.kwargs.get("pk"))
+
+            if message is None:
+                raise NotFound()
+
+            return message.author == request.user
+
+        return False
 
 
 class IsParticipant(IsAuthenticated):
