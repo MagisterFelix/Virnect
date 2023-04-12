@@ -66,6 +66,7 @@ const Notification = (notification, viewNotification) => {
         <Typography
           component="span"
           sx={{
+            mt: 1,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'end',
@@ -109,6 +110,7 @@ const Notification = (notification, viewNotification) => {
         <Typography
           component="span"
           sx={{
+            mt: 1,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'end',
@@ -141,6 +143,7 @@ const Notification = (notification, viewNotification) => {
         <Typography
           component="span"
           sx={{
+            mt: 1,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'end',
@@ -171,7 +174,7 @@ const Notification = (notification, viewNotification) => {
               replied to your
               {' '}
               «
-              {message}
+              {message.text}
               »
               {' '}
               message in the
@@ -192,6 +195,7 @@ const Notification = (notification, viewNotification) => {
         <Typography
           component="span"
           sx={{
+            mt: 1,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'end',
@@ -237,6 +241,7 @@ const Notification = (notification, viewNotification) => {
         <Typography
           component="span"
           sx={{
+            mt: 1,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'end',

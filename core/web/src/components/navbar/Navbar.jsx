@@ -135,7 +135,7 @@ const Navbar = () => {
                 PaperProps={{
                   style: {
                     maxHeight: 500,
-                    maxWidth: !underSm && 500,
+                    width: !underSm && 500,
                   },
                 }}
                 sx={{ mt: 1 }}
@@ -146,6 +146,7 @@ const Navbar = () => {
                     className="Notification"
                     key={notification.id}
                     style={{
+                      marginTop: '0.5em',
                       backgroundColor: notification.is_viewed
                         ? styles.color_white
                         : styles.color_soft_neon,

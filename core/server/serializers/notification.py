@@ -5,6 +5,7 @@ from rest_framework.serializers import ModelSerializer
 
 from core.server.models import Message, Notification, Report, Room, User
 
+from .message import MessageSerializer
 from .report import ReportSerializer
 from .room import RoomSerializer
 from .user import UserSerializer
@@ -58,7 +59,7 @@ class NotificationSerializer(ModelSerializer):
             else:
                 room = RoomSerializer(instance=room, context=self.context).data
                 user = UserSerializer(instance=user, context=self.context).data
-                message = ...
+                message = MessageSerializer(instance=message, context=self.context).data
 
                 content["room"] = room
                 content["user"] = user
