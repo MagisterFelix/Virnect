@@ -129,7 +129,7 @@ class TopicViewTest(APITestCase):
 
         request = self.factory.post(path=PATHS["topic"], data=data, format="multipart")
         force_authenticate(request=request, user=self.user)
-        response = TopicListView().as_view()(request, pk=self.topic.id)
+        response = TopicView().as_view()(request, pk=self.topic.id)
 
         self.assertEqual(response.status_code, 403)
 
@@ -156,6 +156,6 @@ class TopicViewTest(APITestCase):
     def test_delete_topic_if_not_staff(self):
         request = self.factory.delete(path=PATHS["topic"], format="json")
         force_authenticate(request=request, user=self.user)
-        response = TopicListView().as_view()(request, pk=self.topic.id)
+        response = TopicView().as_view()(request, pk=self.topic.id)
 
         self.assertEqual(response.status_code, 403)
