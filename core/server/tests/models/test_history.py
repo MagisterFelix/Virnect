@@ -12,7 +12,7 @@ class HistoryTest(TestCase):
     def setUpTestData(cls):
         owner = User.objects.create_user(**USERS["user"])
 
-        History.objects.create(owner=owner, **HISTORIES["1970-01-01T00:00:00.0"])
+        History.objects.create(owner=owner, **HISTORIES["1970-01-01T00:00:00.0Z"])
 
     def test_history_fields(self):
         history = History.objects.get(pk=1)
@@ -21,15 +21,15 @@ class HistoryTest(TestCase):
         self.assertEqual(history.owner.username, USERS["user"]["username"])
 
         self.assertIsInstance(history.topic, str)
-        self.assertEqual(history.topic, HISTORIES["1970-01-01T00:00:00.0"]["topic"])
+        self.assertEqual(history.topic, HISTORIES["1970-01-01T00:00:00.0Z"]["topic"])
         self.assertEqual(history._meta.get_field("topic").max_length, 64)
 
         self.assertIsInstance(history.tags, str)
-        self.assertEqual(history.tags, HISTORIES["1970-01-01T00:00:00.0"]["tags"])
+        self.assertEqual(history.tags, HISTORIES["1970-01-01T00:00:00.0Z"]["tags"])
         self.assertEqual(history._meta.get_field("tags").max_length, 64)
 
         self.assertIsInstance(history.language, str)
-        self.assertEqual(history.language, HISTORIES["1970-01-01T00:00:00.0"]["language"])
+        self.assertEqual(history.language, HISTORIES["1970-01-01T00:00:00.0Z"]["language"])
         self.assertEqual(history._meta.get_field("language").max_length, 32)
 
         self.assertIsInstance(history.recorded_at, datetime)
