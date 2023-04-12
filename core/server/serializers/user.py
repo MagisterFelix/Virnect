@@ -31,6 +31,13 @@ class UserSerializer(ModelSerializer):
             }
         }
 
+    def to_representation(self, instance):
+        data = super(UserSerializer, self).to_representation(instance)
+
+        data.pop("email")
+
+        return data
+
 
 class ProfileSerializer(UserSerializer):
 

@@ -64,8 +64,6 @@ class UserView(RetrieveUpdateAPIView):
         if not response.data["is_active"]:
             raise NotFound("No user was found.")
 
-        response.data.pop("email")
-
         return response
 
     def update(self, request, *args, **kwargs):
