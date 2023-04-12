@@ -4,9 +4,10 @@ from collections import OrderedDict
 from rest_framework.serializers import ModelSerializer
 
 from core.server.models import Message, Notification, Report, Room, User
-from core.server.serializers.report import ReportSerializer
-from core.server.serializers.room import RoomSerializer
-from core.server.serializers.user import UserSerializer
+
+from .report import ReportSerializer
+from .room import RoomSerializer
+from .user import UserSerializer
 
 
 class NotificationSerializer(ModelSerializer):

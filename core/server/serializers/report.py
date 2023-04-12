@@ -3,7 +3,8 @@ from collections import OrderedDict
 from rest_framework.serializers import ModelSerializer
 
 from core.server.models import Report
-from core.server.serializers.user import UserSerializer
+
+from .user import UserSerializer
 
 
 class ReportSerializer(ModelSerializer):
