@@ -45,7 +45,7 @@ class RoomSerializer(ModelSerializer):
             many=True
         ).data
         data["room"]["participants"] = UserSerializer(
-            instance=instance.participants,
+            instance=sorted(instance.participants.all(), key=lambda user: user.id != data["room"]["host"]["id"]),
             context=self.context,
             many=True
         ).data
