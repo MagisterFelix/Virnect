@@ -28,17 +28,16 @@ import { LoadingButton } from '@mui/lab';
 import {
   AccessTime,
   Close,
+  Delete,
   Edit,
   Lock,
   Tag,
 } from '@mui/icons-material';
 
-import { toast } from 'react-toastify';
-
 import { useAuth } from '@context/AuthProvider';
 import { useRoomData } from '@context/RoomDataProvider';
 
-import { ConfirmationForm, RoomForm } from '@utils/Forms';
+import { ConfirmationDialog, RoomDialog } from '@utils/Dialogs';
 import { LightTooltip } from '@utils/Styles';
 import getFormattedTime from '@utils/Time';
 
@@ -102,10 +101,15 @@ const RoomList = ({ editable }) => {
     setOpenRoomEditingDialog(true);
   };
 
+  const [openConfirmationDialog, setOpenConfirmationDialog] = useState(false);
+  const handleOpenConfirmationDialog = (room) => {
+    setSelectedRoom(room);
+    setOpenConfirmationDialog(true);
+  };
   const handleOnDelete = async (room) => {
     await deleteRoom(room);
-    toast(`The «${room.title}» room has been removed.`, { type: 'success' });
   };
+  const handleCloseConfirmationDialog = () => setOpenConfirmationDialog(false);
 
   const handleOnJoin = (room) => {
     if (room.key.length !== 0 && profile.id !== room.host.id) {
@@ -142,10 +146,7 @@ const RoomList = ({ editable }) => {
     <div className="Rooms">
       {(loadingRoomList && !roomList) || searchLoading
         ? (
-          <>
-            <Skeleton variant="rounded" height={270} sx={{ mt: 4, borderRadius: 2 }} />
-            <Skeleton variant="rounded" height={270} sx={{ my: 4, borderRadius: 2 }} />
-          </>
+          <Skeleton variant="rounded" height={270} sx={{ mt: 4, borderRadius: 2 }} />
         ) : roomList.results.map(
           (room) => (
             <Paper
@@ -344,11 +345,16 @@ const RoomList = ({ editable }) => {
                       </Button>
                       )}
                       {editable && (
-                      <ConfirmationForm
-                        message={`Are you sure you want to delete the «${room.title}» room?`}
-                        onConfirm={() => handleOnDelete(room)}
-                      />
+                      <Button onClick={() => handleOpenConfirmationDialog(room)}>
+                        <Delete fontSize="small" />
+                      </Button>
                       )}
+                      <ConfirmationDialog
+                        open={openConfirmationDialog}
+                        close={handleCloseConfirmationDialog}
+                        message={`Are you sure you want to delete the «${selectedRoom && selectedRoom.title}» room?`}
+                        onConfirm={() => handleOnDelete(selectedRoom)}
+                      />
                     </ButtonGroup>
                   </Grid>
                 </Grid>
@@ -409,7 +415,7 @@ const RoomList = ({ editable }) => {
         </DialogActions>
       </Dialog>
       {editable && selectedRoom && (
-      <RoomForm
+      <RoomDialog
         instance={selectedRoom}
         form={formRoomEditing}
         alert={alertRoomEditing}

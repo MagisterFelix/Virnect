@@ -7,10 +7,15 @@ import {
   Grid,
   IconButton,
   Menu,
+  MenuItem,
   Skeleton,
   Tooltip,
   Typography,
 } from '@mui/material';
+
+import {
+  FlagCircle,
+} from '@mui/icons-material';
 
 import useAxios from '@api/axios';
 import ENDPOINTS from '@api/endpoints';
@@ -20,8 +25,8 @@ import { useAuth } from '@context/AuthProvider';
 import NotFound from '@components/404/NotFound';
 import RoomList from '@components/main/RoomList';
 import Navbar from '@components/navbar/Navbar';
-import Report from '@components/user/Report';
 
+import { ReportDialog } from '@utils/Dialogs';
 import { LightTooltip, OnlineBadge, outline } from '@utils/Styles';
 import getFormattedTime from '@utils/Time';
 
@@ -47,6 +52,13 @@ const User = () => {
   const handleClickUsername = () => {
     navigator.clipboard.writeText(`@${user.username}`);
     setOpenTooltip(true);
+  };
+
+  const [openReportDialog, setOpenReportDialog] = useState(false);
+  const handleOpenReportDialog = () => setOpenReportDialog(true);
+  const handleCloseReportDialog = () => {
+    setOpenReportDialog(false);
+    handleCloseUserMenu();
   };
 
   const getLastOnline = () => `Was online ${getFormattedTime(user.last_seen)}`;
@@ -114,7 +126,19 @@ const User = () => {
                 onClose={handleCloseUserMenu}
                 sx={{ mt: 1 }}
               >
-                {!loadingUser && <Report user={user} />}
+                {!loadingUser && (
+                <MenuItem onClick={handleOpenReportDialog}>
+                  <FlagCircle sx={{ mr: 1 }} />
+                  <Typography textAlign="center" sx={{ mt: 0.2 }}>
+                    <span>Report</span>
+                  </Typography>
+                </MenuItem>
+                )}
+                <ReportDialog
+                  open={openReportDialog}
+                  close={handleCloseReportDialog}
+                  user={user}
+                />
               </Menu>
               )}
               <Typography

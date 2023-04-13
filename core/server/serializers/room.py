@@ -71,11 +71,11 @@ class ConnectingSerializer(Serializer):
     key = serializers.CharField(max_length=16, required=False, write_only=True)
 
     def validate(self, attrs):
-        if self.instance.participants.count() == self.instance.number_of_participants:
-            raise PermissionDenied("Room is full.")
-
         if Room.objects.filter(participants__in=[self.context["request"].user]).count() != 0:
             raise PermissionDenied("User is already in the room.")
+
+        if self.instance.participants.count() == self.instance.number_of_participants:
+            raise PermissionDenied("Room is full.")
 
         if self.instance.host == self.context["request"].user:
             return super(ConnectingSerializer, self).validate(attrs)
