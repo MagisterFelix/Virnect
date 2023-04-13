@@ -135,7 +135,7 @@ const Navbar = () => {
                 PaperProps={{
                   style: {
                     maxHeight: 500,
-                    width: !underSm && 500,
+                    width: !underSm && 550,
                   },
                 }}
                 sx={{ mt: 1 }}

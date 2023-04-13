@@ -28,7 +28,7 @@ import Navbar from '@components/navbar/Navbar';
 
 import { ReportDialog } from '@utils/Dialogs';
 import { LightTooltip, OnlineBadge, outline } from '@utils/Styles';
-import getFormattedTime from '@utils/Time';
+import { getFormattedTime } from '@utils/Time';
 
 import styles from '@styles/_globals.scss';
 

@@ -39,7 +39,7 @@ import { useRoomData } from '@context/RoomDataProvider';
 
 import { ConfirmationDialog, RoomDialog } from '@utils/Dialogs';
 import { LightTooltip } from '@utils/Styles';
-import getFormattedTime from '@utils/Time';
+import { getFormattedTime } from '@utils/Time';
 
 import styles from '@styles/_globals.scss';
 
