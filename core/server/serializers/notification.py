@@ -54,7 +54,7 @@ class NotificationSerializer(ModelSerializer):
             user = User.objects.get_or_none(pk=content["user"])
             message = Message.objects.get_or_none(pk=content["message"])
 
-            if room is None or user is None or message is None:
+            if room is None or user is None or message is None or message.reply_to is None:
                 content = None
             else:
                 room = RoomSerializer(instance=room, context=self.context).data

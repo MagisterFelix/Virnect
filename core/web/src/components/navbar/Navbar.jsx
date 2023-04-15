@@ -140,29 +140,30 @@ const Navbar = () => {
                 }}
                 sx={{ mt: 1 }}
               >
-                {notifications.length !== 0 ? notificationList.map((notification) => (
-                  notification.content && (
-                  <div
-                    className="Notification"
-                    key={notification.id}
-                    style={{
-                      marginTop: '0.5em',
-                      backgroundColor: notification.is_viewed
-                        ? styles.color_white
-                        : styles.color_soft_neon,
-                    }}
-                  >
-                    <Typography sx={{ p: 2 }}>
-                      {Notification(notification, viewNotification)}
+                {notifications.length !== 0
+                  ? notificationList.map((notification) => (
+                    notification.content && (
+                    <div
+                      className="Notification"
+                      key={notification.id}
+                      style={{
+                        marginTop: '0.5em',
+                        backgroundColor: notification.is_viewed
+                          ? styles.color_white
+                          : styles.color_soft_neon,
+                      }}
+                    >
+                      <Typography sx={{ p: 2 }}>
+                        {Notification(notification, viewNotification)}
+                      </Typography>
+                      <Divider />
+                    </div>
+                    )
+                  )) : (
+                    <Typography textAlign="center" sx={{ p: 2 }}>
+                      <span>No notifications</span>
                     </Typography>
-                    <Divider />
-                  </div>
-                  )
-                )) : (
-                  <Typography sx={{ p: 2 }}>
-                    <span>No notifications</span>
-                  </Typography>
-                )}
+                  )}
               </Popover>
               <IconButton onClick={handleOpenUserMenu} sx={{ pr: 0 }}>
                 <OnlineBadge

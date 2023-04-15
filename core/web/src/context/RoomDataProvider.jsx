@@ -11,6 +11,8 @@ import {
 
 import { w3cwebsocket as W3CWebSocket } from 'websocket';
 
+import { toast } from 'react-toastify';
+
 import useAxios from '@api/axios';
 import ENDPOINTS from '@api/endpoints';
 import handleErrors from '@api/errors';
@@ -116,6 +118,7 @@ const RoomListProvider = ({ children }) => {
         name: tag,
       })));
       navigate(`/room/${response.data.room.title}`);
+      toast(`The «${form.title}» room has been created.`, { type: 'success' });
     } catch (err) {
       handleErrors(validation, err.response.data.details, setError, setAlert);
     }
@@ -163,6 +166,7 @@ const RoomListProvider = ({ children }) => {
       url: `${ENDPOINTS.room}${roomInstance.title}/`,
       method: 'DELETE',
     });
+    toast(`The «${roomInstance.title}» room has been removed.`, { type: 'success' });
   };
 
   useEffect(() => {

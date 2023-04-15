@@ -1,5 +1,6 @@
 from collections import OrderedDict
 
+from rest_framework import serializers
 from rest_framework.exceptions import NotFound
 from rest_framework.serializers import ModelSerializer
 
@@ -10,6 +11,8 @@ from .user import UserSerializer
 
 
 class MessageSerializer(ModelSerializer):
+
+    short_message = serializers.CharField(read_only=True)
 
     class Meta:
         model = Message

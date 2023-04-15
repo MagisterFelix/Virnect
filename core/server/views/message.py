@@ -37,9 +37,9 @@ class MessageListView(ListCreateAPIView):
                     )
                     WebSocketsUtils.update_notification_list(user.username)
 
-            reply_to = Message.objects.get_or_none(pk=request.data.get("reply_to"))
-            if reply_to is not None and reply_to.author.id != response.data["message"]["author"]["id"]:
-                user = User.objects.get(pk=reply_to.author.id)
+            message = Message.objects.get_or_none(pk=response.data["message"]["id"])
+            if message.reply_to is not None and message.reply_to.author.id != response.data["message"]["author"]["id"]:
+                user = User.objects.get(pk=message.reply_to.author.id)
 
                 if user not in mentioned_users and user not in room.participants.all():
                     Notification.objects.create(
@@ -48,7 +48,7 @@ class MessageListView(ListCreateAPIView):
                         content=json.dumps({
                             "room": room.id,
                             "user": response.data["message"]["author"]["id"],
-                            "message": reply_to.id
+                            "message": message.id
                         })
                     )
                     WebSocketsUtils.update_notification_list(user.username)
