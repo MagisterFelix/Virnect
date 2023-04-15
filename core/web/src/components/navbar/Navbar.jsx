@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useParams } from 'react-router-dom';
 
 import { w3cwebsocket as W3CWebSocket } from 'websocket';
 
@@ -24,6 +25,7 @@ import {
   ExitToApp,
   Notifications,
   Settings,
+  Visibility,
 } from '@mui/icons-material';
 
 import ENDPOINTS from '@api/endpoints';
@@ -39,8 +41,10 @@ import styles from '@styles/_globals.scss';
 import './Navbar.scss';
 
 const Navbar = () => {
+  const { title } = useParams();
+
   const {
-    profile, logout, notificationList, refetchNotificationList, viewNotification,
+    profile, logout, notificationList, refetchNotificationList, viewNotification, viewAll,
   } = useAuth();
 
   const underSm = useMediaQuery(useTheme().breakpoints.down('sm'));
@@ -69,7 +73,7 @@ const Navbar = () => {
   }, [socket, refetchNotificationList]);
 
   return (
-    <div className="Navbar">
+    <div className="Navbar" style={{ marginBottom: underSm ? '6.5em' : '7em' }}>
       <AppBar position="fixed" sx={{ backgroundColor: styles.color_darker }}>
         <Container maxWidth="xl">
           <Toolbar
@@ -97,11 +101,11 @@ const Navbar = () => {
                 py={2}
                 pr={2}
                 sx={{
-                  height: 64,
-                  width: 64,
+                  height: 48,
+                  width: 48,
                 }}
               />
-              <span style={{ display: underSm ? 'none' : 'flex' }}>Virnect</span>
+              <span style={{ display: underSm ? 'none' : 'flex', fontSize: styles.font_small }}>Virnect</span>
             </Link>
             <Box
               sx={{
@@ -109,7 +113,10 @@ const Navbar = () => {
                 alignItems: 'center',
               }}
             >
-              <IconButton size="large" onClick={handleOpenNotificationMenu} sx={{ pr: 2, color: styles.color_white }}>
+              <IconButton
+                onClick={handleOpenNotificationMenu}
+                sx={{ color: styles.color_white }}
+              >
                 <Badge
                   max={9}
                   badgeContent={notifications.filter(
@@ -117,7 +124,7 @@ const Navbar = () => {
                   ).length}
                   color="primary"
                 >
-                  <Notifications fontSize="large" sx={{ color: styles.color_white }} />
+                  <Notifications sx={{ color: styles.color_white }} />
                 </Badge>
               </IconButton>
               <Popover
@@ -134,12 +141,37 @@ const Navbar = () => {
                 onClose={handleCloseNotificationMenu}
                 PaperProps={{
                   style: {
-                    maxHeight: 500,
-                    width: !underSm && 550,
+                    maxHeight: 450,
+                    width: !underSm && 450,
                   },
                 }}
-                sx={{ mt: 1 }}
+                sx={{ mt: 2 }}
               >
+                {notifications.filter((notification) => !notification.is_viewed).length ? (
+                  <>
+                    <Typography
+                      component="span"
+                      sx={{
+                        my: 1,
+                        mx: 2,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                      }}
+                    >
+                      <span>View all</span>
+                      <IconButton
+                        onClick={() => viewAll(notifications.filter(
+                          (notification) => !notification.is_viewed,
+                        ))}
+                        sx={{ ml: 0.5 }}
+                      >
+                        <Visibility sx={{ color: styles.color_neon }} />
+                      </IconButton>
+                    </Typography>
+                    <Divider />
+                  </>
+                ) : null}
                 {notifications.length !== 0
                   ? notificationList.map((notification) => (
                     notification.content && (
@@ -147,7 +179,6 @@ const Navbar = () => {
                       className="Notification"
                       key={notification.id}
                       style={{
-                        marginTop: '0.5em',
                         backgroundColor: notification.is_viewed
                           ? styles.color_white
                           : styles.color_soft_neon,
@@ -178,8 +209,8 @@ const Navbar = () => {
                     alt={profile.username}
                     src={profile.image}
                     sx={{
-                      height: 64,
-                      width: 64,
+                      height: 48,
+                      width: 48,
                     }}
                   />
                 </OnlineBadge>
@@ -225,6 +256,7 @@ const Navbar = () => {
                     <span>Settings</span>
                   </Link>
                 </MenuItem>
+                {!title && (
                 <MenuItem onClick={handleOnLogout}>
                   <Typography
                     sx={{
@@ -237,6 +269,7 @@ const Navbar = () => {
                     <span>Logout</span>
                   </Typography>
                 </MenuItem>
+                )}
               </Menu>
             </Box>
           </Toolbar>

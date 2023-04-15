@@ -50,7 +50,7 @@ const RoomList = ({ editable }) => {
 
   const { profile } = useAuth();
 
-  const isUnderMd = useMediaQuery((theme) => theme.breakpoints.down('md'));
+  const underMd = useMediaQuery((theme) => theme.breakpoints.down('md'));
 
   const {
     loading, loadingRoomList, roomList, notFound, deleteRoom, searchLoading,
@@ -189,7 +189,7 @@ const RoomList = ({ editable }) => {
                       justifyContent: 'end',
                     }}
                   >
-                    {isUnderMd ? room.tags.length !== 0 && (
+                    {underMd ? room.tags.length !== 0 && (
                       <IconButton
                         onClick={() => {
                           if (selectedRoom !== room) {

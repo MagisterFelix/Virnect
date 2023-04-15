@@ -46,6 +46,7 @@ const AuthProvider = ({ children }) => {
     },
     {
       manual: true,
+      autoCancel: false,
     },
   );
 
@@ -114,15 +115,28 @@ const AuthProvider = ({ children }) => {
     },
   );
 
-  const viewNotification = async (notification, isViewed) => {
+  const viewNotification = async (notification) => {
     const formData = {
-      is_viewed: isViewed,
+      is_viewed: true,
     };
     await execute({
       url: `${ENDPOINTS.notification}${notification}/`,
       method: 'PATCH',
       data: formData,
     });
+    await refetchNotificationList();
+  };
+
+  const viewAll = async (toView) => {
+    const formData = {
+      is_viewed: true,
+    };
+    const promises = toView.map((notification) => execute({
+      url: `${ENDPOINTS.notification}${notification.id}/`,
+      method: 'PATCH',
+      data: formData,
+    }));
+    await Promise.all(promises);
     await refetchNotificationList();
   };
 
@@ -139,6 +153,7 @@ const AuthProvider = ({ children }) => {
     notificationList,
     refetchNotificationList,
     viewNotification,
+    viewAll,
   }), [loading, loadingProfile, profile, loadingNotificationList, notificationList]);
 
   return (

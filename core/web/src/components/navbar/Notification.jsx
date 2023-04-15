@@ -26,8 +26,9 @@ const BaseNotification = ({ notification, updateNotification, children }) => {
   return (
     <>
       <Typography component="span" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <span style={{ display: 'flex', alignItems: 'center' }} />
-        {children}
+        <span style={{ display: 'flex', alignItems: 'center' }}>
+          {children}
+        </span>
         {!isViewed && (
         <IconButton onClick={updateNotification} sx={{ ml: 0.5 }}>
           <Visibility sx={{ color: styles.color_neon }} />
@@ -56,14 +57,14 @@ const Notification = (notification, viewNotification) => {
 
   const updateNotification = async () => {
     if (!isViewed) {
-      await viewNotification(id, true);
+      await viewNotification(id);
     }
   };
 
   if (type === 0) {
     const { user, room } = content;
     return (
-      <BaseNotification notification={notification} updateNotification={viewNotification}>
+      <BaseNotification notification={notification} updateNotification={updateNotification}>
         <Chat sx={{ pr: 2, color: styles.color_blue }} />
         <span>
           <Link
@@ -95,7 +96,7 @@ const Notification = (notification, viewNotification) => {
   if (type === 1) {
     const { report } = content;
     return (
-      <BaseNotification notification={notification} updateNotification={viewNotification}>
+      <BaseNotification notification={notification} updateNotification={updateNotification}>
         <Feedback sx={{ pr: 2, color: styles.color_blue }} />
         <span>
           Your complaint against the user
@@ -124,7 +125,7 @@ const Notification = (notification, viewNotification) => {
   if (type === 2) {
     const { report } = content;
     return (
-      <BaseNotification notification={notification} updateNotification={viewNotification}>
+      <BaseNotification notification={notification} updateNotification={updateNotification}>
         <Warning sx={{ pr: 2, color: styles.color_yellow }} />
         <span>
           You have received complaints for
@@ -141,7 +142,7 @@ const Notification = (notification, viewNotification) => {
   if (type === 3) {
     const { user, room, message } = content; // TODO refactor
     return (
-      <BaseNotification notification={notification} updateNotification={viewNotification}>
+      <BaseNotification notification={notification} updateNotification={updateNotification}>
         <Reply sx={{ pr: 2, color: styles.color_blue }} />
         <span>
           <Link
@@ -185,7 +186,7 @@ const Notification = (notification, viewNotification) => {
   if (type === 4) {
     const { promoted } = content;
     return (
-      <BaseNotification notification={notification} updateNotification={viewNotification}>
+      <BaseNotification notification={notification} updateNotification={updateNotification}>
         {promoted
           ? (
             <>
