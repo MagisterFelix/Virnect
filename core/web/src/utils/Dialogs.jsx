@@ -136,7 +136,7 @@ const ReportDialog = ({ open, close, user }) => {
                 SelectProps={{
                   MenuProps: {
                     style: {
-                      maxHeight: 300,
+                      maxHeight: 340,
                     },
                   },
                 }}
