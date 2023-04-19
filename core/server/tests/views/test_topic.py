@@ -28,6 +28,12 @@ class TopicListViewTest(APITestCase):
 
         self.assertEqual(response.status_code, 200)
 
+    def test_get_topics_if_not_authenticated(self):
+        request = self.factory.get(path=PATHS["topics"], format="json")
+        response = TopicListView().as_view()(request)
+
+        self.assertEqual(response.status_code, 403)
+
     def test_create_topic(self):
         data = {
             "title": TOPICS["games"]["title"],
@@ -89,6 +95,12 @@ class TopicViewTest(APITestCase):
         response = TopicView().as_view()(request, pk=self.topic.id)
 
         self.assertEqual(response.status_code, 200)
+
+    def test_get_topic_if_not_authenticated(self):
+        request = self.factory.get(path=PATHS["topic"], format="json")
+        response = TopicView().as_view()(request, pk=self.topic.id)
+
+        self.assertEqual(response.status_code, 403)
 
     def test_update_topic(self):
         data = {

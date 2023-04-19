@@ -27,6 +27,12 @@ class MessageListViewTest(APITestCase):
 
         self.assertEqual(response.status_code, 200)
 
+    def test_get_messages_if_not_authenticated(self):
+        request = self.factory.get(path=PATHS["messages"], format="json")
+        response = MessageListView().as_view()(request, room=self.room.title)
+
+        self.assertEqual(response.status_code, 403)
+
     def test_create_message(self):
         data = {
             "text": MESSAGES["greetings"]["text"]
@@ -83,6 +89,12 @@ class MessageViewTest(APITestCase):
         response = MessageView().as_view()(request, room=self.room.title, pk=self.message.id)
 
         self.assertEqual(response.status_code, 200)
+
+    def test_get_message_if_not_authenticated(self):
+        request = self.factory.get(path=PATHS["message"], format="json")
+        response = MessageView().as_view()(request, room=self.room.title, pk=self.message.id)
+
+        self.assertEqual(response.status_code, 403)
 
     def test_update_message(self):
         data = {

@@ -11,9 +11,8 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.min.css';
 
-import { AuthorizedRoutes, AuthProvider, GuestRoutes } from '@context/AuthProvider';
-import { ConnectionProvider } from '@context/ConnectionProvider';
-import { RoomListProvider, RoomProvider } from '@context/RoomDataProvider';
+import { AuthorizedRoutes, AuthProvider, GuestRoutes } from '@providers/AuthProvider';
+import { RoomListProvider, RoomProvider } from '@providers/RoomDataProvider';
 
 import NotFound from '@components/404/NotFound';
 import Authorization from '@components/auth/Authorization';
@@ -38,51 +37,44 @@ const theme = createTheme({
 
 const App = () => (
   <ThemeProvider theme={theme}>
-    <ToastContainer
-      position="top-left"
-      style={{
-        marginTop: '6.5em',
-      }}
-    />
+    <ToastContainer position="top-left" style={{ marginTop: '5.5em' }} />
     <BrowserRouter>
       <AuthProvider>
-        <ConnectionProvider>
-          <Routes>
-            <Route element={<GuestRoutes />}>
-              <Route path="/sign-in" element={<Authorization />} />
-              <Route path="/sign-up" element={<Registration />} />
-              <Route path="/reset-password/:uidb64?/:token?" element={<PasswordReset />} />
-            </Route>
-            <Route element={<AuthorizedRoutes />}>
-              <Route
-                path="/"
-                element={(
-                  <RoomListProvider>
-                    <Home />
-                  </RoomListProvider>
-                )}
-              />
-              <Route
-                path="/room/:title"
-                element={(
-                  <RoomProvider>
-                    <Room />
-                  </RoomProvider>
-                )}
-              />
-              <Route
-                path="/user/:username"
-                element={(
-                  <RoomListProvider>
-                    <User />
-                  </RoomListProvider>
-                )}
-              />
-              <Route path="/settings" element={<Settings />} />
-            </Route>
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </ConnectionProvider>
+        <Routes>
+          <Route element={<GuestRoutes />}>
+            <Route path="/sign-in" element={<Authorization />} />
+            <Route path="/sign-up" element={<Registration />} />
+            <Route path="/reset-password/:uidb64?/:token?" element={<PasswordReset />} />
+          </Route>
+          <Route element={<AuthorizedRoutes />}>
+            <Route
+              path="/"
+              element={(
+                <RoomListProvider>
+                  <Home />
+                </RoomListProvider>
+              )}
+            />
+            <Route
+              path="/room/:title"
+              element={(
+                <RoomProvider>
+                  <Room />
+                </RoomProvider>
+              )}
+            />
+            <Route
+              path="/user/:username"
+              element={(
+                <RoomListProvider>
+                  <User />
+                </RoomListProvider>
+              )}
+            />
+            <Route path="/settings" element={<Settings />} />
+          </Route>
+          <Route path="*" element={<NotFound />} />
+        </Routes>
       </AuthProvider>
     </BrowserRouter>
   </ThemeProvider>

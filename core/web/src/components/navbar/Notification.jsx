@@ -140,7 +140,7 @@ const Notification = (notification, viewNotification) => {
     );
   }
   if (type === 3) {
-    const { user, room, message } = content; // TODO refactor
+    const { user, room, message } = content;
     return (
       <BaseNotification notification={notification} updateNotification={updateNotification}>
         <Reply sx={{ pr: 2, color: styles.color_blue }} />

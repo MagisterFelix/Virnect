@@ -12,11 +12,13 @@ class TopicSerializer(ModelSerializer):
         fields = "__all__"
 
     def to_representation(self, instance):
+        related = self.context.get("related")
+
         data = OrderedDict()
 
         data["topic"] = super(TopicSerializer, self).to_representation(instance)
 
-        if self.context["request"].method == "GET" or self.context.get("related"):
+        if self.context["request"].method == "GET" or related:
             return data["topic"]
 
         if self.context["request"].method == "POST":

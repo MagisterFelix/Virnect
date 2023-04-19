@@ -19,11 +19,13 @@ class TagSerializer(ModelSerializer):
         return super(TagSerializer, self).validate(attrs)
 
     def to_representation(self, instance):
+        related = self.context.get("related")
+
         data = OrderedDict()
 
         data["tag"] = super(TagSerializer, self).to_representation(instance)
 
-        if self.context["request"].method == "GET" or self.context.get("related"):
+        if self.context["request"].method == "GET" or related:
             return data["tag"]
 
         if self.context["request"].method == "POST":

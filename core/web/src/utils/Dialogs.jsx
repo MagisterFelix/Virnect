@@ -31,7 +31,7 @@ import {
 import useAxios from '@api/axios';
 import ENDPOINTS from '@api/endpoints';
 
-import { useRoomData } from '@context/RoomDataProvider';
+import { useRoomList } from '@providers/RoomDataProvider';
 
 const ConfirmationDialog = ({
   open, close, message, onConfirm,
@@ -184,7 +184,7 @@ const RoomDialog = ({
 
   const {
     loading, loadingTopicList, topicList, loadingRoomOptions, roomOptions, createRoom, updateRoom,
-  } = useRoomData();
+  } = useRoomList();
 
   const validation = {
     title: {

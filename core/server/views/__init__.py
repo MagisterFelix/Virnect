@@ -2,7 +2,7 @@ from .auth import AuthorizationView, DeauthorizationView, PasswordResetConfirmVi
 from .message import MessageListView, MessageView
 from .notification import NotificationListView, NotificationView
 from .report import ReportListView, ReportView
-from .room import ConnectingView, DisconnectingView, RoomListView, RoomView
+from .room import RoomListView, RoomView
 from .tag import TagListView, TagView
 from .topic import TopicListView, TopicView
 from .user import ProfileView, UserView

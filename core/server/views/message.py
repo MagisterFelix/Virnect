@@ -7,7 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 from core.server.models import Message, Notification, Room, User
 from core.server.permissions import IsOwnerOrReadOnly
 from core.server.serializers import MessageSerializer
-from core.server.utils import WebSocketsUtils
+from core.server.utils import WebSocketUtils
 
 
 class MessageListView(ListCreateAPIView):
@@ -24,21 +24,21 @@ class MessageListView(ListCreateAPIView):
         response = super(MessageListView, self).create(request, *args, **kwargs)
 
         if response.status_code == 201:
-            room = Room.objects.get(pk=response.data["message"]["room"]["id"])
+            room = Room.objects.get(title=kwargs["room"])
+            message = Message.objects.get(pk=response.data["message"]["id"])
 
             mentioned_users = User.objects.filter(username__in=re.findall(r"@(\w+)", request.data["text"]))
 
             for user in mentioned_users:
-                if user.id != response.data["message"]["author"]["id"] and user not in room.participants.all():
+                if user.id != message.author.id and user not in room.participants.all():
                     Notification.objects.create(
                         recipient=user,
                         notification_type=Notification.NotificationType.MENTION,
-                        content=json.dumps({"room": room.id, "user": response.data["message"]["author"]["id"]})
+                        content=json.dumps({"room": room.id, "user": message.author.id})
                     )
-                    WebSocketsUtils.update_notification_list(user.username)
+                    WebSocketUtils.update_notification_list(user_id=user.id)
 
-            message = Message.objects.get_or_none(pk=response.data["message"]["id"])
-            if message.reply_to is not None and message.reply_to.author.id != response.data["message"]["author"]["id"]:
+            if message.reply_to is not None and message.reply_to.author.id != message.author.id:
                 user = User.objects.get(pk=message.reply_to.author.id)
 
                 if user not in mentioned_users and user not in room.participants.all():
@@ -47,11 +47,11 @@ class MessageListView(ListCreateAPIView):
                         notification_type=Notification.NotificationType.MESSAGE_REPLY,
                         content=json.dumps({
                             "room": room.id,
-                            "user": response.data["message"]["author"]["id"],
+                            "user": message.author.id,
                             "message": message.id
                         })
                     )
-                    WebSocketsUtils.update_notification_list(user.username)
+                    WebSocketUtils.update_notification_list(user_id=user.id)
 
         return response
 
@@ -70,17 +70,18 @@ class MessageView(RetrieveUpdateDestroyAPIView):
         response = super(MessageView, self).update(request, *args, **kwargs)
 
         if response.status_code == 200:
-            room = Room.objects.get(pk=response.data["message"]["room"]["id"])
+            room = Room.objects.get(title=kwargs["room"])
+            message = Message.objects.get(pk=kwargs["pk"])
 
             mentioned_users = User.objects.filter(username__in=re.findall(r"@(\w+)", request.data.get("text", "")))
 
             for user in mentioned_users:
-                if user.id != response.data["message"]["author"]["id"] and user not in room.participants.all():
+                if user.id != message.author.id and user not in room.participants.all():
                     Notification.objects.create(
                         recipient=user,
                         notification_type=Notification.NotificationType.MENTION,
-                        content=json.dumps({"room": room.id, "user": response.data["message"]["author"]["id"]})
+                        content=json.dumps({"room": room.id, "user": message.author.id})
                     )
-                    WebSocketsUtils.update_notification_list(user.username)
+                    WebSocketUtils.update_notification_list(user_id=user.id)
 
         return response

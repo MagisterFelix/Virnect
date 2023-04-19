@@ -2,10 +2,10 @@ import hashlib
 from collections import OrderedDict
 
 from rest_framework import serializers
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import NotFound, PermissionDenied
 from rest_framework.serializers import ModelSerializer, Serializer
 
-from core.server.models import Room, Tag
+from core.server.models import Room, Tag, User
 
 from .tag import TagSerializer
 from .topic import TopicSerializer
@@ -45,12 +45,14 @@ class RoomSerializer(ModelSerializer):
             many=True
         ).data
         data["room"]["participants"] = UserSerializer(
-            instance=sorted(instance.participants.all(), key=lambda user: user.id != data["room"]["host"]["id"]),
+            instance=sorted(instance.participants.all(), key=lambda user: user.id != instance.host.id),
             context=self.context,
             many=True
         ).data
 
-        if len(instance.key) > 0 and instance.host != self.context["request"].user:
+        user = self.context["request"].user
+
+        if len(instance.key) > 0 and instance.host != user:
             data["room"]["key"] = hashlib.sha256(instance.key.encode()).hexdigest()
 
         if self.context["request"].method == "GET" or related:
@@ -68,55 +70,65 @@ class RoomSerializer(ModelSerializer):
 
 class ConnectingSerializer(Serializer):
 
+    user = serializers.IntegerField(required=True)
     key = serializers.CharField(max_length=16, required=False, write_only=True)
 
     def validate(self, attrs):
-        if Room.objects.filter(participants__in=[self.context["request"].user]).count() != 0:
+        user = User.objects.get_or_none(pk=attrs["user"])
+        key = attrs.get("key")
+
+        if user is None:
+            raise NotFound("No user was found.")
+
+        if Room.objects.filter(participants__in=[user]).count() != 0:
             raise PermissionDenied("User is already in the room.")
 
         if self.instance.participants.count() == self.instance.number_of_participants:
             raise PermissionDenied("Room is full.")
 
-        if self.instance.host == self.context["request"].user:
+        if self.instance.host == user:
             return super(ConnectingSerializer, self).validate(attrs)
 
-        if len(self.instance.key) > 0 and attrs.get("key") is None:
+        if len(self.instance.key) > 0 and key is None:
             raise PermissionDenied("Key must be provided.")
 
-        if len(self.instance.key) > 0 and attrs.get("key") != self.instance.key:
+        if len(self.instance.key) > 0 and key != self.instance.key:
             raise PermissionDenied("Key mismatch.")
+
+        attrs["user"] = user
 
         return super(ConnectingSerializer, self).validate(attrs)
 
-    def update(self, instance, _):
-        instance.participants.add(self.context["request"].user)
-        instance.save()
-        return instance
+    def update(self, instance, validated_data):
+        user = validated_data["user"]
 
-    def to_representation(self, _):
-        data = {
-            "details": "User has been connected."
-        }
-        return data
+        instance.participants.add(user)
+        instance.save()
+
+        return instance
 
 
 class DisconnectingSerializer(Serializer):
 
+    user = serializers.IntegerField(required=True)
+
     def validate(self, attrs):
-        user = self.context["request"].user
+        user = User.objects.get_or_none(pk=attrs["user"])
+
+        if user is None:
+            raise NotFound("No user was found.")
 
         if user not in self.instance.participants.all():
             raise PermissionDenied("User is not in room.")
 
+        attrs["user"] = user
+
         return super(DisconnectingSerializer, self).validate(attrs)
 
-    def update(self, instance, _):
-        instance.participants.remove(self.context["request"].user)
-        instance.save()
-        return instance
+    def update(self, instance, validated_data):
+        user = validated_data["user"]
 
-    def to_representation(self, _):
-        data = {
-            "details": "User has been disconnected."
-        }
-        return data
+        instance.participants.remove(user)
+        instance.save()
+
+        return instance

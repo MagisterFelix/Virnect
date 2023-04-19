@@ -9,7 +9,6 @@ import { toast } from 'react-toastify';
 
 import Panel from '@components/main/Panel';
 import RoomList from '@components/main/RoomList';
-import Navbar from '@components/navbar/Navbar';
 
 const Home = () => {
   const location = useLocation();
@@ -24,13 +23,12 @@ const Home = () => {
   }, [location.state]);
 
   return (
-    <>
-      <Navbar />
+    <div className="Home">
       <Container>
         <Panel />
         <RoomList />
       </Container>
-    </>
+    </div>
   );
 };
 

@@ -6,10 +6,17 @@ import React, {
   useState,
 } from 'react';
 import {
-  useLocation, useNavigate, useParams, useSearchParams,
+  useLocation,
+  useNavigate,
+  useParams,
+  useSearchParams,
 } from 'react-router-dom';
 
 import { w3cwebsocket as W3CWebSocket } from 'websocket';
+
+import {
+  LinearProgress,
+} from '@mui/material';
 
 import { toast } from 'react-toastify';
 
@@ -17,17 +24,17 @@ import useAxios from '@api/axios';
 import ENDPOINTS from '@api/endpoints';
 import handleErrors from '@api/errors';
 
-import { useConnection } from '@context/ConnectionProvider';
+const RoomListContext = createContext(null);
 
-const RoomContext = createContext(null);
-
-const useRoomData = () => useContext(RoomContext);
+const useRoomList = () => useContext(RoomListContext);
 
 const RoomListProvider = ({ children }) => {
   const { username } = useParams();
   const [searchParams] = useSearchParams();
 
   const navigate = useNavigate();
+
+  const socket = useMemo(() => new W3CWebSocket(ENDPOINTS.wsRoomList), []);
 
   const [{ loading: loadingTopicList, data: topicList }] = useAxios(
     {
@@ -61,8 +68,6 @@ const RoomListProvider = ({ children }) => {
       autoCancel: false,
     },
   );
-
-  const socket = useMemo(() => new W3CWebSocket(ENDPOINTS.wsRoomList), []);
 
   const [pageCount, setPageCount] = useState(0);
   useEffect(() => {
@@ -176,11 +181,16 @@ const RoomListProvider = ({ children }) => {
         await refetchRoomList();
       }
     };
-  }, [socket, refetchRoomList]);
+
+    return () => {
+      socket.close();
+    };
+  }, [socket]);
 
   const [searchLoading, setSearchLoading] = useState(false);
 
   const value = useMemo(() => ({
+    socket,
     loadingTopicList,
     topicList,
     loadingRoomOptions,
@@ -210,11 +220,15 @@ const RoomListProvider = ({ children }) => {
   ]);
 
   return (
-    <RoomContext.Provider value={value}>
+    <RoomListContext.Provider value={value}>
       {children}
-    </RoomContext.Provider>
+    </RoomListContext.Provider>
   );
 };
+
+const RoomContext = createContext(null);
+
+const useRoom = () => useContext(RoomContext);
 
 const RoomProvider = ({ children }) => {
   const { title } = useParams();
@@ -222,7 +236,7 @@ const RoomProvider = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const { connect, disconnect } = useConnection();
+  const socket = useMemo(() => new W3CWebSocket(`${ENDPOINTS.wsRoom}${title}/${location.state?.key ? `?key=${location.state.key}` : ''}`), []);
 
   const [{ loading: loadingRoom, data: room }, fetchRoom] = useAxios(
     {
@@ -231,56 +245,45 @@ const RoomProvider = ({ children }) => {
     },
     {
       manual: true,
-      autoCancel: false,
     },
   );
 
-  const socket = useMemo(() => new W3CWebSocket(`${ENDPOINTS.wsRoom}${title}/`), []);
-
   useEffect(() => {
     socket.onopen = async () => {
-      await connect(title, location.state ? location.state.key : null);
+      await fetchRoom();
     };
 
-    socket.onmessage = async (message) => {
-      const data = JSON.parse(message.data);
-      if (data.type === 'room_update') {
-        await fetchRoom();
-      } else if (data.type === 'room_delete') {
-        navigate('/', {
-          state: {
-            toast: {
-              type: 'info',
-              message: `The «${title}» room has been deleted.`,
-            },
+    socket.onerror = () => {
+      navigate('/', {
+        state: {
+          toast: {
+            type: 'error',
+            message: `Failed to join the «${title}» room.`,
           },
-          replace: true,
-        });
-      }
+        },
+        replace: true,
+      });
     };
 
-    const handleBeforeUnload = async () => {
-      await disconnect(title);
+    return () => {
       socket.close();
     };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-    };
-  }, [socket, fetchRoom, title, location.state]);
+  }, [socket]);
 
   const value = useMemo(() => ({
-    loadingRoom, room,
+    socket,
+    loadingRoom,
+    room,
+    fetchRoom,
   }), [loadingRoom, room]);
 
   return (
     <RoomContext.Provider value={value}>
-      {children}
+      {!room ? <LinearProgress sx={{ mt: -3 }} /> : children}
     </RoomContext.Provider>
   );
 };
 
 export {
-  useRoomData, RoomListProvider, RoomProvider,
+  useRoomList, RoomListProvider, useRoom, RoomProvider,
 };

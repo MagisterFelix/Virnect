@@ -28,7 +28,7 @@ import {
   Sort,
 } from '@mui/icons-material';
 
-import { useRoomData } from '@context/RoomDataProvider';
+import { useRoomList } from '@providers/RoomDataProvider';
 
 import { RoomDialog } from '@utils/Dialogs';
 import {
@@ -49,7 +49,7 @@ const Panel = () => {
     loadingRoomList, roomList,
     loadingTagList, tagList,
     setSearchLoading,
-  } = useRoomData();
+  } = useRoomList();
 
   const underSm = useMediaQuery((theme) => theme.breakpoints.down('sm'));
 

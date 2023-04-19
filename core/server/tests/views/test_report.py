@@ -24,6 +24,12 @@ class ReportListViewTest(APITestCase):
 
         self.assertEqual(response.status_code, 200)
 
+    def test_get_reports_if_not_authenticated(self):
+        request = self.factory.get(path=PATHS["reports"], format="json")
+        response = ReportListView().as_view()(request)
+
+        self.assertEqual(response.status_code, 403)
+
     def test_create_report(self):
         data = {
             "reason": REPORTS["text abuse"]["reason"],
@@ -83,6 +89,12 @@ class ReportViewTest(APITestCase):
         response = ReportView().as_view()(request, pk=self.report.id)
 
         self.assertEqual(response.status_code, 200)
+
+    def test_get_report_if_not_authenticated(self):
+        request = self.factory.get(path=PATHS["report"], format="json")
+        response = ReportView().as_view()(request, pk=self.report.id)
+
+        self.assertEqual(response.status_code, 403)
 
     def test_update_report(self):
         data = {

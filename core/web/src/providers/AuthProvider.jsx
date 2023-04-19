@@ -6,13 +6,19 @@ import React, {
 } from 'react';
 import { Navigate, Outlet, useNavigate } from 'react-router-dom';
 
-import { CircularProgress } from '@mui/material';
+import {
+  CircularProgress,
+} from '@mui/material';
 
 import { toast } from 'react-toastify';
 
 import useAxios from '@api/axios';
 import ENDPOINTS from '@api/endpoints';
 import handleErrors from '@api/errors';
+
+import { NotificationProvider } from '@providers/NotificationProvider';
+
+import Navbar from '@components/navbar/Navbar';
 
 const AuthContext = createContext(null);
 
@@ -102,75 +108,25 @@ const AuthProvider = ({ children }) => {
     }
   };
 
-  const [{
-    loading: loadingNotificationList,
-    data: notificationList,
-  }, refetchNotificationList] = useAxios(
-    {
-      url: ENDPOINTS.notifications,
-      method: 'GET',
-    },
-    {
-      autoCancel: false,
-    },
-  );
-
-  const viewNotification = async (notification) => {
-    const formData = {
-      is_viewed: true,
-    };
-    await execute({
-      url: `${ENDPOINTS.notification}${notification}/`,
-      method: 'PATCH',
-      data: formData,
-    });
-    await refetchNotificationList();
-  };
-
-  const viewAll = async (toView) => {
-    const formData = {
-      is_viewed: true,
-    };
-    const promises = toView.map((notification) => execute({
-      url: `${ENDPOINTS.notification}${notification.id}/`,
-      method: 'PATCH',
-      data: formData,
-    }));
-    await Promise.all(promises);
-    await refetchNotificationList();
-  };
-
   const value = useMemo(() => ({
-    loading,
-    loadingProfile,
-    profile,
-    refetchProfile,
-    login,
-    register,
-    logout,
-    resetPassword,
-    loadingNotificationList,
-    notificationList,
-    refetchNotificationList,
-    viewNotification,
-    viewAll,
-  }), [loading, loadingProfile, profile, loadingNotificationList, notificationList]);
+    loading, loadingProfile, profile, refetchProfile, login, register, logout, resetPassword,
+  }), [loading, loadingProfile, profile]);
 
   return (
     <AuthContext.Provider value={value}>
-      {(loadingProfile || loadingNotificationList) && (!profile || !notificationList)
+      {loadingProfile && !profile
         ? (
-          <div style={{
-            minHeight: '100dvh',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
+          <div
+            style={{
+              minHeight: '100dvh',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
           >
             <CircularProgress />
           </div>
-        )
-        : children}
+        ) : children}
     </AuthContext.Provider>
   );
 };
@@ -182,7 +138,14 @@ const GuestRoutes = () => {
 
 const AuthorizedRoutes = () => {
   const { profile } = useAuth();
-  return profile ? <Outlet /> : <Navigate to="/sign-in" replace />;
+  return profile
+    ? (
+      <NotificationProvider>
+        <Navbar />
+        <Outlet />
+      </NotificationProvider>
+    )
+    : <Navigate to="/sign-in" replace />;
 };
 
 export {

@@ -8,21 +8,21 @@ class IsAdminUserOrReadOnly(IsAdminUser):
 
     def has_permission(self, request, view):
         is_admin = super(IsAdminUserOrReadOnly, self).has_permission(request, view)
-        return is_admin or request.method in SAFE_METHODS
+        return is_admin or (request.user.is_authenticated and request.method in SAFE_METHODS)
 
 
 class IsOwnerOrReadOnly(IsAuthenticated):
 
     def has_permission(self, request, view):
-        if request.method in SAFE_METHODS:
-            return True
-
         is_authenticated = super(IsOwnerOrReadOnly, self).has_permission(request, view)
 
         if not is_authenticated:
             return False
 
-        if request.path.startswith("/api/room") and request.method != "POST":
+        if request.method in SAFE_METHODS:
+            return True
+
+        if request.path.startswith("/api/room"):
             room = Room.objects.get_or_none(title=view.kwargs.get("title"))
 
             if room is None:
@@ -55,16 +55,3 @@ class IsOwnerOrReadOnly(IsAuthenticated):
             return message.author == request.user
 
         return False
-
-
-class IsParticipant(IsAuthenticated):
-
-    def has_permission(self, request, view):
-        is_authenticated = super(IsParticipant, self).has_permission(request, view)
-
-        room = Room.objects.get_or_none(title=view.kwargs.get("title"))
-
-        if room is None:
-            raise NotFound()
-
-        return is_authenticated and request.user in room.participants.all()

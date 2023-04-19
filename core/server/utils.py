@@ -1,4 +1,3 @@
-import hashlib
 import os
 import random
 
@@ -10,6 +9,8 @@ from django.utils import timezone
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework_simplejwt.backends import TokenBackend
+from rest_framework_simplejwt.exceptions import TokenBackendError
 
 
 class ImageUtils:
@@ -82,6 +83,21 @@ class AuthorizationUtils:
         return view.finalize_response(request, response).render()
 
     @staticmethod
+    def get_user_id(token):
+        if token is None:
+            return None
+
+        try:
+            user_id = TokenBackend(
+                algorithm=settings.SIMPLE_JWT["ALGORITHM"],
+                signing_key=settings.SIMPLE_JWT["SIGNING_KEY"]
+            ).decode(token)["user_id"]
+        except TokenBackendError:
+            return None
+
+        return user_id
+
+    @staticmethod
     def set_auth_cookies(response, data):
         cookies = []
 
@@ -132,7 +148,7 @@ class AuthorizationUtils:
         return response
 
 
-class WebSocketsUtils:
+class WebSocketUtils:
 
     @staticmethod
     def _send_to_group(group, event):
@@ -140,9 +156,9 @@ class WebSocketsUtils:
         async_to_sync(channel_layer.group_send)(group, event)
 
     @staticmethod
-    def update_notification_list(user):
-        WebSocketsUtils._send_to_group(
-            f"notification-list-{hashlib.sha256(user.encode()).hexdigest()}",
+    def update_notification_list(user_id):
+        WebSocketUtils._send_to_group(
+            f"notification-list-{user_id}",
             {
                 "type": "notification_list_update"
             }
@@ -150,7 +166,7 @@ class WebSocketsUtils:
 
     @staticmethod
     def update_room_list():
-        WebSocketsUtils._send_to_group(
+        WebSocketUtils._send_to_group(
             "room-list",
             {
                 "type": "room_list_update"
@@ -158,18 +174,19 @@ class WebSocketsUtils:
         )
 
     @staticmethod
-    def update_room(room):
-        WebSocketsUtils._send_to_group(
-            f"room-{hashlib.sha256(room.encode()).hexdigest()}",
+    def update_room(room_id, room_title):
+        WebSocketUtils._send_to_group(
+            f"room-{room_id}",
             {
-                "type": "room_update"
+                "type": "room_update",
+                "room": room_title
             }
         )
 
     @staticmethod
-    def delete_room(room):
-        WebSocketsUtils._send_to_group(
-            f"room-{hashlib.sha256(room.encode()).hexdigest()}",
+    def delete_room(room_id):
+        WebSocketUtils._send_to_group(
+            f"room-{room_id}",
             {
                 "type": "room_delete"
             }

@@ -1,7 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { useParams } from 'react-router-dom';
-
-import { w3cwebsocket as W3CWebSocket } from 'websocket';
+import React, { useState } from 'react';
 
 import {
   AppBar,
@@ -28,9 +25,8 @@ import {
   Visibility,
 } from '@mui/icons-material';
 
-import ENDPOINTS from '@api/endpoints';
-
-import { useAuth } from '@context/AuthProvider';
+import { useAuth } from '@providers/AuthProvider';
+import { useNotification } from '@providers/NotificationProvider';
 
 import Notification from '@components/navbar/Notification';
 
@@ -41,15 +37,11 @@ import styles from '@styles/_globals.scss';
 import './Navbar.scss';
 
 const Navbar = () => {
-  const { title } = useParams();
-
-  const {
-    profile, logout, notificationList, refetchNotificationList, viewNotification, viewAll,
-  } = useAuth();
+  const { profile, logout } = useAuth();
 
   const underSm = useMediaQuery(useTheme().breakpoints.down('sm'));
 
-  const notifications = notificationList.filter((notification) => notification.content);
+  const { notifications, viewNotification, viewAll } = useNotification();
 
   const handleOnLogout = () => logout();
 
@@ -61,19 +53,8 @@ const Navbar = () => {
   const handleOpenNotificationMenu = (event) => setAnchorElNotification(event.currentTarget);
   const handleCloseNotificationMenu = () => setAnchorElNotification(null);
 
-  const socket = useMemo(() => new W3CWebSocket(`${ENDPOINTS.wsNotificationList}${profile.username}/`), []);
-
-  useEffect(() => {
-    socket.onmessage = async (message) => {
-      const data = JSON.parse(message.data);
-      if (data.type === 'notification_list_update') {
-        await refetchNotificationList();
-      }
-    };
-  }, [socket, refetchNotificationList]);
-
   return (
-    <div className="Navbar" style={{ marginBottom: underSm ? '6.5em' : '7em' }}>
+    <div className="Navbar" style={{ marginBottom: underSm ? '6.25em' : '7em' }}>
       <AppBar position="fixed" sx={{ backgroundColor: styles.color_darker }}>
         <Container maxWidth="xl">
           <Toolbar
@@ -173,8 +154,7 @@ const Navbar = () => {
                   </>
                 ) : null}
                 {notifications.length !== 0
-                  ? notificationList.map((notification) => (
-                    notification.content && (
+                  ? notifications.map((notification) => (
                     <div
                       className="Notification"
                       key={notification.id}
@@ -189,7 +169,6 @@ const Navbar = () => {
                       </Typography>
                       <Divider />
                     </div>
-                    )
                   )) : (
                     <Typography textAlign="center" sx={{ p: 2 }}>
                       <span>No notifications</span>
@@ -256,7 +235,6 @@ const Navbar = () => {
                     <span>Settings</span>
                   </Link>
                 </MenuItem>
-                {!title && (
                 <MenuItem onClick={handleOnLogout}>
                   <Typography
                     sx={{
@@ -269,7 +247,6 @@ const Navbar = () => {
                     <span>Logout</span>
                   </Typography>
                 </MenuItem>
-                )}
               </Menu>
             </Box>
           </Toolbar>

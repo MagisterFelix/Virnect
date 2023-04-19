@@ -34,8 +34,8 @@ import {
   Tag,
 } from '@mui/icons-material';
 
-import { useAuth } from '@context/AuthProvider';
-import { useRoomData } from '@context/RoomDataProvider';
+import { useAuth } from '@providers/AuthProvider';
+import { useRoomList } from '@providers/RoomDataProvider';
 
 import { ConfirmationDialog, RoomDialog } from '@utils/Dialogs';
 import { LightTooltip } from '@utils/Styles';
@@ -54,7 +54,7 @@ const RoomList = ({ editable }) => {
 
   const {
     loading, loadingRoomList, roomList, notFound, deleteRoom, searchLoading,
-  } = useRoomData();
+  } = useRoomList();
 
   const [selectedRoom, setSelectedRoom] = useState(null);
 

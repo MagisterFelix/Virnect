@@ -29,6 +29,12 @@ class TagListViewTest(APITestCase):
 
         self.assertEqual(response.status_code, 200)
 
+    def test_get_tags_if_not_authenticated(self):
+        request = self.factory.get(path=PATHS["tags"], format="json")
+        response = TagListView().as_view()(request)
+
+        self.assertEqual(response.status_code, 403)
+
     def test_create_tag(self):
         data = {
             "name": TAGS["gaming"]["name"],
@@ -110,6 +116,12 @@ class TagViewTest(APITestCase):
         response = TagView().as_view()(request, pk=self.tag.id)
 
         self.assertEqual(response.status_code, 200)
+
+    def test_get_tag_if_not_authenticated(self):
+        request = self.factory.get(path=PATHS["tag"], format="json")
+        response = TagView().as_view()(request, pk=self.tag.id)
+
+        self.assertEqual(response.status_code, 403)
 
     def test_update_tag(self):
         data = {

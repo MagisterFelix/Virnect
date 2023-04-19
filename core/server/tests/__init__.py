@@ -66,7 +66,7 @@ REPORTS = {
 NOTIFICATIONS = {
     "message reply": {
         "notification_type": 3,
-        "content": "{\"room\": 1, \"user\": 1, \"message\": 4}"
+        "content": "{\"room\": 1, \"user\": 1, \"message\": 1}"
     }
 }
 HISTORIES = {
@@ -82,6 +82,8 @@ PATHS = {
     "sign-up": "/api/sign-up/",
     "sign-out": "/api/sign-out/",
     "profile": "/api/profile/",
+    "notifications": "/api/notifications/",
+    "notification": "/api/notification/",
     "user": "/api/user/",
     "reports": "/api/reports/",
     "report": "/api/report/",
@@ -91,10 +93,6 @@ PATHS = {
     "tag": "/api/tag/",
     "rooms": "/api/rooms/",
     "room": "/api/room/",
-    "connect": "/api/connect/",
-    "disconnect": "/api/disconnect/",
-    "notifications": "/api/notifications/",
-    "notification": "/api/notification/",
     "messages": "/api/messages/",
-    "message": "/api/message/",
+    "message": "/api/message/"
 }

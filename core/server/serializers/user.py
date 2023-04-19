@@ -68,11 +68,13 @@ class ProfileSerializer(UserSerializer):
         return instance
 
     def to_representation(self, instance):
+        related = self.context.get("related")
+
         data = OrderedDict()
 
         data["user"] = super(UserSerializer, self).to_representation(instance)
 
-        if self.context["request"].method == "GET":
+        if self.context["request"].method == "GET" or related:
             return data["user"]
 
         if self.context.get("action") == "update":
