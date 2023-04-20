@@ -11,8 +11,6 @@ import {
   Skeleton,
   Tooltip,
   Typography,
-  useMediaQuery,
-  useTheme,
 } from '@mui/material';
 
 import {
@@ -37,8 +35,6 @@ const User = () => {
   const { username } = useParams();
 
   const { profile } = useAuth();
-
-  const underSm = useMediaQuery(useTheme().breakpoints.down('sm'));
 
   const [{ loading: loadingUser, data: user, error: errorUser }] = useAxios(
     {
@@ -67,7 +63,7 @@ const User = () => {
   const getLastOnline = () => `Was online ${getFormattedTime(user.last_seen)}`;
 
   if (!loadingUser && errorUser) {
-    return <NotFound extraStyles={underSm ? { marginTop: '-6.25em' } : { marginTop: '-7em' }} />;
+    return <NotFound extraStyles={{ marginTop: '-6.25em' }} />;
   }
 
   return (

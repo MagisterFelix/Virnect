@@ -37,7 +37,7 @@ const theme = createTheme({
 
 const App = () => (
   <ThemeProvider theme={theme}>
-    <ToastContainer position="top-left" style={{ marginTop: '5.5em' }} />
+    <ToastContainer position="top-left" style={{ marginTop: '4.75em' }} />
     <BrowserRouter>
       <AuthProvider>
         <Routes>
