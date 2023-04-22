@@ -190,6 +190,7 @@ const RoomDialog = ({
     title: {
       required: 'This field may not be blank.',
       maxLength: 'No more than 64 characters.',
+      pattern: 'Provide the valid title.',
     },
     topic: {
       required: 'This field may not be blank.',
@@ -269,6 +270,7 @@ const RoomDialog = ({
             rules={{
               required: true,
               maxLength: 64,
+              pattern: /^[^/]*$/,
             }}
             render={({
               field: { onChange, value },
