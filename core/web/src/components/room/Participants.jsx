@@ -18,6 +18,7 @@ import {
 import {
   AccountCircle,
   FlagCircle,
+  RemoveCircle,
 } from '@mui/icons-material';
 
 import { useAuth } from '@providers/AuthProvider';
@@ -31,7 +32,7 @@ import styles from '@styles/_globals.scss';
 const Participants = () => {
   const { profile } = useAuth();
 
-  const { room } = useRoom();
+  const { room, kickUser } = useRoom();
 
   const [selectedUser, setSelectedUser] = useState(null);
 
@@ -42,17 +43,17 @@ const Participants = () => {
     setAnchorElUser(null);
   };
 
-  const [openTooltip, setOpenTooltip] = useState(null);
-  const handleClickUsername = (user) => {
-    navigator.clipboard.writeText(`@${user.username}`);
-    setOpenTooltip(user);
-  };
-
   const [openReportDialog, setOpenReportDialog] = useState(false);
   const handleOpenReportDialog = () => setOpenReportDialog(true);
   const handleCloseReportDialog = () => {
     setOpenReportDialog(false);
     handleCloseUserMenu();
+  };
+
+  const [openTooltip, setOpenTooltip] = useState(null);
+  const handleClickUsername = (user) => {
+    navigator.clipboard.writeText(`@${user.username}`);
+    setOpenTooltip(user);
   };
 
   return (
@@ -179,6 +180,14 @@ const Participants = () => {
                   close={handleCloseReportDialog}
                   user={participant}
                 />
+                {profile.id === room.host.id && (
+                <MenuItem onClick={() => kickUser(participant.id)}>
+                  <RemoveCircle sx={{ mr: 1 }} />
+                  <Typography textAlign="center" sx={{ mt: 0.2 }}>
+                    <span>Kick</span>
+                  </Typography>
+                </MenuItem>
+                )}
               </Menu>
               )}
               <Box

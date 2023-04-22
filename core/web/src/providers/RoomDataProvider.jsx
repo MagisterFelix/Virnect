@@ -290,6 +290,13 @@ const RoomProvider = ({ children }) => {
     },
   );
 
+  const kickUser = (user) => {
+    socket.send(JSON.stringify({
+      type: 'user_kick',
+      user,
+    }));
+  };
+
   const [messages, setMessages] = useState(null);
 
   const sendMessage = async (form) => {
@@ -454,6 +461,18 @@ const RoomProvider = ({ children }) => {
           },
           replace: true,
         });
+      } else if (data.type === 'user_kick') {
+        if (profile.id === data.user) {
+          navigate('/', {
+            state: {
+              toast: {
+                type: 'warning',
+                message: 'You have been kicked.',
+              },
+            },
+            replace: true,
+          });
+        }
       } else if (data.type === 'message_send') {
         setMessages([...messages, data.message]);
       } else if (data.type === 'message_edit') {
@@ -493,6 +512,7 @@ const RoomProvider = ({ children }) => {
     loading,
     room,
     refetchRoom,
+    kickUser,
     messages,
     sendMessage,
     editMessage,

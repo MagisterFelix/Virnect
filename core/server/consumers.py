@@ -68,7 +68,8 @@ class RoomListConsumer(AsyncJsonWebsocketConsumer):
 class RoomConsumer(AsyncJsonWebsocketConsumer):
 
     group = None
-    voice_chat_users = {}
+    kicked_users = set()
+    voice_chat_users = dict()
 
     async def connect(self):
         self.room = await sync_to_async(Room.objects.get_or_none)(title=self.scope["url_route"]["kwargs"]["title"])
@@ -81,7 +82,7 @@ class RoomConsumer(AsyncJsonWebsocketConsumer):
 
         user_id = AuthorizationUtils.get_user_id(token=token)
 
-        if user_id is None:
+        if user_id is None or user_id in self.kicked_users:
             await self.close(code=403)
             return None
 
@@ -123,6 +124,9 @@ class RoomConsumer(AsyncJsonWebsocketConsumer):
         if self.user in self.voice_chat_users:
             self.voice_chat_users.pop(self.user)
 
+        if await sync_to_async(lambda: self.user == self.room.host.id)():
+            self.kicked_users.clear()
+
         data = {
             "user": self.user
         }
@@ -152,6 +156,10 @@ class RoomConsumer(AsyncJsonWebsocketConsumer):
         await self.send_json(event)
 
     async def room_delete(self, event):
+        await self.send_json(event)
+
+    async def user_kick(self, event):
+        self.kicked_users.add(event["user"])
         await self.send_json(event)
 
     async def message_send(self, event):
