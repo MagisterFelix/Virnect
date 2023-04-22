@@ -1,14 +1,14 @@
 import React from 'react';
 
-import './NotFound.scss';
-
-const NotFound = () => (
+const NotFound = ({ extraStyles }) => (
   <div
     className="NotFound"
     style={{
+      height: '100dvh',
       backgroundImage: 'url(/static/404.svg)',
       backgroundPosition: 'center',
       backgroundRepeat: 'no-repeat',
+      ...extraStyles,
     }}
   />
 );

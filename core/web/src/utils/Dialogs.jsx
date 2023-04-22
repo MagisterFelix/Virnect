@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Controller } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 
 import {
   Alert,
@@ -23,57 +23,157 @@ import { LoadingButton } from '@mui/lab';
 
 import {
   Close,
-  Delete,
   Key,
   People,
   Title,
 } from '@mui/icons-material';
 
-import { toast } from 'react-toastify';
+import useAxios from '@api/axios';
+import ENDPOINTS from '@api/endpoints';
 
-import { useRoomData } from '@context/RoomDataProvider';
+import { useRoomList } from '@providers/RoomDataProvider';
 
-const ConfirmationForm = ({ message, onConfirm }) => {
-  const [openDialog, setOpenDialog] = useState(false);
-  const handleOpenDialog = () => setOpenDialog(true);
-  const handleCloseDialog = () => setOpenDialog(false);
+const ConfirmationDialog = ({
+  open, close, message, onConfirm,
+}) => (
+  <Dialog fullWidth open={open} onClose={close}>
+    <DialogTitle>
+      <span>Confirmation</span>
+    </DialogTitle>
+    <DialogContent>
+      <DialogContentText>
+        <span>{message}</span>
+      </DialogContentText>
+    </DialogContent>
+    <DialogActions>
+      <Button variant="text" onClick={close}>no</Button>
+      <Button variant="text" onClick={() => { onConfirm(); close(); }}>yes</Button>
+    </DialogActions>
+  </Dialog>
+);
+
+const ReportDialog = ({ open, close, user }) => {
+  const [{ loading: loadingReportOptions, data: reportOptions }] = useAxios(
+    {
+      url: ENDPOINTS.reports,
+      method: 'OPTIONS',
+    },
+  );
+
+  const validation = {
+    reason: {
+      required: 'This field may not be blank.',
+    },
+  };
+
+  const [{ loading: loadingReport }, sendReport] = useAxios(
+    {
+      url: ENDPOINTS.reports,
+      method: 'POST',
+    },
+    {
+      manual: true,
+    },
+  );
+
+  const [alert, setAlert] = useState(null);
+  const { control, handleSubmit } = useForm();
+  const handleOnSubmit = async (form) => {
+    const formData = {
+      accused: user.id,
+      ...form,
+    };
+    setAlert(null);
+    try {
+      const response = await sendReport({
+        data: formData,
+      });
+      setAlert({ type: 'success', message: response.data.details });
+    } catch (err) {
+      setAlert({ type: 'error', message: err.response.data.details });
+    }
+  };
 
   return (
-    <>
-      <Button onClick={handleOpenDialog}>
-        <Delete fontSize="small" />
-      </Button>
-      <Dialog
-        fullWidth
-        open={openDialog}
-        onClose={handleCloseDialog}
-      >
-        <DialogTitle>
-          <span>Confirmation</span>
+    <Dialog
+      fullWidth
+      open={open}
+      onClose={close}
+    >
+      <Box component="form" autoComplete="off">
+        <DialogTitle
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
+          <span>Report</span>
+          <IconButton onClick={close} sx={{ mr: -1 }}>
+            <Close />
+          </IconButton>
         </DialogTitle>
         <DialogContent>
-          <DialogContentText>
-            <span>{message}</span>
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button variant="text" onClick={handleCloseDialog}>no</Button>
-          <Button
-            variant="text"
-            onClick={() => {
-              onConfirm();
-              handleCloseDialog();
+          <Controller
+            name="reason"
+            control={control}
+            defaultValue=""
+            rules={{
+              required: true,
             }}
+            render={({
+              field: { onChange, value },
+              fieldState: { error: fieldError },
+            }) => (
+              <TextField
+                onChange={onChange}
+                value={value}
+                required
+                fullWidth
+                select
+                margin="dense"
+                label="Reason"
+                SelectProps={{
+                  MenuProps: {
+                    style: {
+                      maxHeight: 340,
+                    },
+                  },
+                }}
+                error={fieldError !== undefined}
+                helperText={fieldError ? fieldError.message || validation.reason[fieldError.type] : ''}
+              >
+                {
+                    loadingReportOptions
+                      ? (<LinearProgress sx={{ m: 2 }} />)
+                      : (
+                        reportOptions.actions.POST.reason.choices.map(
+                          (choice) => (
+                            <MenuItem key={choice.value} value={choice.value}>
+                              {choice.display_name}
+                            </MenuItem>
+                          ),
+                        ))
+                    }
+              </TextField>
+            )}
+          />
+          {alert && <Alert severity={alert.type} sx={{ textAlign: 'left', mt: 1 }}>{alert.message}</Alert>}
+        </DialogContent>
+        <DialogActions sx={{ mx: 1 }}>
+          <LoadingButton
+            loading={loadingReport}
+            onClick={handleSubmit(handleOnSubmit)}
           >
-            yes
-          </Button>
+            <span>Send</span>
+          </LoadingButton>
         </DialogActions>
-      </Dialog>
-    </>
+      </Box>
+    </Dialog>
   );
 };
 
-const RoomForm = ({
+const RoomDialog = ({
   instance, form, alert, setAlert, openDialog, setOpenDialog,
 }) => {
   const [room, setRoom] = useState(instance);
@@ -84,12 +184,13 @@ const RoomForm = ({
 
   const {
     loading, loadingTopicList, topicList, loadingRoomOptions, roomOptions, createRoom, updateRoom,
-  } = useRoomData();
+  } = useRoomList();
 
   const validation = {
     title: {
       required: 'This field may not be blank.',
       maxLength: 'No more than 64 characters.',
+      pattern: 'Provide the valid title.',
     },
     topic: {
       required: 'This field may not be blank.',
@@ -112,7 +213,6 @@ const RoomForm = ({
   } = form;
   const handleOnSubmit = async (formData) => {
     await createRoom(formData, validation, setError, setAlert);
-    toast(`The «${formData.title}» room has been created.`, { type: 'success' });
   };
   const handleOnEdit = (data) => {
     const formData = Object.entries(data).filter((entry) => {
@@ -170,6 +270,7 @@ const RoomForm = ({
             rules={{
               required: true,
               maxLength: 64,
+              pattern: /^[^/]*$/,
             }}
             render={({
               field: { onChange, value },
@@ -398,6 +499,7 @@ const RoomForm = ({
 };
 
 export {
-  ConfirmationForm,
-  RoomForm,
+  ConfirmationDialog,
+  ReportDialog,
+  RoomDialog,
 };

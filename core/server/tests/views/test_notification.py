@@ -1,7 +1,7 @@
 from rest_framework.test import APIRequestFactory, APITestCase, force_authenticate
 
-from core.server.models import Notification, User
-from core.server.tests import NOTIFICATIONS, PATHS, USERS
+from core.server.models import Message, Notification, Room, Topic, User
+from core.server.tests import MESSAGES, NOTIFICATIONS, PATHS, ROOMS, TOPICS, USERS
 from core.server.views import NotificationListView, NotificationView
 
 
@@ -10,6 +10,9 @@ class NotificationListViewTest(APITestCase):
     @classmethod
     def setUpTestData(cls):
         user = User.objects.create_user(**USERS["user"])
+        topic = Topic.objects.create(**TOPICS["chatting"])
+        room = Room.objects.create(host=user, topic=topic, **ROOMS["just speak"])
+        Message.objects.create(room=room, author=user, **MESSAGES["greetings"])
         Notification.objects.create(recipient=user, **NOTIFICATIONS["message reply"])
 
     def setUp(self):
@@ -36,6 +39,9 @@ class NotificationViewTest(APITestCase):
     @classmethod
     def setUpTestData(cls):
         user = User.objects.create_user(**USERS["user"])
+        topic = Topic.objects.create(**TOPICS["chatting"])
+        room = Room.objects.create(host=user, topic=topic, **ROOMS["just speak"])
+        Message.objects.create(room=room, author=user, **MESSAGES["greetings"])
         Notification.objects.create(recipient=user, **NOTIFICATIONS["message reply"])
 
     def setUp(self):
@@ -49,6 +55,12 @@ class NotificationViewTest(APITestCase):
         response = NotificationView().as_view()(request, pk=self.notification.id)
 
         self.assertEqual(response.status_code, 200)
+
+    def test_get_notification_if_not_authenticated(self):
+        request = self.factory.get(path=PATHS["notification"], format="json")
+        response = NotificationView().as_view()(request, pk=self.notification.id)
+
+        self.assertEqual(response.status_code, 403)
 
     def test_update_notification(self):
         data = {

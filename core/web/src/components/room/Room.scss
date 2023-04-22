@@ -1,0 +1,13 @@
+@use '@styles/globals' as *;
+
+@keyframes fade-in-out-outline {
+  0% {
+    outline: 2px solid transparent;
+  }
+  50% {
+    outline: 2px solid $purple;
+  }
+  100% {
+    outline: 2px solid transparent;
+  }
+}

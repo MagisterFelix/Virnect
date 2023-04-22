@@ -1,28 +1,28 @@
 from rest_framework.exceptions import NotFound
 from rest_framework.permissions import SAFE_METHODS, IsAdminUser, IsAuthenticated
 
-from .models import Room, Tag
+from .models import Message, Room, Tag
 
 
 class IsAdminUserOrReadOnly(IsAdminUser):
 
     def has_permission(self, request, view):
         is_admin = super(IsAdminUserOrReadOnly, self).has_permission(request, view)
-        return is_admin or request.method in SAFE_METHODS
+        return is_admin or (request.user.is_authenticated and request.method in SAFE_METHODS)
 
 
 class IsOwnerOrReadOnly(IsAuthenticated):
 
     def has_permission(self, request, view):
-        if request.method in SAFE_METHODS:
-            return True
-
         is_authenticated = super(IsOwnerOrReadOnly, self).has_permission(request, view)
 
         if not is_authenticated:
             return False
 
-        if "room" in request.path and request.method != "POST":
+        if request.method in SAFE_METHODS:
+            return True
+
+        if request.path.startswith("/api/room"):
             room = Room.objects.get_or_none(title=view.kwargs.get("title"))
 
             if room is None:
@@ -30,7 +30,7 @@ class IsOwnerOrReadOnly(IsAuthenticated):
 
             return room.host == request.user
 
-        if "tag" in request.path:
+        if request.path.startswith("/api/tag"):
             if request.method == "POST":
                 room = Room.objects.get_or_none(pk=request.data.get("room"))
             else:
@@ -46,17 +46,12 @@ class IsOwnerOrReadOnly(IsAuthenticated):
 
             return room.host == request.user
 
-        return True
+        if request.path.startswith("/api/message"):
+            message = Message.objects.get_or_none(pk=view.kwargs.get("pk"))
 
+            if message is None:
+                raise NotFound()
 
-class IsParticipant(IsAuthenticated):
+            return message.author == request.user
 
-    def has_permission(self, request, view):
-        is_authenticated = super(IsParticipant, self).has_permission(request, view)
-
-        room = Room.objects.get_or_none(title=view.kwargs.get("title"))
-
-        if room is None:
-            raise NotFound()
-
-        return is_authenticated and request.user in room.participants.all()
+        return False

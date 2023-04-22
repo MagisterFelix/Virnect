@@ -10,7 +10,7 @@ class AuthorizationViewTest(APITestCase):
     @classmethod
     def setUpTestData(cls):
         User.objects.create_user(**USERS["user"])
-        User.objects.create_user(**USERS["test"], is_active=False)
+        User.objects.create_user(is_active=False, **USERS["test"])
 
     def setUp(self):
         self.factory = APIRequestFactory()
@@ -56,7 +56,7 @@ class AuthorizationViewTest(APITestCase):
 
         self.assertEqual(len(response.cookies), 0)
 
-    def test_authorization_if_user_is_blocked(self):
+    def test_authorization_if_user_blocked(self):
         data = {
             "username": USERS["test"]["username"],
             "password": USERS["test"]["password"]
@@ -109,7 +109,7 @@ class RegistrationViewTest(APITestCase):
 
         self.assertEqual(response.status_code, 201)
 
-    def test_authorization_if_user_already_exists(self):
+    def test_registration_if_user_already_exists(self):
         request = self.factory.post(path=PATHS["sign-up"], data=USERS["user"], format="json")
         response = RegistrationView().as_view()(request)
 
@@ -193,3 +193,9 @@ class DeauthorizationViewTest(APITestCase):
 
         self.assertEqual(len(response.cookies.get("access_token").value), 0)
         self.assertEqual(len(response.cookies.get("refresh_token").value), 0)
+
+    def test_deauthorization_if_not_authenticated(self):
+        request = self.factory.post(path=PATHS["sign-out"], format="json")
+        response = DeauthorizationView().as_view()(request)
+
+        self.assertEqual(response.status_code, 403)

@@ -1,9 +1,15 @@
 @use '@styles/globals' as *;
 
-.Navbar {
-  margin-bottom: 8em;
-}
-
 .MuiPopover-paper::-webkit-scrollbar {
-  display: none;
+  width: 10px;
+
+  &-track {
+    background-color: $white;
+  }
+
+  &-thumb {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    background-color: $dark;
+  }
 }

@@ -28,9 +28,9 @@ import {
   Sort,
 } from '@mui/icons-material';
 
-import { useRoomData } from '@context/RoomDataProvider';
+import { useRoomList } from '@providers/RoomDataProvider';
 
-import { RoomForm } from '@utils/Forms';
+import { RoomDialog } from '@utils/Dialogs';
 import {
   DropdownButton, DropdownTextField, LightPaginationItem, LightTooltip,
 } from '@utils/Styles';
@@ -49,7 +49,7 @@ const Panel = () => {
     loadingRoomList, roomList,
     loadingTagList, tagList,
     setSearchLoading,
-  } = useRoomData();
+  } = useRoomList();
 
   const underSm = useMediaQuery((theme) => theme.breakpoints.down('sm'));
 
@@ -294,7 +294,7 @@ const Panel = () => {
               <Add />
               <span style={{ display: useMediaQuery(useTheme().breakpoints.down('sm')) ? 'none' : 'flex' }}>Add room</span>
             </Button>
-            <RoomForm
+            <RoomDialog
               form={formRoomCreation}
               alert={alert}
               setAlert={setAlert}

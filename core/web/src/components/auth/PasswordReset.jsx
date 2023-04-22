@@ -21,7 +21,7 @@ import {
   Send,
 } from '@mui/icons-material';
 
-import { useAuth } from '@context/AuthProvider';
+import { useAuth } from '@providers/AuthProvider';
 
 import styles from '@styles/_globals.scss';
 

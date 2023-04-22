@@ -1,19 +1,5 @@
 @use '@styles/globals' as *;
 
-.MuiMenu-paper::-webkit-scrollbar {
-  width: 10px;
-
-  &-track {
-    background-color: $white;
-  }
-
-  &-thumb {
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-    background-color: $soft_dark;
-  }
-}
-
 .MuiMenu-paper {
   margin-top: 5px;
 }

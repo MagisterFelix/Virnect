@@ -1,6 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
-
-import { w3cwebsocket as W3CWebSocket } from 'websocket';
+import React, { useState } from 'react';
 
 import {
   AppBar,
@@ -24,11 +22,11 @@ import {
   ExitToApp,
   Notifications,
   Settings,
+  Visibility,
 } from '@mui/icons-material';
 
-import ENDPOINTS from '@api/endpoints';
-
-import { useAuth } from '@context/AuthProvider';
+import { useAuth } from '@providers/AuthProvider';
+import { useNotification } from '@providers/NotificationProvider';
 
 import Notification from '@components/navbar/Notification';
 
@@ -39,13 +37,11 @@ import styles from '@styles/_globals.scss';
 import './Navbar.scss';
 
 const Navbar = () => {
-  const {
-    profile, logout, notificationList, refetchNotificationList, viewNotification,
-  } = useAuth();
+  const { profile, logout } = useAuth();
 
   const underSm = useMediaQuery(useTheme().breakpoints.down('sm'));
 
-  const notifications = notificationList.filter((notification) => notification.content);
+  const { notifications, viewNotification, viewAll } = useNotification();
 
   const handleOnLogout = () => logout();
 
@@ -57,19 +53,8 @@ const Navbar = () => {
   const handleOpenNotificationMenu = (event) => setAnchorElNotification(event.currentTarget);
   const handleCloseNotificationMenu = () => setAnchorElNotification(null);
 
-  const socket = useMemo(() => new W3CWebSocket(`${ENDPOINTS.wsNotificationList}${profile.username}/`), []);
-
-  useEffect(() => {
-    socket.onmessage = async (message) => {
-      const data = JSON.parse(message.data);
-      if (data.type === 'notification_list_update') {
-        await refetchNotificationList();
-      }
-    };
-  }, [socket, refetchNotificationList]);
-
   return (
-    <div className="Navbar">
+    <div className="Navbar" style={{ marginBottom: '6.25em' }}>
       <AppBar position="fixed" sx={{ backgroundColor: styles.color_darker }}>
         <Container maxWidth="xl">
           <Toolbar
@@ -97,11 +82,11 @@ const Navbar = () => {
                 py={2}
                 pr={2}
                 sx={{
-                  height: 64,
-                  width: 64,
+                  height: 48,
+                  width: 48,
                 }}
               />
-              <span style={{ display: underSm ? 'none' : 'flex' }}>Virnect</span>
+              <span style={{ display: underSm ? 'none' : 'flex', fontSize: styles.font_small }}>Virnect</span>
             </Link>
             <Box
               sx={{
@@ -109,7 +94,10 @@ const Navbar = () => {
                 alignItems: 'center',
               }}
             >
-              <IconButton size="large" onClick={handleOpenNotificationMenu} sx={{ pr: 2, color: styles.color_white }}>
+              <IconButton
+                onClick={handleOpenNotificationMenu}
+                sx={{ color: styles.color_white }}
+              >
                 <Badge
                   max={9}
                   badgeContent={notifications.filter(
@@ -117,7 +105,7 @@ const Navbar = () => {
                   ).length}
                   color="primary"
                 >
-                  <Notifications fontSize="large" sx={{ color: styles.color_white }} />
+                  <Notifications sx={{ color: styles.color_white }} />
                 </Badge>
               </IconButton>
               <Popover
@@ -134,34 +122,58 @@ const Navbar = () => {
                 onClose={handleCloseNotificationMenu}
                 PaperProps={{
                   style: {
-                    maxHeight: 500,
-                    maxWidth: !underSm && 500,
+                    maxHeight: 450,
+                    width: !underSm && 450,
                   },
                 }}
-                sx={{ mt: 1 }}
+                sx={{ mt: 2 }}
               >
-                {notifications.length !== 0 ? notificationList.map((notification) => (
-                  notification.content && (
-                  <div
-                    className="Notification"
-                    key={notification.id}
-                    style={{
-                      backgroundColor: notification.is_viewed
-                        ? styles.color_white
-                        : styles.color_soft_neon,
-                    }}
-                  >
-                    <Typography sx={{ p: 2 }}>
-                      {Notification(notification, viewNotification)}
+                {notifications.filter((notification) => !notification.is_viewed).length ? (
+                  <>
+                    <Typography
+                      component="span"
+                      sx={{
+                        my: 1,
+                        mx: 2,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                      }}
+                    >
+                      <span>View all</span>
+                      <IconButton
+                        onClick={() => viewAll(notifications.filter(
+                          (notification) => !notification.is_viewed,
+                        ))}
+                        sx={{ ml: 0.5 }}
+                      >
+                        <Visibility sx={{ color: styles.color_neon }} />
+                      </IconButton>
                     </Typography>
                     <Divider />
-                  </div>
-                  )
-                )) : (
-                  <Typography sx={{ p: 2 }}>
-                    <span>No notifications</span>
-                  </Typography>
-                )}
+                  </>
+                ) : null}
+                {notifications.length !== 0
+                  ? notifications.map((notification) => (
+                    <div
+                      className="Notification"
+                      key={notification.id}
+                      style={{
+                        backgroundColor: notification.is_viewed
+                          ? styles.color_white
+                          : styles.color_soft_neon,
+                      }}
+                    >
+                      <Typography sx={{ p: 2 }}>
+                        {Notification(notification, viewNotification)}
+                      </Typography>
+                      <Divider />
+                    </div>
+                  )) : (
+                    <Typography textAlign="center" sx={{ p: 2 }}>
+                      <span>No notifications</span>
+                    </Typography>
+                  )}
               </Popover>
               <IconButton onClick={handleOpenUserMenu} sx={{ pr: 0 }}>
                 <OnlineBadge
@@ -176,8 +188,8 @@ const Navbar = () => {
                     alt={profile.username}
                     src={profile.image}
                     sx={{
-                      height: 64,
-                      width: 64,
+                      height: 48,
+                      width: 48,
                     }}
                   />
                 </OnlineBadge>

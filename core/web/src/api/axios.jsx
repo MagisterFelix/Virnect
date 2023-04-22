@@ -27,7 +27,7 @@ instance.interceptors.request.use(
 instance.interceptors.response.use(
   async (response) => response,
   (error) => {
-    if (typeof error.response.data.details === 'string' && error.response.data.details.includes('CSRF')) {
+    if (error.response && typeof error.response.data.details === 'string' && error.response.data.details.includes('CSRF')) {
       window.location.reload();
     }
     return Promise.reject(error);

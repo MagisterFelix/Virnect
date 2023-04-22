@@ -4,9 +4,11 @@ from collections import OrderedDict
 from rest_framework.serializers import ModelSerializer
 
 from core.server.models import Message, Notification, Report, Room, User
-from core.server.serializers.report import ReportSerializer
-from core.server.serializers.room import RoomSerializer
-from core.server.serializers.user import UserSerializer
+
+from .message import MessageSerializer
+from .report import ReportSerializer
+from .room import RoomSerializer
+from .user import UserSerializer
 
 
 class NotificationSerializer(ModelSerializer):
@@ -16,6 +18,8 @@ class NotificationSerializer(ModelSerializer):
         fields = "__all__"
 
     def to_representation(self, instance):
+        related = self.context.get("related")
+
         data = OrderedDict()
 
         data["notification"] = super(NotificationSerializer, self).to_representation(instance)
@@ -26,46 +30,30 @@ class NotificationSerializer(ModelSerializer):
         content = json.loads(data["notification"]["content"])
 
         if notification_type == Notification.NotificationType.MENTION:
-            room = Room.objects.get_or_none(pk=content["room"])
-            user = User.objects.get_or_none(pk=content["user"])
+            room = Room.objects.get(pk=content["room"])
+            user = User.objects.get(pk=content["user"])
 
-            if room is None or user is None:
-                content = None
-            else:
-                room = RoomSerializer(instance=room, context=self.context).data
-                user = UserSerializer(instance=user, context=self.context).data
-
-                content["room"] = room
-                content["user"] = user
+            content["room"] = RoomSerializer(instance=room, context=self.context).data
+            content["user"] = UserSerializer(instance=user, context=self.context).data
         elif notification_type in (Notification.NotificationType.REPORT, Notification.NotificationType.WARNING):
-            report = Report.objects.get_or_none(pk=content["report"])
+            report = Report.objects.get(pk=content["report"])
 
-            if report is None:
-                content = None
-            else:
-                report = ReportSerializer(instance=report, context=self.context).data
-                report["reason"] = Report.Reason.choices[report["reason"]][1]
+            report = ReportSerializer(instance=report, context=self.context).data
+            report["reason"] = Report.Reason.choices[report["reason"]][1]
 
-                content["report"] = report
+            content["report"] = report
         elif notification_type == Notification.NotificationType.MESSAGE_REPLY:
-            room = Room.objects.get_or_none(pk=content["room"])
-            user = User.objects.get_or_none(pk=content["user"])
-            message = Message.objects.get_or_none(pk=content["message"])
+            room = Room.objects.get(pk=content["room"])
+            user = User.objects.get(pk=content["user"])
+            message = Message.objects.get(pk=content["message"])
 
-            if room is None or user is None or message is None:
-                content = None
-            else:
-                room = RoomSerializer(instance=room, context=self.context).data
-                user = UserSerializer(instance=user, context=self.context).data
-                message = ...
-
-                content["room"] = room
-                content["user"] = user
-                content["message"] = message
+            content["room"] = RoomSerializer(instance=room, context=self.context).data
+            content["user"] = UserSerializer(instance=user, context=self.context).data
+            content["message"] = MessageSerializer(instance=message, context=self.context).data
 
         data["notification"]["content"] = content
 
-        if self.context["request"].method == "GET":
+        if self.context["request"].method == "GET" or related:
             return data["notification"]
 
         data["details"] = "Notification has been updated."

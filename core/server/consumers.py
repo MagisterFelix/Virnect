@@ -1,87 +1,191 @@
-import hashlib
-import json
+import urllib
 
-from channels.generic.websocket import AsyncWebsocketConsumer
+from asgiref.sync import sync_to_async
+from channels.generic.websocket import AsyncJsonWebsocketConsumer
+from rest_framework.exceptions import PermissionDenied
 
-
-class RoomListConsumer(AsyncWebsocketConsumer):
-
-    async def connect(self):
-        self.group = "room-list"
-
-        await self.channel_layer.group_add(
-            self.group,
-            self.channel_name
-        )
-
-        await self.accept()
-
-    async def receive(self, text_data):
-        await self.channel_layer.group_send(
-            self.group,
-            json.loads(text_data)
-        )
-
-    async def disconnect(self, _):
-        await self.channel_layer.group_discard(
-            self.group,
-            self.channel_name
-        )
-
-    async def room_list_update(self, event):
-        await self.send(text_data=json.dumps(event))
+from .models import Room
+from .serializers import ConnectingSerializer, DisconnectingSerializer
+from .utils import AuthorizationUtils, WebSocketUtils
 
 
-class RoomConsumer(AsyncWebsocketConsumer):
+class NotificationListConsumer(AsyncJsonWebsocketConsumer):
+
+    group = None
 
     async def connect(self):
-        title = self.scope["url_route"]["kwargs"]["title"]
-        self.group = f"room-{hashlib.sha256(title.encode()).hexdigest()}"
+        token = self.scope["cookies"].get("access_token")
 
-        await self.channel_layer.group_add(
-            self.group,
-            self.channel_name
-        )
+        user_id = AuthorizationUtils.get_user_id(token=token)
+
+        if user_id is None:
+            await self.close(code=403)
+            return None
+
+        self.group = f"notification-list-{user_id}"
+
+        await self.channel_layer.group_add(self.group, self.channel_name)
 
         await self.accept()
 
     async def disconnect(self, _):
-        await self.channel_layer.group_discard(
-            self.group,
-            self.channel_name
-        )
+        if self.group is None:
+            return None
 
-    async def room_update(self, event):
-        await self.send(text_data=json.dumps(event))
-
-    async def room_delete(self, event):
-        await self.send(text_data=json.dumps(event))
-
-
-class NotificationListConsumer(AsyncWebsocketConsumer):
-
-    async def connect(self):
-        username = self.scope["url_route"]["kwargs"]["username"]
-        self.group = f"notification-list-{hashlib.sha256(username.encode()).hexdigest()}"
-
-        await self.channel_layer.group_add(
-            self.group,
-            self.channel_name
-        )
-
-        await self.accept()
-
-    async def receive(self, text_data):
-        await self.channel_layer.group_send(
-            self.group,
-            json.loads(text_data)
-        )
-
-    async def disconnect(self, _):
-        await self.channel_layer.group_discard(
-            self.group,
-            self.channel_name
-        )
+        await self.channel_layer.group_discard(self.group, self.channel_name)
 
     async def notification_list_update(self, event):
-        await self.send(text_data=json.dumps(event))
+        await self.send_json(content=event)
+
+
+class RoomListConsumer(AsyncJsonWebsocketConsumer):
+
+    group = "room-list"
+
+    async def connect(self):
+        token = self.scope["cookies"].get("access_token")
+
+        user_id = AuthorizationUtils.get_user_id(token=token)
+
+        if user_id is None:
+            await self.close(code=403)
+            return None
+
+        await self.channel_layer.group_add(self.group, self.channel_name)
+
+        await self.accept()
+
+    async def receive_json(self, content):
+        await self.channel_layer.group_send(self.group, content)
+
+    async def disconnect(self, _):
+        await self.channel_layer.group_discard(self.group, self.channel_name)
+
+    async def room_list_update(self, event):
+        await self.send_json(event)
+
+
+class RoomConsumer(AsyncJsonWebsocketConsumer):
+
+    group = None
+    kicked_users = set()
+    voice_chat_users = dict()
+
+    async def connect(self):
+        self.room = await sync_to_async(Room.objects.get_or_none)(title=self.scope["url_route"]["kwargs"]["title"])
+
+        if self.room is None:
+            await self.close(code=404)
+            return None
+
+        token = self.scope["cookies"].get("access_token")
+
+        user_id = AuthorizationUtils.get_user_id(token=token)
+
+        if user_id is None or user_id in self.kicked_users:
+            await self.close(code=403)
+            return None
+
+        self.user = user_id
+
+        query_params = urllib.parse.parse_qs(self.scope["query_string"].decode())
+        key = query_params.get("key", [None])[0]
+
+        data = {
+            "user": self.user
+        }
+
+        if key is not None:
+            data["key"] = key
+
+        serializer = await sync_to_async(ConnectingSerializer)(instance=self.room, data=data)
+
+        try:
+            await sync_to_async(serializer.is_valid)()
+        except PermissionDenied:
+            await self.close(code=403)
+            return None
+
+        await sync_to_async(serializer.save)()
+
+        self.group = f"room-{self.room.id}"
+
+        await self.channel_layer.group_add(self.group, self.channel_name)
+
+        await self.accept()
+
+        await sync_to_async(WebSocketUtils.update_room)(room_id=self.room.id, room_title=self.room.title)
+        await sync_to_async(WebSocketUtils.update_room_list)()
+
+    async def disconnect(self, _):
+        if self.group is None:
+            return None
+
+        if self.user in self.voice_chat_users:
+            self.voice_chat_users.pop(self.user)
+
+        if await sync_to_async(lambda: self.user == self.room.host.id)():
+            self.kicked_users.clear()
+
+        data = {
+            "user": self.user
+        }
+
+        serializer = await sync_to_async(DisconnectingSerializer)(instance=self.room, data=data)
+
+        try:
+            await sync_to_async(serializer.is_valid)()
+        except PermissionDenied:
+            return None
+
+        await sync_to_async(serializer.save)()
+
+        await self.channel_layer.group_discard(self.group, self.channel_name)
+
+        await sync_to_async(WebSocketUtils.update_room)(room_id=self.room.id, room_title=self.room.title)
+        await sync_to_async(WebSocketUtils.update_room_list)()
+
+    async def receive_json(self, content):
+        await self.channel_layer.group_send(self.group, content)
+
+    async def room_update(self, event):
+        self.room = await sync_to_async(Room.objects.get_or_none)(title=event["room"])
+
+        event["voice_chat_users"] = list(self.voice_chat_users.values())
+
+        await self.send_json(event)
+
+    async def room_delete(self, event):
+        await self.send_json(event)
+
+    async def user_kick(self, event):
+        self.kicked_users.add(event["user"])
+        await self.send_json(event)
+
+    async def message_send(self, event):
+        await self.send_json(event)
+
+    async def message_edit(self, event):
+        await self.send_json(event)
+
+    async def message_delete(self, event):
+        await self.send_json(event)
+
+    async def voice_chat_connect(self, event):
+        if event["user"]["id"] not in self.voice_chat_users:
+            self.voice_chat_users[event["user"]["id"]] = event["user"]
+
+        event["voice_chat_users"] = list(self.voice_chat_users.values())
+
+        await self.send_json(event)
+
+    async def voice_chat_signal(self, event):
+        await self.send_json(event)
+
+    async def voice_chat_disconnect(self, event):
+        if event["user"] in self.voice_chat_users:
+            self.voice_chat_users.pop(event["user"])
+
+        event["voice_chat_users"] = list(self.voice_chat_users.values())
+
+        await self.send_json(event)
