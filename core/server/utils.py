@@ -191,3 +191,34 @@ class WebSocketUtils:
                 "type": "room_delete"
             }
         )
+
+    @staticmethod
+    def send_message(room_id, data):
+        WebSocketUtils._send_to_group(
+            f"room-{room_id}",
+            {
+                "type": "message_send",
+                "message": data
+            }
+        )
+
+    @staticmethod
+    def edit_message(room_id, message_id, data):
+        WebSocketUtils._send_to_group(
+            f"room-{room_id}",
+            {
+                "type": "message_edit",
+                "id": message_id,
+                "message": data
+            }
+        )
+
+    @staticmethod
+    def delete_message(room_id, message_id):
+        WebSocketUtils._send_to_group(
+            f"room-{room_id}",
+            {
+                "type": "message_delete",
+                "id": message_id
+            }
+        )

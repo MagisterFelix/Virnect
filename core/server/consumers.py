@@ -1,4 +1,3 @@
-import json
 import urllib
 
 from asgiref.sync import sync_to_async
@@ -56,8 +55,8 @@ class RoomListConsumer(AsyncJsonWebsocketConsumer):
 
         await self.accept()
 
-    async def receive(self, text_data):
-        await self.channel_layer.group_send(self.group, json.loads(text_data))
+    async def receive_json(self, content):
+        await self.channel_layer.group_send(self.group, content)
 
     async def disconnect(self, _):
         await self.channel_layer.group_discard(self.group, self.channel_name)
@@ -69,6 +68,7 @@ class RoomListConsumer(AsyncJsonWebsocketConsumer):
 class RoomConsumer(AsyncJsonWebsocketConsumer):
 
     group = None
+    voice_chat_users = {}
 
     async def connect(self):
         self.room = await sync_to_async(Room.objects.get_or_none)(title=self.scope["url_route"]["kwargs"]["title"])
@@ -85,17 +85,19 @@ class RoomConsumer(AsyncJsonWebsocketConsumer):
             await self.close(code=403)
             return None
 
+        self.user = user_id
+
         query_params = urllib.parse.parse_qs(self.scope["query_string"].decode())
         key = query_params.get("key", [None])[0]
 
-        self.data = {
-            "user": user_id,
+        data = {
+            "user": self.user
         }
 
         if key is not None:
-            self.data["key"] = key
+            data["key"] = key
 
-        serializer = await sync_to_async(ConnectingSerializer)(instance=self.room, data=self.data)
+        serializer = await sync_to_async(ConnectingSerializer)(instance=self.room, data=data)
 
         try:
             await sync_to_async(serializer.is_valid)()
@@ -118,7 +120,14 @@ class RoomConsumer(AsyncJsonWebsocketConsumer):
         if self.group is None:
             return None
 
-        serializer = await sync_to_async(DisconnectingSerializer)(instance=self.room, data=self.data)
+        if self.user in self.voice_chat_users:
+            self.voice_chat_users.pop(self.user)
+
+        data = {
+            "user": self.user
+        }
+
+        serializer = await sync_to_async(DisconnectingSerializer)(instance=self.room, data=data)
 
         try:
             await sync_to_async(serializer.is_valid)()
@@ -132,10 +141,43 @@ class RoomConsumer(AsyncJsonWebsocketConsumer):
         await sync_to_async(WebSocketUtils.update_room)(room_id=self.room.id, room_title=self.room.title)
         await sync_to_async(WebSocketUtils.update_room_list)()
 
+    async def receive_json(self, content):
+        await self.channel_layer.group_send(self.group, content)
+
     async def room_update(self, event):
         self.room = await sync_to_async(Room.objects.get_or_none)(title=event["room"])
+
+        event["voice_chat_users"] = list(self.voice_chat_users.values())
 
         await self.send_json(event)
 
     async def room_delete(self, event):
+        await self.send_json(event)
+
+    async def message_send(self, event):
+        await self.send_json(event)
+
+    async def message_edit(self, event):
+        await self.send_json(event)
+
+    async def message_delete(self, event):
+        await self.send_json(event)
+
+    async def voice_chat_connect(self, event):
+        if event["user"]["id"] not in self.voice_chat_users:
+            self.voice_chat_users[event["user"]["id"]] = event["user"]
+
+        event["voice_chat_users"] = list(self.voice_chat_users.values())
+
+        await self.send_json(event)
+
+    async def voice_chat_signal(self, event):
+        await self.send_json(event)
+
+    async def voice_chat_disconnect(self, event):
+        if event["user"] in self.voice_chat_users:
+            self.voice_chat_users.pop(event["user"])
+
+        event["voice_chat_users"] = list(self.voice_chat_users.values())
+
         await self.send_json(event)

@@ -27,6 +27,8 @@ class MessageListView(ListCreateAPIView):
             room = Room.objects.get(title=kwargs["room"])
             message = Message.objects.get(pk=response.data["message"]["id"])
 
+            WebSocketUtils.send_message(room_id=room.id, data=response.data["message"])
+
             mentioned_users = User.objects.filter(username__in=re.findall(r"@(\w+)", request.data["text"]))
 
             for user in mentioned_users:
@@ -73,6 +75,8 @@ class MessageView(RetrieveUpdateDestroyAPIView):
             room = Room.objects.get(title=kwargs["room"])
             message = Message.objects.get(pk=kwargs["pk"])
 
+            WebSocketUtils.edit_message(room_id=room.id, message_id=message.id, data=response.data["message"])
+
             mentioned_users = User.objects.filter(username__in=re.findall(r"@(\w+)", request.data.get("text", "")))
 
             for user in mentioned_users:
@@ -83,5 +87,15 @@ class MessageView(RetrieveUpdateDestroyAPIView):
                         content=json.dumps({"room": room.id, "user": message.author.id})
                     )
                     WebSocketUtils.update_notification_list(user_id=user.id)
+
+        return response
+
+    def destroy(self, request, *args, **kwargs):
+        response = super(MessageView, self).destroy(request, *args, **kwargs)
+
+        if response.status_code == 204:
+            room = Room.objects.get(title=kwargs["room"])
+
+            WebSocketUtils.delete_message(room_id=room.id, message_id=int(kwargs["pk"]))
 
         return response

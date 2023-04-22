@@ -6,6 +6,7 @@ import React, {
   useState,
 } from 'react';
 import {
+  useBeforeUnload,
   useLocation,
   useNavigate,
   useParams,
@@ -13,6 +14,8 @@ import {
 } from 'react-router-dom';
 
 import { w3cwebsocket as W3CWebSocket } from 'websocket';
+
+import SimplePeer from 'simple-peer';
 
 import {
   LinearProgress,
@@ -23,6 +26,8 @@ import { toast } from 'react-toastify';
 import useAxios from '@api/axios';
 import ENDPOINTS from '@api/endpoints';
 import handleErrors from '@api/errors';
+
+import { useAuth } from '@providers/AuthProvider';
 
 const RoomListContext = createContext(null);
 
@@ -236,23 +241,11 @@ const RoomProvider = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const { profile } = useAuth();
+
   const socket = useMemo(() => new W3CWebSocket(`${ENDPOINTS.wsRoom}${title}/${location.state?.key ? `?key=${location.state.key}` : ''}`), []);
 
-  const [{ loading: loadingRoom, data: room }, fetchRoom] = useAxios(
-    {
-      url: `${ENDPOINTS.room}${title}/`,
-      method: 'GET',
-    },
-    {
-      manual: true,
-    },
-  );
-
   useEffect(() => {
-    socket.onopen = async () => {
-      await fetchRoom();
-    };
-
     socket.onerror = () => {
       navigate('/', {
         state: {
@@ -270,16 +263,250 @@ const RoomProvider = ({ children }) => {
     };
   }, [socket]);
 
+  const [{ data: room }, refetchRoom] = useAxios(
+    {
+      url: `${ENDPOINTS.room}${title}/`,
+      method: 'GET',
+    },
+    {
+      manual: true,
+    },
+  );
+
+  const [{ loading: loadingMessageList, data: messageList }, refetchMessageList] = useAxios(
+    {
+      url: `${ENDPOINTS.messages}${title}/`,
+      method: 'GET',
+    },
+  );
+
+  const [{ loading }, execute] = useAxios(
+    {
+      method: 'POST',
+    },
+    {
+      manual: true,
+      autoCancel: false,
+    },
+  );
+
+  const [messages, setMessages] = useState(null);
+
+  const sendMessage = async (form) => {
+    await execute({
+      url: `${ENDPOINTS.messages}${title}/`,
+      data: form,
+    });
+  };
+
+  const editMessage = async (messageInstance, form) => {
+    await execute({
+      url: `${ENDPOINTS.message}${title}/${messageInstance.id}/`,
+      method: 'PATCH',
+      data: form,
+    });
+  };
+
+  const deleteMessage = async (messageInstance) => {
+    await execute({
+      url: `${ENDPOINTS.message}${title}/${messageInstance.id}/`,
+      method: 'DELETE',
+    });
+  };
+
+  useEffect(() => {
+    if (!loadingMessageList) {
+      setMessages(messageList);
+    }
+  }, [loadingMessageList, messageList]);
+
+  const [voiceChatUsers, setVoiceChatUsers] = useState([]);
+  const [peers, setPeers] = useState({});
+  const [stream, setStream] = useState(null);
+  const [isMuted, setIsMuted] = useState(true);
+
+  const createPeer = (userID, userStream) => {
+    const peer = new SimplePeer({
+      initiator: true,
+      trickle: false,
+      stream: userStream,
+    });
+    peer.on('signal', (signal) => {
+      socket.send(JSON.stringify({
+        type: 'voice_chat_signal',
+        from: profile.id,
+        to: userID,
+        offer: signal,
+      }));
+    });
+    peer.on('stream', (remoteStream) => {
+      const audio = new Audio();
+      audio.srcObject = remoteStream;
+      audio.play();
+    });
+    return peer;
+  };
+
+  const addPeer = (userID, offer, userStream) => {
+    const peer = new SimplePeer({
+      initiator: false,
+      trickle: false,
+      stream: userStream,
+    });
+    peer.signal(offer);
+    peer.on('signal', (signal) => {
+      socket.send(JSON.stringify({
+        type: 'voice_chat_signal',
+        from: profile.id,
+        to: userID,
+        answer: signal,
+      }));
+    });
+    peer.on('stream', (remoteStream) => {
+      const audio = new Audio();
+      audio.srcObject = remoteStream;
+      audio.play();
+    });
+    return peer;
+  };
+
+  const connectToVoiceChat = () => {
+    navigator.mediaDevices
+      .getUserMedia({
+        audio: true,
+      })
+      .then((userStream) => {
+        const audio = userStream.getAudioTracks()[0];
+        if (audio) {
+          audio.enabled = !audio.enabled;
+        }
+        setStream(userStream);
+        const data = {
+          id: profile.id,
+          username: profile.username,
+          image: profile.image,
+        };
+        socket.send(JSON.stringify({
+          type: 'voice_chat_connect',
+          user: data,
+        }));
+        const newPeers = {};
+        voiceChatUsers.forEach((user) => {
+          newPeers[user.id] = createPeer(user.id, userStream);
+        });
+        setPeers(newPeers);
+      })
+      .catch(() => {
+        toast('Access to media devices was not granted.', { type: 'error' });
+      });
+  };
+
+  const toggleMic = () => {
+    const audio = stream.getAudioTracks()[0];
+    if (!audio) {
+      return;
+    }
+    audio.enabled = !audio.enabled;
+    setIsMuted(!audio.enabled);
+  };
+
+  const disconnectFromVoiceChat = () => {
+    const audio = stream.getAudioTracks()[0];
+    if (audio) {
+      audio.stop();
+    }
+    socket.send(JSON.stringify({
+      type: 'voice_chat_disconnect',
+      user: profile.id,
+    }));
+    Object.values(peers).forEach((peer) => peer.destroy());
+    setPeers({});
+  };
+
+  useBeforeUnload(() => {
+    if (voiceChatUsers.find((user) => user.id === profile.id)) {
+      disconnectFromVoiceChat();
+    }
+  });
+
+  useEffect(() => {
+    socket.onmessage = async (message) => {
+      const data = JSON.parse(message.data);
+      if (data.type === 'room_update') {
+        if (data.room !== title) {
+          if (location.state && location.state.key !== undefined) {
+            navigate(`/room/${data.room}`, { state: { key: location.state.key }, replace: true });
+          } else {
+            navigate(`/room/${data.room}`, { replace: true });
+          }
+          window.location.reload();
+        } else {
+          await refetchRoom();
+          setVoiceChatUsers(data.voice_chat_users);
+        }
+      } else if (data.type === 'room_delete') {
+        navigate('/', {
+          state: {
+            toast: {
+              type: 'info',
+              message: `The «${title}» room has been deleted.`,
+            },
+          },
+          replace: true,
+        });
+      } else if (data.type === 'message_send') {
+        setMessages([...messages, data.message]);
+      } else if (data.type === 'message_edit') {
+        setMessages(messages.map((msg) => (msg.id === data.id ? data.message : msg)));
+        if (messages.some((msg) => msg.reply_to?.id === data.id)) {
+          await refetchMessageList();
+        }
+      } else if (data.type === 'message_delete') {
+        setMessages(messages.filter((msg) => msg.id !== data.id && msg.reply_to?.id !== data.id));
+      } else if (data.type === 'voice_chat_connect') {
+        setVoiceChatUsers(data.voice_chat_users);
+      } else if (data.type === 'voice_chat_signal') {
+        if (data.to === profile.id) {
+          if (peers[data.from] !== undefined) {
+            peers[data.from].signal(data.answer);
+          } else {
+            const newPeers = { ...peers };
+            newPeers[data.from] = addPeer(data.from, data.offer, stream);
+            setPeers(newPeers);
+          }
+        }
+      } else if (data.type === 'voice_chat_disconnect') {
+        setVoiceChatUsers(data.voice_chat_users);
+        if (peers[data.user] !== undefined) {
+          peers[data.user].destroy();
+          const newPeers = Object.fromEntries(
+            Object.entries(peers).filter((peer) => parseInt(peer[0], 10) !== data.user),
+          );
+          setPeers(newPeers);
+        }
+      }
+    };
+  }, [socket, messages, peers, stream]);
+
   const value = useMemo(() => ({
     socket,
-    loadingRoom,
+    loading,
     room,
-    fetchRoom,
-  }), [loadingRoom, room]);
+    refetchRoom,
+    messages,
+    sendMessage,
+    editMessage,
+    deleteMessage,
+    voiceChatUsers,
+    isMuted,
+    connectToVoiceChat,
+    toggleMic,
+    disconnectFromVoiceChat,
+  }), [loading, room, messages, voiceChatUsers, isMuted]);
 
   return (
     <RoomContext.Provider value={value}>
-      {!room ? <LinearProgress sx={{ mt: -3 }} /> : children}
+      {!room || !messages ? <LinearProgress sx={{ mt: -2 }} /> : children}
     </RoomContext.Provider>
   );
 };
