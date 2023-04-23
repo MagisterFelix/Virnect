@@ -183,7 +183,10 @@ const Chat = () => {
           <Typography
             sx={{
               my: 2,
-              fontSize: styles.font_large,
+              fontSize: {
+                xs: styles.font_small,
+                sm: styles.font_large,
+              },
               fontWeight: 'bold',
               color: styles.color_white,
             }}

@@ -284,7 +284,7 @@ const RoomList = ({ editable }) => {
                         component="img"
                         src="/static/empty.gif"
                         alt="empty"
-                        width="5em"
+                        width="4.612em"
                       />
                     )}
                   </Grid>

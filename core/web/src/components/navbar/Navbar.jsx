@@ -54,7 +54,7 @@ const Navbar = () => {
   const handleCloseNotificationMenu = () => setAnchorElNotification(null);
 
   return (
-    <div className="Navbar" style={{ marginBottom: '6.25em' }}>
+    <div className="Navbar" style={{ marginBottom: '7.25em' }}>
       <AppBar position="fixed" sx={{ backgroundColor: styles.color_darker }}>
         <Container maxWidth="xl">
           <Toolbar
