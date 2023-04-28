@@ -192,6 +192,18 @@ class RoomConsumer(AsyncJsonWebsocketConsumer):
 
         await self.send_json(event)
 
+    async def voice_chat_toggle_speaking(self, event):
+        if event["user"] in self.voice_chat_users:
+            self.voice_chat_users[event["user"]]["is_speaking"] = event["is_speaking"]
+
+        await self.send_json(event)
+
+    async def voice_chat_toggle_mic(self, event):
+        if event["user"] in self.voice_chat_users:
+            self.voice_chat_users[event["user"]]["is_muted"] = event["is_muted"]
+
+        await self.send_json(event)
+
     async def voice_chat_signal(self, event):
         await self.send_json(event)
 

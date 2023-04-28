@@ -327,6 +327,46 @@ const RoomProvider = ({ children }) => {
   const [stream, setStream] = useState(null);
   const [isMuted, setIsMuted] = useState(true);
 
+  const detectSpeaking = (userStream) => {
+    const audioContext = new AudioContext();
+    const source = audioContext.createMediaStreamSource(userStream);
+    const analyser = audioContext.createAnalyser();
+    analyser.fftSize = 2048;
+    source.connect(analyser);
+    let isSpeaking = false;
+    const THRESHOLD = 10;
+    const bufferLength = analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+    const intervalID = setInterval(() => {
+      if (!userStream.active) {
+        clearInterval(intervalID);
+        return;
+      }
+      analyser.getByteFrequencyData(dataArray);
+      const avg = dataArray.reduce((acc, val) => {
+        if (val > THRESHOLD) {
+          return acc + val;
+        }
+        return acc;
+      }, 0) / bufferLength;
+      if ((avg <= THRESHOLD || !userStream.getAudioTracks()[0].enabled) && isSpeaking) {
+        isSpeaking = false;
+        socket.send(JSON.stringify({
+          type: 'voice_chat_toggle_speaking',
+          user: profile.id,
+          is_speaking: isSpeaking,
+        }));
+      } else if (avg > THRESHOLD && userStream.getAudioTracks()[0].enabled && !isSpeaking) {
+        isSpeaking = true;
+        socket.send(JSON.stringify({
+          type: 'voice_chat_toggle_speaking',
+          user: profile.id,
+          is_speaking: isSpeaking,
+        }));
+      }
+    }, 100);
+  };
+
   const createPeer = (userID, userStream) => {
     const peer = new SimplePeer({
       initiator: true,
@@ -387,6 +427,8 @@ const RoomProvider = ({ children }) => {
           id: profile.id,
           username: profile.username,
           image: profile.image,
+          is_muted: true,
+          is_speaking: false,
         };
         socket.send(JSON.stringify({
           type: 'voice_chat_connect',
@@ -397,6 +439,7 @@ const RoomProvider = ({ children }) => {
           newPeers[user.id] = createPeer(user.id, userStream);
         });
         setPeers(newPeers);
+        detectSpeaking(userStream);
       })
       .catch(() => {
         toast('Access to media devices was not granted.', { type: 'error' });
@@ -410,6 +453,11 @@ const RoomProvider = ({ children }) => {
     }
     audio.enabled = !audio.enabled;
     setIsMuted(!audio.enabled);
+    socket.send(JSON.stringify({
+      type: 'voice_chat_toggle_mic',
+      user: profile.id,
+      is_muted: !audio.enabled,
+    }));
   };
 
   const disconnectFromVoiceChat = () => {
@@ -490,6 +538,14 @@ const RoomProvider = ({ children }) => {
             setPeers(newPeers);
           }
         }
+      } else if (data.type === 'voice_chat_toggle_mic') {
+        setVoiceChatUsers(voiceChatUsers.map(
+          (user) => (user.id === data.user ? { ...user, is_muted: data.is_muted } : user),
+        ));
+      } else if (data.type === 'voice_chat_toggle_speaking') {
+        setVoiceChatUsers(voiceChatUsers.map(
+          (user) => (user.id === data.user ? { ...user, is_speaking: data.is_speaking } : user),
+        ));
       } else if (data.type === 'voice_chat_disconnect') {
         setVoiceChatUsers(data.voice_chat_users);
         if (peers[data.user] !== undefined) {
@@ -501,7 +557,7 @@ const RoomProvider = ({ children }) => {
         }
       }
     };
-  }, [socket, messages, peers, stream]);
+  }, [socket, messages, voiceChatUsers, peers, stream]);
 
   const value = useMemo(() => ({
     socket,
