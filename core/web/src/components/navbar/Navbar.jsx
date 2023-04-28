@@ -19,6 +19,7 @@ import {
 
 import {
   AccountCircle,
+  AdminPanelSettings,
   ExitToApp,
   Notifications,
   Settings,
@@ -171,6 +172,16 @@ const Navbar = () => {
                     </Typography>
                   )}
               </Popover>
+              {profile.is_staff && (
+              <Link
+                href="/admin"
+                underline="none"
+              >
+                <IconButton sx={{ color: styles.color_white }}>
+                  <AdminPanelSettings sx={{ color: styles.color_white }} />
+                </IconButton>
+              </Link>
+              )}
               <IconButton onClick={handleOpenUserMenu} sx={{ pr: 0 }}>
                 <OnlineBadge
                   overlap="circular"

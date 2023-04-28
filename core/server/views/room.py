@@ -18,6 +18,15 @@ class RoomListView(ListCreateAPIView):
     pagination_class = PageNumberPagination
     pagination_class.page_size = 5
 
+    @property
+    def paginator(self):
+        no_pagination = self.request.query_params.get("no_pagination")
+
+        if no_pagination is not None:
+            return None
+
+        return super(RoomListView, self).paginator
+
 
 class RoomView(RetrieveUpdateDestroyAPIView):
 

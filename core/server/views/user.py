@@ -2,7 +2,7 @@ import json
 
 from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import NotFound
-from rest_framework.generics import RetrieveUpdateAPIView
+from rest_framework.generics import ListAPIView, RetrieveUpdateAPIView
 from rest_framework.parsers import JSONParser, MultiPartParser
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 
@@ -44,6 +44,13 @@ class ProfileView(RetrieveUpdateAPIView):
             WebSocketUtils.update_room(room_id=room.first().pk, room_title=room.first().title)
 
         return response
+
+
+class UserListView(ListAPIView):
+
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = (IsAdminUser,)
 
 
 class UserView(RetrieveUpdateAPIView):
