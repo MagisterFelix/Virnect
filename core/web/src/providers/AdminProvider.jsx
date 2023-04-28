@@ -48,7 +48,7 @@ const AdminProvider = ({ children }) => {
 
   const [{ data: rooms }, refetchRooms] = useAxios(
     {
-      url: `${ENDPOINTS.rooms}?no_pagination=true`, // TODO WHEN DELETE PAGINATION
+      url: `${ENDPOINTS.rooms}?no_pagination=true`,
       method: 'GET',
     },
   );
