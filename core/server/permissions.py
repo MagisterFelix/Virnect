@@ -19,7 +19,7 @@ class IsOwnerOrReadOnly(IsAuthenticated):
         if not is_authenticated:
             return False
 
-        if request.method in SAFE_METHODS:
+        if request.method in SAFE_METHODS or request.user.is_superuser:
             return True
 
         if request.path.startswith("/api/room"):

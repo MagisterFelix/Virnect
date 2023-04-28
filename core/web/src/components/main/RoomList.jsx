@@ -23,7 +23,9 @@ import {
   useMediaQuery,
 } from '@mui/material';
 
-import { LoadingButton } from '@mui/lab';
+import {
+  LoadingButton,
+} from '@mui/lab';
 
 import {
   AccessTime,
@@ -53,7 +55,7 @@ const RoomList = ({ editable }) => {
   const underMd = useMediaQuery((theme) => theme.breakpoints.down('md'));
 
   const {
-    loading, loadingRoomList, roomList, notFound, deleteRoom, searchLoading,
+    loading, loadingRoomList, roomList, notFound, deleteRoom,
   } = useRoomList();
 
   const [selectedRoom, setSelectedRoom] = useState(null);
@@ -90,16 +92,12 @@ const RoomList = ({ editable }) => {
   };
   const handleCloseVerificationDialog = () => setOpenVerificationDialog(false);
 
-  const [alertRoomEditing, setAlertRoomEditing] = useState(null);
-  const formRoomEditing = useForm();
-
   const [openRoomEditingDialog, setOpenRoomEditingDialog] = useState(false);
   const handleOpenRoomEditingDialog = (room) => {
     setSelectedRoom(room);
-    formRoomEditing.reset();
-    setAlertRoomEditing(null);
     setOpenRoomEditingDialog(true);
   };
+  const handleCloseRoomEditingDialog = () => setOpenRoomEditingDialog(false);
 
   const [openConfirmationDialog, setOpenConfirmationDialog] = useState(false);
   const handleOpenConfirmationDialog = (room) => {
@@ -144,7 +142,7 @@ const RoomList = ({ editable }) => {
 
   return (
     <div className="Rooms">
-      {(loadingRoomList && !roomList) || searchLoading
+      {loadingRoomList && !roomList
         ? (
           <Skeleton variant="rounded" height={270} sx={{ mt: 4, borderRadius: 2 }} />
         ) : roomList.results.map(
@@ -284,7 +282,7 @@ const RoomList = ({ editable }) => {
                         component="img"
                         src="/static/empty.gif"
                         alt="empty"
-                        width="5em"
+                        width="4.612em"
                       />
                     )}
                   </Grid>
@@ -416,12 +414,9 @@ const RoomList = ({ editable }) => {
       </Dialog>
       {editable && selectedRoom && (
       <RoomDialog
+        open={openRoomEditingDialog}
+        close={handleCloseRoomEditingDialog}
         instance={selectedRoom}
-        form={formRoomEditing}
-        alert={alertRoomEditing}
-        setAlert={setAlertRoomEditing}
-        openDialog={openRoomEditingDialog}
-        setOpenDialog={setOpenRoomEditingDialog}
       />
       )}
     </div>

@@ -3,7 +3,7 @@ from django.urls import path
 from core.server.views import (AuthorizationView, DeauthorizationView, MessageListView, MessageView,
                                NotificationListView, NotificationView, PasswordResetConfirmView, PasswordResetView,
                                ProfileView, RegistrationView, ReportListView, ReportView, RoomListView, RoomView,
-                               TagListView, TagView, TopicListView, TopicView, UserView)
+                               StatisticsView, TagListView, TagView, TopicListView, TopicView, UserListView, UserView)
 
 urlpatterns = [
     path("sign-in/", AuthorizationView().as_view(), name="sign-in"),
@@ -14,6 +14,7 @@ urlpatterns = [
     path("profile/", ProfileView().as_view(), name="profile"),
     path("notifications/", NotificationListView().as_view(), name="notifications"),
     path("notification/<pk>/", NotificationView().as_view(), name="notification"),
+    path("users/", UserListView().as_view(), name="users"),
     path("user/<username>/", UserView().as_view(), name="user"),
     path("reports/", ReportListView().as_view(), name="reports"),
     path("report/<pk>/", ReportView().as_view(), name="report"),
@@ -25,4 +26,5 @@ urlpatterns = [
     path("room/<title>/", RoomView().as_view(), name="room"),
     path("messages/<room>/", MessageListView().as_view(), name="messages"),
     path("message/<room>/<pk>/", MessageView().as_view(), name="message"),
+    path("statistics/", StatisticsView().as_view(), name="statistics"),
 ]

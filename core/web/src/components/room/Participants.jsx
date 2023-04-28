@@ -64,7 +64,7 @@ const Participants = () => {
           bgcolor: styles.color_soft_dark,
           color: styles.color_white,
           borderRadius: 2,
-          minHeight: '81.75dvh',
+          minHeight: '82dvh',
         }}
       >
         <List>
@@ -178,7 +178,7 @@ const Participants = () => {
                 <ReportDialog
                   open={openReportDialog}
                   close={handleCloseReportDialog}
-                  user={participant}
+                  instance={participant}
                 />
                 {profile.id === room.host.id && (
                 <MenuItem onClick={() => kickUser(participant.id)}>

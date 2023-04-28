@@ -51,7 +51,7 @@ class MessageSerializer(ModelSerializer):
 
         if self.context["request"].method == "POST":
             data["details"] = "Message has been created."
-        elif self.context["request"].method == "PATCH":
+        elif self.context["request"].method in ("PATCH", "PUT"):
             data["details"] = "Message has been updated."
         elif self.context["request"].method == "DELETE":
             data["details"] = "Message has been deleted."

@@ -19,7 +19,7 @@ class ReportListViewTest(APITestCase):
 
     def test_get_reports(self):
         request = self.factory.get(path=PATHS["reports"], format="json")
-        force_authenticate(request=request, user=self.user)
+        force_authenticate(request=request, user=self.admin)
         response = ReportListView().as_view()(request)
 
         self.assertEqual(response.status_code, 200)

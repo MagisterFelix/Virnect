@@ -6,6 +6,8 @@ import React, {
 } from 'react';
 import { Navigate, Outlet, useNavigate } from 'react-router-dom';
 
+import { w3cwebsocket as W3CWebSocket } from 'websocket';
+
 import {
   CircularProgress,
 } from '@mui/material';
@@ -16,8 +18,6 @@ import useAxios from '@api/axios';
 import ENDPOINTS from '@api/endpoints';
 import handleErrors from '@api/errors';
 
-import { NotificationProvider } from '@providers/NotificationProvider';
-
 import Navbar from '@components/navbar/Navbar';
 
 const AuthContext = createContext(null);
@@ -27,6 +27,8 @@ const useAuth = () => useContext(AuthContext);
 const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
 
+  const socket = useMemo(() => new W3CWebSocket(`${ENDPOINTS.wsProfile}`), []);
+
   const [{ loading: loadingProfile, data: profile }, refetchProfile] = useAxios(
     {
       url: ENDPOINTS.profile,
@@ -34,25 +36,12 @@ const AuthProvider = ({ children }) => {
     },
   );
 
-  const ping = async () => {
-    await refetchProfile();
-  };
-
-  useEffect(() => {
-    if (!profile) {
-      return undefined;
-    }
-    const interval = setInterval(() => ping(), 60000);
-    return () => clearInterval(interval);
-  }, [profile]);
-
   const [{ loading }, execute] = useAxios(
     {
       method: 'POST',
     },
     {
       manual: true,
-      autoCancel: false,
     },
   );
 
@@ -108,13 +97,76 @@ const AuthProvider = ({ children }) => {
     }
   };
 
+  const [{ loading: loadingNotifications, data: notifications }, refetchNotifications] = useAxios(
+    {
+      url: ENDPOINTS.notifications,
+      method: 'GET',
+    },
+  );
+
+  const [, updateNotification] = useAxios(
+    {
+      method: 'PATCH',
+    },
+    {
+      manual: true,
+      autoCancel: false,
+    },
+  );
+
+  const viewNotification = async (notification) => {
+    const formData = {
+      is_viewed: true,
+    };
+    await updateNotification({
+      url: `${ENDPOINTS.notification}${notification}/`,
+      data: formData,
+    });
+    await refetchNotifications();
+  };
+
+  const viewAll = async (toView) => {
+    const formData = {
+      is_viewed: true,
+    };
+    const promises = toView.map((notification) => updateNotification({
+      url: `${ENDPOINTS.notification}${notification.id}/`,
+      data: formData,
+    }));
+    await Promise.all(promises);
+    await refetchNotifications();
+  };
+
+  useEffect(() => {
+    socket.onmessage = async (message) => {
+      const data = JSON.parse(message.data);
+      if (data.type === 'notification_list_update') {
+        await refetchNotifications();
+      } else if (data.type === 'ban') {
+        window.location.reload();
+      }
+    };
+  }, [socket]);
+
   const value = useMemo(() => ({
-    loading, loadingProfile, profile, refetchProfile, login, register, logout, resetPassword,
-  }), [loading, loadingProfile, profile]);
+    loading,
+    loadingProfile,
+    profile,
+    refetchProfile,
+    login,
+    register,
+    logout,
+    resetPassword,
+    loadingNotifications,
+    notifications,
+    refetchNotifications,
+    viewNotification,
+    viewAll,
+  }), [loading, loadingProfile, profile, loadingNotifications, notifications]);
 
   return (
     <AuthContext.Provider value={value}>
-      {loadingProfile && !profile
+      {(loadingProfile && !profile) || (loadingNotifications && !notifications)
         ? (
           <div
             style={{
@@ -140,12 +192,11 @@ const AuthorizedRoutes = () => {
   const { profile } = useAuth();
   return profile
     ? (
-      <NotificationProvider>
+      <>
         <Navbar />
         <Outlet />
-      </NotificationProvider>
-    )
-    : <Navigate to="/sign-in" replace />;
+      </>
+    ) : <Navigate to="/sign-in" replace />;
 };
 
 export {

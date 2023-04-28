@@ -11,10 +11,12 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.min.css';
 
+import { AdminProvider, AdminRoutes } from '@providers/AdminProvider';
 import { AuthorizedRoutes, AuthProvider, GuestRoutes } from '@providers/AuthProvider';
 import { RoomListProvider, RoomProvider } from '@providers/RoomDataProvider';
 
 import NotFound from '@components/404/NotFound';
+import Admin from '@components/admin/Admin';
 import Authorization from '@components/auth/Authorization';
 import PasswordReset from '@components/auth/PasswordReset';
 import Registration from '@components/auth/Registration';
@@ -37,7 +39,7 @@ const theme = createTheme({
 
 const App = () => (
   <ThemeProvider theme={theme}>
-    <ToastContainer position="top-left" style={{ marginTop: '4.75em' }} />
+    <ToastContainer position="top-left" style={{ marginTop: '5.65em' }} />
     <BrowserRouter>
       <AuthProvider>
         <Routes>
@@ -72,6 +74,16 @@ const App = () => (
               )}
             />
             <Route path="/settings" element={<Settings />} />
+            <Route element={<AdminRoutes />}>
+              <Route
+                path="/admin"
+                element={(
+                  <AdminProvider>
+                    <Admin />
+                  </AdminProvider>
+                )}
+              />
+            </Route>
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>

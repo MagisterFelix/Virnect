@@ -1,5 +1,9 @@
 @use '@styles/globals' as *;
 
+.MuiBadge-badge {
+  transition-duration: 0s !important;
+}
+
 @keyframes fade-in-out-outline {
   0% {
     outline: 2px solid transparent;

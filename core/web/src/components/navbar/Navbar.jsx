@@ -19,6 +19,7 @@ import {
 
 import {
   AccountCircle,
+  AdminPanelSettings,
   ExitToApp,
   Notifications,
   Settings,
@@ -26,7 +27,6 @@ import {
 } from '@mui/icons-material';
 
 import { useAuth } from '@providers/AuthProvider';
-import { useNotification } from '@providers/NotificationProvider';
 
 import Notification from '@components/navbar/Notification';
 
@@ -37,24 +37,24 @@ import styles from '@styles/_globals.scss';
 import './Navbar.scss';
 
 const Navbar = () => {
-  const { profile, logout } = useAuth();
+  const {
+    profile, logout, notifications, viewNotification, viewAll,
+  } = useAuth();
 
   const underSm = useMediaQuery(useTheme().breakpoints.down('sm'));
-
-  const { notifications, viewNotification, viewAll } = useNotification();
-
-  const handleOnLogout = () => logout();
 
   const [anchorElUser, setAnchorElUser] = useState(null);
   const handleOpenUserMenu = (event) => setAnchorElUser(event.currentTarget);
   const handleCloseUserMenu = () => setAnchorElUser(null);
+
+  const handleOnLogout = () => logout();
 
   const [anchorElNotification, setAnchorElNotification] = useState(null);
   const handleOpenNotificationMenu = (event) => setAnchorElNotification(event.currentTarget);
   const handleCloseNotificationMenu = () => setAnchorElNotification(null);
 
   return (
-    <div className="Navbar" style={{ marginBottom: '6.25em' }}>
+    <div className="Navbar" style={underSm ? { marginBottom: '6.25em' } : { marginBottom: '7.25em' }}>
       <AppBar position="fixed" sx={{ backgroundColor: styles.color_darker }}>
         <Container maxWidth="xl">
           <Toolbar
@@ -94,10 +94,7 @@ const Navbar = () => {
                 alignItems: 'center',
               }}
             >
-              <IconButton
-                onClick={handleOpenNotificationMenu}
-                sx={{ color: styles.color_white }}
-              >
+              <IconButton onClick={handleOpenNotificationMenu} sx={{ color: styles.color_white }}>
                 <Badge
                   max={9}
                   badgeContent={notifications.filter(
@@ -175,6 +172,16 @@ const Navbar = () => {
                     </Typography>
                   )}
               </Popover>
+              {profile.is_staff && (
+              <Link
+                href="/admin"
+                underline="none"
+              >
+                <IconButton sx={{ color: styles.color_white }}>
+                  <AdminPanelSettings sx={{ color: styles.color_white }} />
+                </IconButton>
+              </Link>
+              )}
               <IconButton onClick={handleOpenUserMenu} sx={{ pr: 0 }}>
                 <OnlineBadge
                   overlap="circular"

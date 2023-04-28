@@ -8,6 +8,7 @@ const ENDPOINTS = {
   profile: '/api/profile/',
   notifications: '/api/notifications/',
   notification: '/api/notification/',
+  users: '/api/users/',
   user: '/api/user/',
   reports: '/api/reports/',
   report: '/api/report/',
@@ -19,7 +20,8 @@ const ENDPOINTS = {
   room: '/api/room/',
   messages: '/api/messages/',
   message: '/api/message/',
-  wsNotificationList: `${baseWS}/ws/notification-list/`,
+  statistics: '/api/statistics/',
+  wsProfile: `${baseWS}/ws/profile/`,
   wsRoomList: `${baseWS}/ws/room-list/`,
   wsRoom: `${baseWS}/ws/room/`,
 };

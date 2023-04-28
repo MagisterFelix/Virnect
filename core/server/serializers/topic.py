@@ -23,7 +23,7 @@ class TopicSerializer(ModelSerializer):
 
         if self.context["request"].method == "POST":
             data["details"] = "Topic has been created."
-        elif self.context["request"].method == "PATCH":
+        elif self.context["request"].method in ("PATCH", "PUT"):
             data["details"] = "Topic has been updated."
         elif self.context["request"].method == "DELETE":
             data["details"] = "Topic has been deleted."
