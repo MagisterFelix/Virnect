@@ -19,7 +19,6 @@ class UserTest(TestCase):
     def test_user_fields(self):
         user = User.objects.get(pk=2)
         update_last_login(None, user)
-        user.update_last_seen()
 
         self.assertIsInstance(user.username, str)
         self.assertEqual(user.username, USERS["user"]["username"])
@@ -42,7 +41,13 @@ class UserTest(TestCase):
         self.assertFalse(user.is_superuser)
 
         self.assertIsInstance(user.last_login, datetime)
+
+        user.set_online()
+        self.assertIsNone(user.last_seen)
+
+        user.set_offline()
         self.assertIsInstance(user.last_seen, datetime)
+
         self.assertIsInstance(user.date_joined, datetime)
 
         self.assertIsInstance(user.image, FieldFile)

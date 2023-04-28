@@ -19,7 +19,9 @@ import {
   TextField,
 } from '@mui/material';
 
-import { LoadingButton } from '@mui/lab';
+import {
+  LoadingButton,
+} from '@mui/lab';
 
 import {
   Close,
@@ -52,7 +54,7 @@ const ConfirmationDialog = ({
   </Dialog>
 );
 
-const ReportDialog = ({ open, close, user }) => {
+const ReportDialog = ({ open, close, instance }) => {
   const [{ loading: loadingReportOptions, data: reportOptions }] = useAxios(
     {
       url: ENDPOINTS.reports,
@@ -66,7 +68,7 @@ const ReportDialog = ({ open, close, user }) => {
     },
   };
 
-  const [{ loading: loadingReport }, sendReport] = useAxios(
+  const [{ loading }, sendReport] = useAxios(
     {
       url: ENDPOINTS.reports,
       method: 'POST',
@@ -80,7 +82,7 @@ const ReportDialog = ({ open, close, user }) => {
   const { control, handleSubmit } = useForm();
   const handleOnSubmit = async (form) => {
     const formData = {
-      accused: user.id,
+      accused: instance.id,
       ...form,
     };
     setAlert(null);
@@ -154,7 +156,7 @@ const ReportDialog = ({ open, close, user }) => {
                             </MenuItem>
                           ),
                         ))
-                    }
+                }
               </TextField>
             )}
           />
@@ -162,7 +164,7 @@ const ReportDialog = ({ open, close, user }) => {
         </DialogContent>
         <DialogActions sx={{ mx: 1 }}>
           <LoadingButton
-            loading={loadingReport}
+            loading={loading}
             onClick={handleSubmit(handleOnSubmit)}
           >
             <span>Send</span>
@@ -173,9 +175,7 @@ const ReportDialog = ({ open, close, user }) => {
   );
 };
 
-const RoomDialog = ({
-  instance, form, alert, setAlert, openDialog, setOpenDialog,
-}) => {
+const RoomDialog = ({ open, close, instance }) => {
   const [room, setRoom] = useState(instance);
 
   useEffect(() => {
@@ -208,9 +208,17 @@ const RoomDialog = ({
     },
   };
 
+  const [alert, setAlert] = useState(null);
+
   const {
     control, handleSubmit, setError, reset,
-  } = form;
+  } = useForm();
+
+  useEffect(() => {
+    setAlert(null);
+    reset();
+  }, [open]);
+
   const handleOnSubmit = async (formData) => {
     await createRoom(formData, validation, setError, setAlert);
   };
@@ -241,13 +249,11 @@ const RoomDialog = ({
 
   const [tagsError, setTagsError] = useState(null);
 
-  const handleCloseDialog = () => setOpenDialog(false);
-
   return (
     <Dialog
       fullWidth
-      open={openDialog}
-      onClose={handleCloseDialog}
+      open={open}
+      onClose={close}
     >
       <Box component="form" autoComplete="off">
         <DialogTitle
@@ -258,7 +264,7 @@ const RoomDialog = ({
           }}
         >
           <span>{room ? 'Room Editing' : 'Room Creation'}</span>
-          <IconButton onClick={handleCloseDialog} sx={{ mr: -1 }}>
+          <IconButton onClick={close} sx={{ mr: -1 }}>
             <Close />
           </IconButton>
         </DialogTitle>

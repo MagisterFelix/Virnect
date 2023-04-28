@@ -145,7 +145,10 @@ const Chat = () => {
   useEffect(() => {
     const message = searchParams.get('message');
     if (message) {
-      scrollToMessage(message);
+      const scrollTo = messages.find((msg) => msg.id === parseInt(message, 10));
+      if (scrollTo) {
+        scrollToMessage(scrollTo.id);
+      }
       navigate(location.pathname, { replace: true });
     }
   }, []);

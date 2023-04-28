@@ -1,11 +1,8 @@
-from django.conf import settings
 from django.contrib.auth import logout
 from django.middleware.csrf import CsrfViewMiddleware
-from rest_framework_simplejwt.backends import TokenBackend
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.serializers import TokenRefreshSerializer, TokenVerifySerializer
 
-from core.server.models import User
 from core.server.utils import AuthorizationUtils
 from core.urls import urlpatterns
 
@@ -66,10 +63,6 @@ class AuthorizationMiddleware:
             request.META["HTTP_AUTHORIZATION"] = f"Bearer {access}"
         except TokenError:
             return AuthorizationUtils.get_invalid_token_response(request=request)
-
-        user_id = TokenBackend(algorithm=settings.SIMPLE_JWT["ALGORITHM"],
-                               signing_key=settings.SIMPLE_JWT["SIGNING_KEY"]).decode(data["token"])["user_id"]
-        User.objects.get(pk=user_id).update_last_seen()
 
         response = self.get_response(request)
 

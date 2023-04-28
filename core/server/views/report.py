@@ -14,6 +14,11 @@ class ReportListView(ListCreateAPIView):
     serializer_class = ReportSerializer
     permission_classes = (IsAuthenticated,)
 
+    def get_permissions(self):
+        if self.request.method == "GET":
+            return (IsAdminUser(),)
+        return super(ReportListView, self).get_permissions()
+
 
 class ReportView(RetrieveUpdateAPIView):
 
@@ -33,6 +38,7 @@ class ReportView(RetrieveUpdateAPIView):
                 if report.verdict == 1:
                     accused.is_active = False
                     accused.save()
+                    WebSocketUtils.ban(user_id=accused.id)
                 elif report.verdict == 2:
                     Notification.objects.create(
                         recipient=accused,

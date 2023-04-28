@@ -19,7 +19,7 @@ const ENDPOINTS = {
   room: '/api/room/',
   messages: '/api/messages/',
   message: '/api/message/',
-  wsNotificationList: `${baseWS}/ws/notification-list/`,
+  wsProfile: `${baseWS}/ws/profile/`,
   wsRoomList: `${baseWS}/ws/room-list/`,
   wsRoom: `${baseWS}/ws/room/`,
 };

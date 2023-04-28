@@ -63,7 +63,7 @@ const User = () => {
   const getLastOnline = () => `Was online ${getFormattedTime(user.last_seen)}`;
 
   if (!loadingUser && errorUser) {
-    return <NotFound extraStyles={{ marginTop: '-6.25em' }} />;
+    return <NotFound extraStyles={{ marginTop: '-7.25em' }} />;
   }
 
   return (
@@ -135,7 +135,7 @@ const User = () => {
                 <ReportDialog
                   open={openReportDialog}
                   close={handleCloseReportDialog}
-                  user={user}
+                  instance={user}
                 />
               </Menu>
             )}

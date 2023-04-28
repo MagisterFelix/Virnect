@@ -32,9 +32,19 @@ class UserSerializer(ModelSerializer):
         }
 
     def to_representation(self, instance):
-        data = super(UserSerializer, self).to_representation(instance)
+        related = self.context.get("related")
 
-        data.pop("email")
+        data = OrderedDict()
+
+        data["user"] = super(UserSerializer, self).to_representation(instance)
+
+        data["user"].pop("email")
+
+        if self.context["request"].method == "GET" or related:
+            return data["user"]
+
+        if self.context["request"].method in ("PATCH", "PUT"):
+            data["details"] = "User has been updated."
 
         return data
 

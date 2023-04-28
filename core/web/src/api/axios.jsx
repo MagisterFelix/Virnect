@@ -36,7 +36,6 @@ instance.interceptors.response.use(
 
 const useAxios = makeUseAxios({
   axios: instance,
-  cache: false,
 });
 
 export default useAxios;

@@ -34,8 +34,6 @@ class ImageUtils:
 
         if "username" in attrs:
             folder, title = "users", instance.username
-        elif "name" in attrs:
-            folder, title = "languages", instance.name.lower().replace(" ", "_")
         else:
             folder, title = "topics", instance.title.lower().replace(" ", "_")
 
@@ -52,13 +50,7 @@ class ImageUtils:
 
     @staticmethod
     def remove_image_from(instance):
-        attrs = dir(instance)
-
-        if "icon" in attrs:
-            path = instance.icon.name
-        else:
-            path = instance.image.name
-
+        path = instance.image.name
         file = os.path.join(settings.MEDIA_ROOT, f"{path}")
 
         if not os.path.exists(file) or "static" in path:
@@ -158,9 +150,18 @@ class WebSocketUtils:
     @staticmethod
     def update_notification_list(user_id):
         WebSocketUtils._send_to_group(
-            f"notification-list-{user_id}",
+            f"profile-{user_id}",
             {
                 "type": "notification_list_update"
+            }
+        )
+
+    @staticmethod
+    def ban(user_id):
+        WebSocketUtils._send_to_group(
+            f"profile-{user_id}",
+            {
+                "type": "ban"
             }
         )
 

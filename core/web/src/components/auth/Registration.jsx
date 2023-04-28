@@ -12,7 +12,9 @@ import {
   Typography,
 } from '@mui/material';
 
-import { LoadingButton } from '@mui/lab';
+import {
+  LoadingButton,
+} from '@mui/lab';
 
 import {
   AccountCircleOutlined,

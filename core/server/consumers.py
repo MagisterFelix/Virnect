@@ -4,12 +4,12 @@ from asgiref.sync import sync_to_async
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from rest_framework.exceptions import PermissionDenied
 
-from .models import Room
+from .models import Room, User
 from .serializers import ConnectingSerializer, DisconnectingSerializer
 from .utils import AuthorizationUtils, WebSocketUtils
 
 
-class NotificationListConsumer(AsyncJsonWebsocketConsumer):
+class ProfileConsumer(AsyncJsonWebsocketConsumer):
 
     group = None
 
@@ -22,7 +22,15 @@ class NotificationListConsumer(AsyncJsonWebsocketConsumer):
             await self.close(code=403)
             return None
 
-        self.group = f"notification-list-{user_id}"
+        self.user = await sync_to_async(User.objects.get)(pk=user_id)
+
+        if not self.user.is_active:
+            await self.close(code=403)
+            return None
+
+        self.group = f"profile-{user_id}"
+
+        await sync_to_async(self.user.set_online)()
 
         await self.channel_layer.group_add(self.group, self.channel_name)
 
@@ -32,9 +40,14 @@ class NotificationListConsumer(AsyncJsonWebsocketConsumer):
         if self.group is None:
             return None
 
+        await sync_to_async(self.user.set_offline)()
+
         await self.channel_layer.group_discard(self.group, self.channel_name)
 
     async def notification_list_update(self, event):
+        await self.send_json(content=event)
+
+    async def ban(self, event):
         await self.send_json(content=event)
 
 

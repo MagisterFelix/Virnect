@@ -26,7 +26,7 @@ class ProfileViewTest(APITestCase):
         self.assertEqual(response.status_code, 200)
 
         fields = ["id", "online", "full_name", "is_superuser", "username", "first_name", "last_name",
-                  "is_staff", "is_active", "email", "last_seen", "image", "about", "notifications"]
+                  "is_staff", "is_active", "email", "last_seen", "image", "about"]
 
         self.assertEqual(fields, list(response.data.keys()))
 

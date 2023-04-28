@@ -60,7 +60,7 @@ class RoomSerializer(ModelSerializer):
 
         if self.context["request"].method == "POST":
             data["details"] = "Room has been created."
-        elif self.context["request"].method == "PATCH":
+        elif self.context["request"].method in ("PATCH", "PUT"):
             data["details"] = "Room has been updated."
         elif self.context["request"].method == "DELETE":
             data["details"] = "Room has been deleted."

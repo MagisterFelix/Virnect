@@ -12,7 +12,9 @@ import {
   Typography,
 } from '@mui/material';
 
-import { LoadingButton } from '@mui/lab';
+import {
+  LoadingButton,
+} from '@mui/lab';
 
 import {
   Image,
@@ -29,7 +31,7 @@ import styles from '@styles/_globals.scss';
 import './User.scss';
 
 const Settings = () => {
-  const { profile } = useAuth();
+  const { profile, refetchProfile } = useAuth();
 
   const validationProfile = {
     username: {
@@ -68,6 +70,7 @@ const Settings = () => {
     control: controlProfile,
     handleSubmit: handleSubmitProfile,
     setError: setErrorProfile,
+    reset: resetProfile,
   } = useForm();
   const handleOnSubmitProfile = async (form) => {
     setAlertProfile(null);
@@ -76,10 +79,20 @@ const Settings = () => {
       setAlertProfile({ type: 'info', message: 'Nothing to update.' });
     } else {
       try {
-        await updateProfile({
+        const response = await updateProfile({
           data: Object.fromEntries(formData),
         });
-        window.location.reload();
+        const updated = await refetchProfile();
+        updated.data.image += `?dt=${new Date().getTime()}`;
+        resetProfile({
+          username: updated.data.username,
+          email: updated.data.email,
+          first_name: updated.data.first_name,
+          last_name: updated.data.last_name,
+          about: updated.data.about,
+          image: updated.data.image,
+        });
+        setAlertProfile({ type: 'success', message: response.data.details });
       } catch (err) {
         handleErrors(
           validationProfile,
@@ -243,6 +256,7 @@ const Settings = () => {
                       }}
                       render={({
                         field: { onChange, value },
+                        fieldState: { error: fieldError },
                       }) => (
                         <TextField
                           onChange={onChange}
@@ -251,6 +265,8 @@ const Settings = () => {
                           margin="dense"
                           type="text"
                           label="First name"
+                          error={fieldError !== undefined}
+                          helperText={fieldError ? fieldError.message || validationProfile.email[fieldError.type] : ''}
                         />
                       )}
                     />
@@ -263,6 +279,7 @@ const Settings = () => {
                       }}
                       render={({
                         field: { onChange, value },
+                        fieldState: { error: fieldError },
                       }) => (
                         <TextField
                           onChange={onChange}
@@ -271,6 +288,8 @@ const Settings = () => {
                           margin="dense"
                           type="text"
                           label="Last name"
+                          error={fieldError !== undefined}
+                          helperText={fieldError ? fieldError.message || validationProfile.email[fieldError.type] : ''}
                         />
                       )}
                     />
@@ -283,6 +302,7 @@ const Settings = () => {
                       }}
                       render={({
                         field: { onChange, value },
+                        fieldState: { error: fieldError },
                       }) => (
                         <TextField
                           onChange={onChange}
@@ -293,6 +313,8 @@ const Settings = () => {
                           type="text"
                           label="About"
                           minRows={4}
+                          error={fieldError !== undefined}
+                          helperText={fieldError ? fieldError.message || validationProfile.image[fieldError.type] : ''}
                         />
                       )}
                     />

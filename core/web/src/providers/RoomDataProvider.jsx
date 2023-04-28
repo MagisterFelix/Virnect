@@ -192,8 +192,6 @@ const RoomListProvider = ({ children }) => {
     };
   }, [socket]);
 
-  const [searchLoading, setSearchLoading] = useState(false);
-
   const value = useMemo(() => ({
     socket,
     loadingTopicList,
@@ -210,8 +208,6 @@ const RoomListProvider = ({ children }) => {
     createRoom,
     updateRoom,
     deleteRoom,
-    searchLoading,
-    setSearchLoading,
   }), [
     loadingTopicList,
     topicList,
@@ -221,7 +217,6 @@ const RoomListProvider = ({ children }) => {
     roomList,
     pageCount,
     loading,
-    searchLoading,
   ]);
 
   return (
@@ -422,6 +417,7 @@ const RoomProvider = ({ children }) => {
     if (audio) {
       audio.stop();
     }
+    setIsMuted(true);
     socket.send(JSON.stringify({
       type: 'voice_chat_disconnect',
       user: profile.id,
@@ -526,7 +522,7 @@ const RoomProvider = ({ children }) => {
 
   return (
     <RoomContext.Provider value={value}>
-      {!room || !messages ? <LinearProgress sx={{ mt: -2 }} /> : children}
+      {!room || !messages ? <LinearProgress sx={{ mt: -4 }} /> : children}
     </RoomContext.Provider>
   );
 };

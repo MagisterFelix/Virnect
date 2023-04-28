@@ -30,7 +30,7 @@ class TagSerializer(ModelSerializer):
 
         if self.context["request"].method == "POST":
             data["details"] = "Tag has been created."
-        if self.context["request"].method == "PATCH":
+        if self.context["request"].method in ("PATCH", "PUT"):
             data["details"] = "Tag has been updated."
         elif self.context["request"].method == "DELETE":
             data["details"] = "Tag has been deleted."
