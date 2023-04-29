@@ -258,20 +258,25 @@ const RoomProvider = ({ children }) => {
     };
   }, [socket]);
 
-  const [{ data: room }, refetchRoom] = useAxios(
+  const [{ data: room }, fetchRoom] = useAxios(
     {
       url: `${ENDPOINTS.room}${title}/`,
       method: 'GET',
     },
     {
       manual: true,
+      autoCancel: false,
     },
   );
 
-  const [{ loading: loadingMessageList, data: messageList }, refetchMessageList] = useAxios(
+  const [{ loading: loadingMessageList, data: messageList }, fetchMessageList] = useAxios(
     {
       url: `${ENDPOINTS.messages}${title}/`,
       method: 'GET',
+    },
+    {
+      manual: true,
+      autoCancel: false,
     },
   );
 
@@ -483,7 +488,14 @@ const RoomProvider = ({ children }) => {
   useEffect(() => {
     socket.onmessage = async (message) => {
       const data = JSON.parse(message.data);
-      if (data.type === 'room_update') {
+      if (data.type === 'room_connect') {
+        await fetchRoom();
+        await fetchMessageList();
+        setVoiceChatUsers(data.voice_chat_users);
+      } else if (data.type === 'room_disconnect') {
+        await fetchRoom();
+        setVoiceChatUsers(data.voice_chat_users);
+      } else if (data.type === 'room_update') {
         if (data.room !== title) {
           if (location.state && location.state.key !== undefined) {
             navigate(`/room/${data.room}`, { state: { key: location.state.key }, replace: true });
@@ -491,9 +503,26 @@ const RoomProvider = ({ children }) => {
             navigate(`/room/${data.room}`, { replace: true });
           }
           window.location.reload();
+        } else if (data.user !== undefined) {
+          const responseRoom = await fetchRoom();
+          responseRoom.data.participants = responseRoom.data.participants.map(
+            (user) => (
+              user.id === data.user
+                ? { ...user, image: `${user.image}?dt=${new Date().getTime()}` }
+                : user
+            ),
+          );
+          const responseMessages = await fetchMessageList();
+          responseMessages.data = responseMessages.data.map(
+            (msg) => (
+              msg.author.id === data.user
+                ? { ...msg, author: { ...msg.author, image: `${msg.author.image}?dt=${new Date().getTime()}` } }
+                : msg
+            ),
+          );
         } else {
-          await refetchRoom();
-          setVoiceChatUsers(data.voice_chat_users);
+          await fetchRoom();
+          await fetchMessageList();
         }
       } else if (data.type === 'room_delete') {
         navigate('/', {
@@ -522,7 +551,7 @@ const RoomProvider = ({ children }) => {
       } else if (data.type === 'message_edit') {
         setMessages(messages.map((msg) => (msg.id === data.id ? data.message : msg)));
         if (messages.some((msg) => msg.reply_to?.id === data.id)) {
-          await refetchMessageList();
+          await fetchMessageList();
         }
       } else if (data.type === 'message_delete') {
         setMessages(messages.filter((msg) => msg.id !== data.id && msg.reply_to?.id !== data.id));
@@ -563,7 +592,7 @@ const RoomProvider = ({ children }) => {
     socket,
     loading,
     room,
-    refetchRoom,
+    fetchRoom,
     kickUser,
     messages,
     sendMessage,

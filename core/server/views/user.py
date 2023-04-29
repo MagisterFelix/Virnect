@@ -41,7 +41,7 @@ class ProfileView(RetrieveUpdateAPIView):
 
         room = Room.objects.filter(participants__in=[request.user])
         if response.status_code == 200 and room.exists():
-            WebSocketUtils.update_room(room_id=room.first().pk, room_title=room.first().title)
+            WebSocketUtils.update_room(room_id=room.first().pk, room_title=room.first().title, user=request.user.id)
 
         return response
 
