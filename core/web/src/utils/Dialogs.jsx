@@ -601,7 +601,7 @@ const ReviewDialog = ({ open, close, instance }) => {
 };
 
 const TopicDialog = ({ open, close, instance }) => {
-  const { refetchTopics } = useAdmin();
+  const { refetchTopics, refetchRooms } = useAdmin();
 
   const [topic, setTopic] = useState(instance);
 
@@ -672,6 +672,7 @@ const TopicDialog = ({ open, close, instance }) => {
         responseTopics.data.find((topicData) => topicData.id === topic.id).image += `?dt=${new Date().getTime()}`;
         setTopic(response.data.topic);
         reset(response.data.topic);
+        await refetchRooms();
         setAlert({ type: 'success', message: response.data.details });
       } catch (err) {
         handleErrors(validation, err.response.data.details, setError, setAlert);
