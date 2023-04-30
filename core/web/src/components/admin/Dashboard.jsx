@@ -269,6 +269,18 @@ const Dashboard = () => {
                               },
                             },
                           },
+                          plugins: {
+                            tooltip: {
+                              callbacks: {
+                                label: (context) => {
+                                  if (context.label === 'Active') {
+                                    context.label += ' (room has participants)';
+                                  }
+                                  return context.label;
+                                },
+                              },
+                            },
+                          },
                         }}
                         data={{
                           labels: ['Total', 'Active'],
@@ -322,6 +334,18 @@ const Dashboard = () => {
                               ) + 1,
                               ticks: {
                                 stepSize: 1,
+                              },
+                            },
+                          },
+                          plugins: {
+                            tooltip: {
+                              callbacks: {
+                                label: (context) => {
+                                  if (context.label === 'Active') {
+                                    context.label += ' (user has been online for the last 3 days or is currently online)';
+                                  }
+                                  return context.label;
+                                },
                               },
                             },
                           },
