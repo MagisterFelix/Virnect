@@ -55,7 +55,7 @@ const RoomList = ({ editable }) => {
   const underMd = useMediaQuery((theme) => theme.breakpoints.down('md'));
 
   const {
-    loading, loadingRoomList, roomList, notFound, deleteRoom,
+    loading, loadingRoomList, roomList, notFound, deleteRoom, filterLoading,
   } = useRoomList();
 
   const [selectedRoom, setSelectedRoom] = useState(null);
@@ -144,7 +144,10 @@ const RoomList = ({ editable }) => {
     <div className="Rooms">
       {loadingRoomList && !roomList
         ? (
-          <Skeleton variant="rounded" height={270} sx={{ mt: 4, borderRadius: 2 }} />
+          <>
+            <Skeleton variant="rounded" height={270} sx={{ mt: 4, borderRadius: 2 }} />
+            <Skeleton variant="rounded" height={270} sx={{ mt: 4, borderRadius: 2 }} />
+          </>
         ) : roomList.results.map(
           (room) => (
             <Paper
@@ -155,6 +158,7 @@ const RoomList = ({ editable }) => {
                 bgcolor: styles.color_soft_dark,
                 color: styles.color_white,
                 borderRadius: 2,
+                opacity: filterLoading ? 0.75 : 1,
               }}
             >
               <Grid container>

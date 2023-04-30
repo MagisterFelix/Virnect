@@ -179,11 +179,15 @@ const RoomListProvider = ({ children }) => {
     toast(`The «${roomInstance.title}» room has been removed.`, { type: 'success' });
   };
 
+  const [preventFilterLoading, setPreventFilterLoading] = useState(false);
+
   useEffect(() => {
     socket.onmessage = async (message) => {
       const data = JSON.parse(message.data);
       if (data.type === 'room_list_update') {
+        setPreventFilterLoading(true);
         await refetchRoomList();
+        setPreventFilterLoading(false);
       }
     };
 
@@ -191,6 +195,14 @@ const RoomListProvider = ({ children }) => {
       socket.close();
     };
   }, [socket]);
+
+  const [filterLoading, setFilterLoading] = useState(false);
+
+  useEffect(() => {
+    if (!preventFilterLoading) {
+      setFilterLoading(loadingRoomList);
+    }
+  }, [loadingRoomList, preventFilterLoading]);
 
   const value = useMemo(() => ({
     socket,
@@ -200,6 +212,7 @@ const RoomListProvider = ({ children }) => {
     roomOptions,
     loadingRoomList,
     roomList,
+    refetchRoomList,
     loadingTagList,
     tagList,
     pageCount,
@@ -208,6 +221,7 @@ const RoomListProvider = ({ children }) => {
     createRoom,
     updateRoom,
     deleteRoom,
+    filterLoading,
   }), [
     loadingTopicList,
     topicList,
@@ -217,6 +231,7 @@ const RoomListProvider = ({ children }) => {
     roomList,
     pageCount,
     loading,
+    filterLoading,
   ]);
 
   return (
