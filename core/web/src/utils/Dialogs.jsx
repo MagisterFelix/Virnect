@@ -838,7 +838,17 @@ const RoomDialog = ({ open, close, instance }) => {
 
   useEffect(() => {
     setAlert(null);
-    reset();
+    if (open) {
+      setRoom(instance);
+      reset({
+        title: instance.title,
+        topic: instance.topic.id,
+        language: instance.language,
+        number_of_participants: instance.number_of_participants,
+        key: instance.key,
+        tags: instance.tags.map((tag) => tag.name),
+      });
+    }
   }, [open]);
 
   const handleOnSubmit = async (formData) => {

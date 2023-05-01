@@ -351,12 +351,6 @@ const RoomList = ({ editable }) => {
                         <Delete fontSize="small" />
                       </Button>
                       )}
-                      <ConfirmationDialog
-                        open={openConfirmationDialog}
-                        close={handleCloseConfirmationDialog}
-                        message={`Are you sure you want to delete the «${selectedRoom && selectedRoom.title}» room?`}
-                        onConfirm={() => handleOnDelete(selectedRoom)}
-                      />
                     </ButtonGroup>
                   </Grid>
                 </Grid>
@@ -421,6 +415,14 @@ const RoomList = ({ editable }) => {
         open={openRoomEditingDialog}
         close={handleCloseRoomEditingDialog}
         instance={selectedRoom}
+      />
+      )}
+      {editable && selectedRoom && (
+      <ConfirmationDialog
+        open={openConfirmationDialog}
+        close={handleCloseConfirmationDialog}
+        message={`Are you sure you want to delete the «${selectedRoom.title}» room?`}
+        onConfirm={() => handleOnDelete(selectedRoom)}
       />
       )}
     </div>
