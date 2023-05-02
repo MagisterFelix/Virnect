@@ -1,5 +1,6 @@
 import json
 
+from rest_framework import status
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateAPIView
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 
@@ -29,7 +30,7 @@ class ReportView(RetrieveUpdateAPIView):
     def update(self, request, *args, **kwargs):
         response = super(ReportView, self).update(request, *args, **kwargs)
 
-        if response.status_code == 200 and response.data["report"]["verdict"]:
+        if response.status_code == status.HTTP_200_OK and response.data["report"]["verdict"]:
             report = Report.objects.get(pk=kwargs["pk"])
 
             accused = User.objects.get(pk=report.accused.id)

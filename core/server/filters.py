@@ -15,11 +15,11 @@ class RoomFilter(filters.FilterSet):
     tags = filters.CharFilter(method="filter_tags")
     ordering = filters.CharFilter(method="order_by")
 
-    def filter_language(self, queryset, name, value):
+    def filter_language(self, queryset, _, value):
         languages = {value: key for key, value in Room.Language.choices}
         return queryset.filter(language=languages.get(value))
 
-    def filter_is_available(self, queryset, name, value):
+    def filter_is_available(self, queryset, _, value):
         queryset = queryset.annotate(count_of_participants=Count("participants"))
 
         if value:
@@ -31,14 +31,14 @@ class RoomFilter(filters.FilterSet):
 
         return queryset
 
-    def filter_is_open(self, queryset, name, value):
+    def filter_is_open(self, queryset, _, value):
         return queryset.filter(key="") if value else queryset.exclude(key="")
 
-    def filter_tags(self, queryset, name, value):
+    def filter_tags(self, queryset, _, value):
         tags = Tag.objects.filter(name__in=value.split(","))
         return queryset.filter(id__in=[tag.room_id for tag in tags])
 
-    def order_by(self, queryset, name, value):
+    def order_by(self, queryset, _, value):
         queryset = queryset.annotate(count_of_participants=Count("participants"))
 
         if value in ["created_at", "-created_at", "count_of_participants", "-count_of_participants"]:

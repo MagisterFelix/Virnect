@@ -40,7 +40,7 @@ class StatisticsView(APIView):
 
         frequent_tags = Tag.objects.values("name").annotate(
             count=Count("name")
-        ).order_by("-count")[:5]
+        ).order_by("-count")[:3]
 
         count_of_rooms = Room.objects.count()
         count_of_active_rooms = Room.objects.annotate(

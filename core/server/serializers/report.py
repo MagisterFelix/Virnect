@@ -57,7 +57,7 @@ class ReportSerializer(ModelSerializer):
         if instance.reviewed_by is not None:
             data["report"]["reviewed_by"] = UserSerializer(instance=instance.reviewed_by, context=self.context).data
 
-        if self.context["request"].method == "GET" or related:
+        if related or self.context["request"].method == "GET":
             return data["report"]
 
         if self.context["request"].method == "POST":

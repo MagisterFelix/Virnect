@@ -1,3 +1,4 @@
+from rest_framework import status
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 
 from core.server.models import Room, Topic
@@ -25,7 +26,7 @@ class TopicView(RetrieveUpdateDestroyAPIView):
 
         response = super(TopicView, self).destroy(request, *args, **kwargs)
 
-        if response.status_code == 204:
+        if response.status_code == status.HTTP_204_NO_CONTENT:
             for room_id in related_rooms:
                 WebSocketUtils.delete_room(room_id=room_id)
 

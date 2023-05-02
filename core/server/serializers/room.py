@@ -50,12 +50,13 @@ class RoomSerializer(ModelSerializer):
             many=True
         ).data
 
-        user = self.context["request"].user
+        if self.context.get("request") is not None:
+            user = self.context["request"].user
 
-        if len(instance.key) > 0 and instance.host != user:
-            data["room"]["key"] = hashlib.sha256(instance.key.encode()).hexdigest()
+            if len(instance.key) > 0 and instance.host != user:
+                data["room"]["key"] = hashlib.sha256(instance.key.encode()).hexdigest()
 
-        if self.context["request"].method == "GET" or related:
+        if related or self.context["request"].method == "GET":
             return data["room"]
 
         if self.context["request"].method == "POST":
@@ -75,7 +76,6 @@ class ConnectingSerializer(Serializer):
 
     def validate(self, attrs):
         user = User.objects.get_or_none(pk=attrs["user"])
-        key = attrs.get("key")
 
         if user is None:
             raise NotFound("No user was found.")
@@ -86,16 +86,18 @@ class ConnectingSerializer(Serializer):
         if self.instance.participants.count() == self.instance.number_of_participants:
             raise PermissionDenied("Room is full.")
 
+        attrs["user"] = user
+
         if self.instance.host == user:
             return super(ConnectingSerializer, self).validate(attrs)
+
+        key = attrs.get("key")
 
         if len(self.instance.key) > 0 and key is None:
             raise PermissionDenied("Key must be provided.")
 
         if len(self.instance.key) > 0 and key != self.instance.key:
             raise PermissionDenied("Key mismatch.")
-
-        attrs["user"] = user
 
         return super(ConnectingSerializer, self).validate(attrs)
 

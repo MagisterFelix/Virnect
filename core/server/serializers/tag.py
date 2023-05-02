@@ -25,7 +25,7 @@ class TagSerializer(ModelSerializer):
 
         data["tag"] = super(TagSerializer, self).to_representation(instance)
 
-        if self.context["request"].method == "GET" or related:
+        if related or self.context["request"].method == "GET":
             return data["tag"]
 
         if self.context["request"].method == "POST":

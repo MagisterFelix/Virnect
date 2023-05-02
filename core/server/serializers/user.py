@@ -40,7 +40,7 @@ class UserSerializer(ModelSerializer):
 
         data["user"].pop("email")
 
-        if self.context["request"].method == "GET" or related:
+        if related or self.context["request"].method == "GET":
             return data["user"]
 
         if self.context["request"].method in ("PATCH", "PUT"):
@@ -84,7 +84,7 @@ class ProfileSerializer(UserSerializer):
 
         data["user"] = super(UserSerializer, self).to_representation(instance)
 
-        if self.context["request"].method == "GET" or related:
+        if related or self.context["request"].method == "GET":
             return data["user"]
 
         if self.context.get("action") == "update":

@@ -1,3 +1,4 @@
+from rest_framework import status
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
@@ -40,7 +41,7 @@ class RoomView(RetrieveUpdateDestroyAPIView):
 
         response = super(RoomView, self).update(request, *args, **kwargs)
 
-        if response.status_code == 200:
+        if response.status_code == status.HTTP_200_OK:
             WebSocketUtils.update_room(room_id=room.id, room_title=response.data["room"]["title"])
             WebSocketUtils.update_room_list()
 
@@ -51,7 +52,7 @@ class RoomView(RetrieveUpdateDestroyAPIView):
 
         response = super(RoomView, self).destroy(request, *args, **kwargs)
 
-        if response.status_code == 204:
+        if response.status_code == status.HTTP_204_NO_CONTENT:
             WebSocketUtils.delete_room(room_id=room.id)
             WebSocketUtils.update_room_list()
 
