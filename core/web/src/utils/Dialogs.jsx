@@ -838,7 +838,7 @@ const RoomDialog = ({ open, close, instance }) => {
 
   useEffect(() => {
     setAlert(null);
-    if (open) {
+    if (open && instance) {
       setRoom(instance);
       reset({
         title: instance.title,
