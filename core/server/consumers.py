@@ -22,9 +22,9 @@ class ProfileConsumer(AsyncJsonWebsocketConsumer):
             await self.close(code=403)
             return None
 
-        self.user = await sync_to_async(User.objects.get)(pk=user_id)
+        self.user = await sync_to_async(User.objects.get_or_none)(pk=user_id)
 
-        if not self.user.is_active:
+        if self.user is None or not self.user.is_active:
             await self.close(code=403)
             return None
 
