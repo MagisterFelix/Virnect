@@ -5,7 +5,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import NotFound, PermissionDenied
 from rest_framework.serializers import ModelSerializer, Serializer
 
-from core.server.models import Room, Tag, User
+from core.server.models import History, Room, Tag, User
 
 from .tag import TagSerializer
 from .topic import TopicSerializer
@@ -13,6 +13,8 @@ from .user import UserSerializer
 
 
 class RoomSerializer(ModelSerializer):
+
+    recommendation_rating = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Room
@@ -106,6 +108,17 @@ class ConnectingSerializer(Serializer):
 
         instance.participants.add(user)
         instance.save()
+
+        topic = instance.topic.title
+        tags = ",".join([tag.name for tag in Tag.objects.filter(room=instance)])
+        language = instance.language
+
+        History.objects.create(
+            owner=user,
+            topic=topic,
+            tags=tags,
+            language=language
+        )
 
         return instance
 

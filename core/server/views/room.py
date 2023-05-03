@@ -1,12 +1,13 @@
+from django.db.models import Case, IntegerField, Value, When
 from rest_framework import status
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 
 from core.server.filters import RoomFilter
-from core.server.models import Room
+from core.server.models import History, Room
 from core.server.permissions import IsOwnerOrReadOnly
-from core.server.serializers import RoomSerializer
+from core.server.serializers import HistorySerializer, RoomSerializer
 from core.server.utils import WebSocketUtils
 
 
@@ -27,6 +28,39 @@ class RoomListView(ListCreateAPIView):
             return None
 
         return super(RoomListView, self).paginator
+
+    def get_queryset(self):
+        rooms = super(RoomListView, self).get_queryset()
+        history = History.objects.filter(owner=self.request.user)
+
+        if rooms.count() > 4 and history.count() > 4:
+            from core.server.recommendation_system import recommendation_system
+
+            serialized_rooms = RoomSerializer(
+                instance=rooms,
+                context={"request": self.request},
+                many=True
+            ).data
+
+            if recommendation_system.rooms != serialized_rooms:
+                recommendation_system.train(rooms=serialized_rooms)
+
+            serialized_history = HistorySerializer(
+                instance=history,
+                context={"request": self.request},
+                many=True
+            ).data[:10]
+
+            recommendations = recommendation_system.get_recommendations(history=serialized_history)
+
+            rooms = rooms.annotate(
+                recommendation_rating=Case(
+                    *[When(id=room_id, then=Value(room_rating)) for room_id, room_rating in recommendations.items()],
+                    output_field=IntegerField(),
+                )
+            ).order_by("-recommendation_rating", "-created_at")
+
+        return rooms
 
 
 class RoomView(RetrieveUpdateDestroyAPIView):

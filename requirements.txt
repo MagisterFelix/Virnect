@@ -6,7 +6,9 @@ django-cors-headers==3.14.0
 django-filter==23.1
 djangorestframework-simplejwt==5.2.2
 flake8==6.0.0
+pandas==2.0.1
 psycopg2==2.9.5
 pyopenssl==23.1.1
 python-decouple==3.7
+scikit-learn==1.2.2
 service-identity==21.1.0

@@ -1,5 +1,6 @@
 from .auth import (AuthorizationSerializer, DeauthorizationSerializer, PasswordResetConfirmSerializer,
                    PasswordResetSerializer, RegistrationSerializer)
+from .history import HistorySerializer
 from .message import MessageSerializer
 from .notification import NotificationSerializer
 from .report import ReportSerializer

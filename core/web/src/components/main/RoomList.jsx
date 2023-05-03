@@ -33,6 +33,7 @@ import {
   Delete,
   Edit,
   Lock,
+  Recommend,
   Tag,
 } from '@mui/icons-material';
 
@@ -172,6 +173,15 @@ const RoomList = ({ editable }) => {
                         justifyContent: 'start',
                       }}
                     >
+                      {room.recommendation_rating > 0 && !editable && (
+                      <LightTooltip
+                        title="We recommend this room to you!"
+                        placement="top"
+                        arrow
+                      >
+                        <Recommend sx={{ mr: 1.5, color: styles.color_yellow }} />
+                      </LightTooltip>
+                      )}
                       <Box
                         component="img"
                         src={`https://flagcdn.com/${room.language.toLowerCase()}.svg`}
