@@ -46,7 +46,7 @@ class MessageSerializer(ModelSerializer):
         if instance.reply_to is not None:
             data["message"]["reply_to"] = MessageSerializer(instance=instance.reply_to, context=self.context).data
 
-        if self.context["request"].method == "GET" or related:
+        if related or self.context["request"].method == "GET":
             return data["message"]
 
         if self.context["request"].method == "POST":

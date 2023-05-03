@@ -53,7 +53,7 @@ class NotificationSerializer(ModelSerializer):
 
         data["notification"]["content"] = content
 
-        if self.context["request"].method == "GET" or related:
+        if related or self.context["request"].method == "GET":
             return data["notification"]
 
         data["details"] = "Notification has been updated."

@@ -175,12 +175,31 @@ class WebSocketUtils:
         )
 
     @staticmethod
-    def update_room(room_id, room_title):
+    def connect_room(room_id):
+        WebSocketUtils._send_to_group(
+            f"room-{room_id}",
+            {
+                "type": "room_connect"
+            }
+        )
+
+    @staticmethod
+    def disconnect_room(room_id):
+        WebSocketUtils._send_to_group(
+            f"room-{room_id}",
+            {
+                "type": "room_disconnect"
+            }
+        )
+
+    @staticmethod
+    def update_room(room_id, room_title, **extra_data):
         WebSocketUtils._send_to_group(
             f"room-{room_id}",
             {
                 "type": "room_update",
-                "room": room_title
+                "room": room_title,
+                **extra_data
             }
         )
 

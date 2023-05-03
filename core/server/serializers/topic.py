@@ -18,7 +18,7 @@ class TopicSerializer(ModelSerializer):
 
         data["topic"] = super(TopicSerializer, self).to_representation(instance)
 
-        if self.context["request"].method == "GET" or related:
+        if related or self.context["request"].method == "GET":
             return data["topic"]
 
         if self.context["request"].method == "POST":

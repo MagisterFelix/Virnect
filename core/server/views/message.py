@@ -1,6 +1,7 @@
 import json
 import re
 
+from rest_framework import status
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAuthenticated
 
@@ -23,7 +24,7 @@ class MessageListView(ListCreateAPIView):
     def create(self, request, *args, **kwargs):
         response = super(MessageListView, self).create(request, *args, **kwargs)
 
-        if response.status_code == 201:
+        if response.status_code == status.HTTP_201_CREATED:
             room = Room.objects.get(title=kwargs["room"])
             message = Message.objects.get(pk=response.data["message"]["id"])
 
@@ -71,7 +72,7 @@ class MessageView(RetrieveUpdateDestroyAPIView):
     def update(self, request, *args, **kwargs):
         response = super(MessageView, self).update(request, *args, **kwargs)
 
-        if response.status_code == 200:
+        if response.status_code == status.HTTP_200_OK:
             room = Room.objects.get(title=kwargs["room"])
             message = Message.objects.get(pk=kwargs["pk"])
 
@@ -93,7 +94,7 @@ class MessageView(RetrieveUpdateDestroyAPIView):
     def destroy(self, request, *args, **kwargs):
         response = super(MessageView, self).destroy(request, *args, **kwargs)
 
-        if response.status_code == 204:
+        if response.status_code == status.HTTP_204_NO_CONTENT:
             room = Room.objects.get(title=kwargs["room"])
 
             WebSocketUtils.delete_message(room_id=room.id, message_id=int(kwargs["pk"]))

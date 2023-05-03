@@ -1,6 +1,6 @@
 from datetime import timedelta
 
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.permissions import IsAdminUser
@@ -40,7 +40,7 @@ class StatisticsView(APIView):
 
         frequent_tags = Tag.objects.values("name").annotate(
             count=Count("name")
-        ).order_by("-count")[:5]
+        ).order_by("-count")[:3]
 
         count_of_rooms = Room.objects.count()
         count_of_active_rooms = Room.objects.annotate(
@@ -48,7 +48,9 @@ class StatisticsView(APIView):
         ).filter(count_of_participants__gt=0).count()
 
         count_of_users = User.objects.count()
-        count_of_active_users = User.objects.filter(last_seen__gte=timezone.now() - timedelta(days=3)).count()
+        count_of_active_users = User.objects.filter(
+            Q(last_seen__gte=timezone.now() - timedelta(days=3)) | Q(last_seen__isnull=True)
+        ).count()
         count_of_online_users = len([user for user in User.objects.all() if user.is_online])
         count_of_blocked_users = User.objects.filter(is_active=False).count()
 

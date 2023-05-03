@@ -22,9 +22,9 @@ class ProfileConsumer(AsyncJsonWebsocketConsumer):
             await self.close(code=403)
             return None
 
-        self.user = await sync_to_async(User.objects.get)(pk=user_id)
+        self.user = await sync_to_async(User.objects.get_or_none)(pk=user_id)
 
-        if not self.user.is_active:
+        if self.user is None or not self.user.is_active:
             await self.close(code=403)
             return None
 
@@ -127,7 +127,7 @@ class RoomConsumer(AsyncJsonWebsocketConsumer):
 
         await self.accept()
 
-        await sync_to_async(WebSocketUtils.update_room)(room_id=self.room.id, room_title=self.room.title)
+        await sync_to_async(WebSocketUtils.connect_room)(room_id=self.room.id)
         await sync_to_async(WebSocketUtils.update_room_list)()
 
     async def disconnect(self, _):
@@ -155,17 +155,22 @@ class RoomConsumer(AsyncJsonWebsocketConsumer):
 
         await self.channel_layer.group_discard(self.group, self.channel_name)
 
-        await sync_to_async(WebSocketUtils.update_room)(room_id=self.room.id, room_title=self.room.title)
+        await sync_to_async(WebSocketUtils.disconnect_room)(room_id=self.room.id)
         await sync_to_async(WebSocketUtils.update_room_list)()
 
     async def receive_json(self, content):
         await self.channel_layer.group_send(self.group, content)
 
+    async def room_connect(self, event):
+        event["voice_chat_users"] = list(self.voice_chat_users.values())
+        await self.send_json(event)
+
+    async def room_disconnect(self, event):
+        event["voice_chat_users"] = list(self.voice_chat_users.values())
+        await self.send_json(event)
+
     async def room_update(self, event):
         self.room = await sync_to_async(Room.objects.get_or_none)(title=event["room"])
-
-        event["voice_chat_users"] = list(self.voice_chat_users.values())
-
         await self.send_json(event)
 
     async def room_delete(self, event):

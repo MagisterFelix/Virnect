@@ -33,6 +33,7 @@ import {
   Delete,
   Edit,
   Lock,
+  Recommend,
   Tag,
 } from '@mui/icons-material';
 
@@ -55,7 +56,7 @@ const RoomList = ({ editable }) => {
   const underMd = useMediaQuery((theme) => theme.breakpoints.down('md'));
 
   const {
-    loading, loadingRoomList, roomList, notFound, deleteRoom,
+    loading, loadingRoomList, roomList, notFound, deleteRoom, filterLoading,
   } = useRoomList();
 
   const [selectedRoom, setSelectedRoom] = useState(null);
@@ -142,9 +143,12 @@ const RoomList = ({ editable }) => {
 
   return (
     <div className="Rooms">
-      {loadingRoomList && !roomList
+      {loadingRoomList && (!roomList || roomList.results.length === 0)
         ? (
-          <Skeleton variant="rounded" height={270} sx={{ mt: 4, borderRadius: 2 }} />
+          <>
+            <Skeleton variant="rounded" height={270} sx={{ mt: 4, borderRadius: 2 }} />
+            <Skeleton variant="rounded" height={270} sx={{ mt: 4, borderRadius: 2 }} />
+          </>
         ) : roomList.results.map(
           (room) => (
             <Paper
@@ -155,6 +159,7 @@ const RoomList = ({ editable }) => {
                 bgcolor: styles.color_soft_dark,
                 color: styles.color_white,
                 borderRadius: 2,
+                opacity: filterLoading ? 0.75 : 1,
               }}
             >
               <Grid container>
@@ -168,6 +173,15 @@ const RoomList = ({ editable }) => {
                         justifyContent: 'start',
                       }}
                     >
+                      {room.recommendation_rating > 0 && !editable && (
+                      <LightTooltip
+                        title="We recommend this room to you!"
+                        placement="top"
+                        arrow
+                      >
+                        <Recommend sx={{ mr: 1.5, color: styles.color_yellow }} />
+                      </LightTooltip>
+                      )}
                       <Box
                         component="img"
                         src={`https://flagcdn.com/${room.language.toLowerCase()}.svg`}
@@ -347,12 +361,6 @@ const RoomList = ({ editable }) => {
                         <Delete fontSize="small" />
                       </Button>
                       )}
-                      <ConfirmationDialog
-                        open={openConfirmationDialog}
-                        close={handleCloseConfirmationDialog}
-                        message={`Are you sure you want to delete the «${selectedRoom && selectedRoom.title}» room?`}
-                        onConfirm={() => handleOnDelete(selectedRoom)}
-                      />
                     </ButtonGroup>
                   </Grid>
                 </Grid>
@@ -417,6 +425,14 @@ const RoomList = ({ editable }) => {
         open={openRoomEditingDialog}
         close={handleCloseRoomEditingDialog}
         instance={selectedRoom}
+      />
+      )}
+      {editable && selectedRoom && (
+      <ConfirmationDialog
+        open={openConfirmationDialog}
+        close={handleCloseConfirmationDialog}
+        message={`Are you sure you want to delete the «${selectedRoom.title}» room?`}
+        onConfirm={() => handleOnDelete(selectedRoom)}
       />
       )}
     </div>

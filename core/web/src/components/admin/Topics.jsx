@@ -13,7 +13,7 @@ import { TopicDialog } from '@utils/Dialogs';
 import EnhancedTable from '@utils/Tables';
 
 const Topics = () => {
-  const { topics, refetchTopics } = useAdmin();
+  const { topics, refetchTopics, refetchRooms } = useAdmin();
 
   if (!topics) {
     return (
@@ -37,6 +37,11 @@ const Topics = () => {
     image: topic.image,
   }));
 
+  const refetchData = async () => {
+    await refetchTopics();
+    await refetchRooms();
+  };
+
   return (
     <div className="Topics">
       <Container>
@@ -45,7 +50,7 @@ const Topics = () => {
           fields={fields}
           initialData={data}
           endpoint={ENDPOINTS.topic}
-          refetchData={refetchTopics}
+          refetchData={refetchData}
           Dialog={TopicDialog}
           searchBy="title"
           canAdd

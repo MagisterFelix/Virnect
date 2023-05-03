@@ -601,7 +601,7 @@ const ReviewDialog = ({ open, close, instance }) => {
 };
 
 const TopicDialog = ({ open, close, instance }) => {
-  const { refetchTopics } = useAdmin();
+  const { refetchTopics, refetchRooms } = useAdmin();
 
   const [topic, setTopic] = useState(instance);
 
@@ -672,6 +672,7 @@ const TopicDialog = ({ open, close, instance }) => {
         responseTopics.data.find((topicData) => topicData.id === topic.id).image += `?dt=${new Date().getTime()}`;
         setTopic(response.data.topic);
         reset(response.data.topic);
+        await refetchRooms();
         setAlert({ type: 'success', message: response.data.details });
       } catch (err) {
         handleErrors(validation, err.response.data.details, setError, setAlert);
@@ -837,7 +838,17 @@ const RoomDialog = ({ open, close, instance }) => {
 
   useEffect(() => {
     setAlert(null);
-    reset();
+    if (open && instance) {
+      setRoom(instance);
+      reset({
+        title: instance.title,
+        topic: instance.topic.id,
+        language: instance.language,
+        number_of_participants: instance.number_of_participants,
+        key: instance.key,
+        tags: instance.tags.map((tag) => tag.name),
+      });
+    }
   }, [open]);
 
   const handleOnSubmit = async (formData) => {

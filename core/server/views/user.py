@@ -1,6 +1,7 @@
 import json
 
 from django.shortcuts import get_object_or_404
+from rest_framework import status
 from rest_framework.exceptions import NotFound
 from rest_framework.generics import ListAPIView, RetrieveUpdateAPIView
 from rest_framework.parsers import JSONParser, MultiPartParser
@@ -40,8 +41,8 @@ class ProfileView(RetrieveUpdateAPIView):
         response = super(ProfileView, self).update(request, *args, **kwargs)
 
         room = Room.objects.filter(participants__in=[request.user])
-        if response.status_code == 200 and room.exists():
-            WebSocketUtils.update_room(room_id=room.first().pk, room_title=room.first().title)
+        if response.status_code == status.HTTP_200_OK and room.exists():
+            WebSocketUtils.update_room(room_id=room.first().pk, room_title=room.first().title, user=request.user.id)
 
         return response
 
@@ -76,7 +77,7 @@ class UserView(RetrieveUpdateAPIView):
     def update(self, request, *args, **kwargs):
         response = super(UserView, self).update(request, *args, **kwargs)
 
-        if response.status_code == 200:
+        if response.status_code == status.HTTP_200_OK:
             user = User.objects.get(username=kwargs["username"])
 
             if request.data.get("is_staff") is not None:
