@@ -251,7 +251,7 @@ const RoomProvider = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const { profile } = useAuth();
+  const { profile, refetchProfile } = useAuth();
 
   const socket = useMemo(() => new W3CWebSocket(`${ENDPOINTS.wsRoom}${title}/${location.state?.key ? `?key=${location.state.key}` : ''}`), []);
 
@@ -446,7 +446,7 @@ const RoomProvider = ({ children }) => {
         const data = {
           id: profile.id,
           username: profile.username,
-          image: profile.image,
+          image: `${profile.image}?dt=${new Date().getTime()}`,
           is_muted: true,
           is_speaking: false,
         };
@@ -535,6 +535,19 @@ const RoomProvider = ({ children }) => {
                 : msg
             ),
           );
+          if (data.user === profile.id) {
+            await refetchProfile();
+          }
+          setVoiceChatUsers(voiceChatUsers.map(
+            (user) => (user.id === data.user
+              ? {
+                ...user,
+                image: responseRoom.data.participants.find(
+                  (participant) => participant.id === data.user,
+                ).image,
+              }
+              : user),
+          ));
         } else {
           await fetchRoom();
           await fetchMessageList();
@@ -571,7 +584,12 @@ const RoomProvider = ({ children }) => {
       } else if (data.type === 'message_delete') {
         setMessages(messages.filter((msg) => msg.id !== data.id && msg.reply_to?.id !== data.id));
       } else if (data.type === 'voice_chat_connect') {
-        setVoiceChatUsers(data.voice_chat_users);
+        setVoiceChatUsers(data.voice_chat_users.map(
+          (user) => ({
+            ...user,
+            image: `${user.image}?dt=${new Date().getTime()}`,
+          }),
+        ));
       } else if (data.type === 'voice_chat_signal') {
         if (data.to === profile.id) {
           if (peers[data.from] !== undefined) {
@@ -591,7 +609,22 @@ const RoomProvider = ({ children }) => {
           (user) => (user.id === data.user ? { ...user, is_speaking: data.is_speaking } : user),
         ));
       } else if (data.type === 'voice_chat_disconnect') {
-        setVoiceChatUsers(data.voice_chat_users);
+        if (data.user !== profile.id) {
+          setVoiceChatUsers(data.voice_chat_users.map(
+            (user) => ({
+              ...user,
+              image: `${user.image}?dt=${new Date().getTime()}`,
+            }),
+          ));
+        } else {
+          setVoiceChatUsers(data.voice_chat_users.map(
+            (user) => ({
+              ...user,
+              is_speaking: false,
+              image: `${user.image}?dt=${new Date().getTime()}`,
+            }),
+          ));
+        }
         if (peers[data.user] !== undefined) {
           peers[data.user].destroy();
           const newPeers = Object.fromEntries(

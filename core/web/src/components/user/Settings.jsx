@@ -53,6 +53,9 @@ const Settings = () => {
     about: {
       maxLength: 'No more than 1024 characters.',
     },
+    image: {
+      validate: 'Invalid image or size greater than 10 MB.',
+    },
   };
 
   const [{ loading: loadingUpdateProfile }, updateProfile] = useAxios(
@@ -322,6 +325,9 @@ const Settings = () => {
                       name="image"
                       control={controlProfile}
                       defaultValue={profile.image}
+                      rules={{
+                        validate: (file) => file && file.type && file.type.startsWith('image/') && (file.size / (1024 * 1024)) <= 10,
+                      }}
                       render={({
                         field: { onChange, value },
                         fieldState: { error: fieldError },
@@ -340,6 +346,10 @@ const Settings = () => {
                                 <Image />
                               </InputAdornment>
                             ),
+                            inputProps: {
+                              accept: 'image/*',
+                              style: { cursor: 'pointer' },
+                            },
                           }}
                           error={fieldError !== undefined}
                           helperText={fieldError ? fieldError.message || validationProfile.image[fieldError.type] : ''}
