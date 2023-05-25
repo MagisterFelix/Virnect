@@ -49,7 +49,15 @@ class RoomListView(ListCreateAPIView):
                 instance=history,
                 context={"request": self.request},
                 many=True
-            ).data[:10]
+            ).data
+
+            set_of_topics = set(room["topic"]["title"] for room in serialized_rooms)
+            set_of_languages = set(room["language"] for room in serialized_rooms)
+
+            serialized_history = [
+                history for history in serialized_history
+                if history["topic"] in set_of_topics and history["language"] in set_of_languages
+            ][:10]
 
             recommendations = recommendation_system.get_recommendations(history=serialized_history)
 
