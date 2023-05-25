@@ -1,7 +1,8 @@
 @use '@styles/globals' as *;
 
 .MuiTableContainer-root::-webkit-scrollbar,
-.MuiTablePagination-root::-webkit-scrollbar {
+.MuiTablePagination-root::-webkit-scrollbar,
+.MuiDialog-paper::-webkit-scrollbar {
   width: 10px;
 
   &-track {
