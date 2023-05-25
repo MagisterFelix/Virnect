@@ -741,6 +741,7 @@ const TopicDialog = ({ open, close, instance }) => {
               <TextField
                 onChange={onChange}
                 value={value}
+                required
                 fullWidth
                 multiline
                 margin="dense"
@@ -1121,6 +1122,7 @@ const RoomDialog = ({ open, close, instance }) => {
                     {...params}
                     label="Tags"
                     margin="dense"
+                    placeholder={value.length === 0 ? 'Press <enter> to add' : ''}
                     error={tagsError !== null}
                     helperText={tagsError}
                   />
