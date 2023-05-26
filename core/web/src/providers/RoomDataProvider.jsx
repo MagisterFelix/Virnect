@@ -71,6 +71,7 @@ const RoomListProvider = ({ children }) => {
     },
     {
       autoCancel: false,
+      useCache: searchParams.toString().length !== 0,
     },
   );
 
