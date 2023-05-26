@@ -193,7 +193,7 @@ const Navbar = () => {
                 >
                   <Avatar
                     alt={profile.username}
-                    src={`${profile.image}?dt=${new Date().getTime()}`}
+                    src={profile.image}
                     sx={{
                       height: 48,
                       width: 48,

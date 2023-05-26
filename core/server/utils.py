@@ -33,9 +33,11 @@ class ImageUtils:
         attrs = dir(instance)
 
         if "username" in attrs:
-            folder, title = "users", instance.username
+            name = instance.username
+            folder, title = "users", f"{name}-{int(timezone.now().timestamp())}"
         else:
-            folder, title = "topics", instance.title.lower().replace(" ", "_")
+            name = instance.title.lower().replace(" ", "_")
+            folder, title = "topics", f"{name}-{int(timezone.now().timestamp())}"
 
         directory = os.path.join(settings.MEDIA_ROOT, f"{folder}")
 
@@ -43,20 +45,24 @@ class ImageUtils:
             os.makedirs(directory)
 
         for file in os.listdir(directory):
-            if os.path.splitext(file)[0] == title:
+            if file.startswith(name):
                 os.remove(os.path.join(settings.MEDIA_ROOT, f"{folder}/{file}"))
 
         return f"{folder}/{title}{os.path.splitext(filename)[-1]}"
 
     @staticmethod
     def remove_image_from(instance):
-        path = instance.image.name
-        file = os.path.join(settings.MEDIA_ROOT, f"{path}")
+        name = instance.image.name
 
-        if not os.path.exists(file) or "static" in path:
+        if "static" in name:
             return None
 
-        os.remove(file)
+        path = instance.image.path
+
+        if not os.path.exists(path):
+            return None
+
+        os.remove(path)
 
 
 class AuthorizationUtils:

@@ -669,8 +669,7 @@ const TopicDialog = ({ open, close, instance }) => {
           url: `${ENDPOINTS.topic}${topic.id}/`,
           data: Object.fromEntries(formData),
         });
-        const responseTopics = await refetchTopics();
-        responseTopics.data.find((topicData) => topicData.id === topic.id).image += `?dt=${new Date().getTime()}`;
+        await refetchTopics();
         setTopic(response.data.topic);
         reset(response.data.topic);
         await refetchRooms();

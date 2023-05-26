@@ -174,6 +174,15 @@ class RoomConsumer(AsyncJsonWebsocketConsumer):
 
     async def room_update(self, event):
         self.room = await sync_to_async(Room.objects.get_or_none)(title=event["room"])
+
+        if "user" in event.keys() and event["user"]["id"] in self.voice_chat_users[self.group]:
+            self.voice_chat_users[self.group][event["user"]["id"]]["username"] = event["user"]["username"]
+            self.voice_chat_users[self.group][event["user"]["id"]]["image"] = event["user"]["image"]
+
+            event["user"] = event["user"]["id"]
+
+        event["voice_chat_users"] = list(self.voice_chat_users[self.group].values())
+
         await self.send_json(event)
 
     async def room_delete(self, event):

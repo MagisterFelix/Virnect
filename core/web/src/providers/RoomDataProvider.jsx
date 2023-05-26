@@ -190,10 +190,6 @@ const RoomListProvider = ({ children }) => {
         setPreventFilterLoading(false);
       }
     };
-
-    return () => {
-      socket.close();
-    };
   }, [socket]);
 
   const [filterLoading, setFilterLoading] = useState(false);
@@ -266,10 +262,6 @@ const RoomProvider = ({ children }) => {
         },
         replace: true,
       });
-    };
-
-    return () => {
-      socket.close();
     };
   }, [socket]);
 
@@ -446,7 +438,7 @@ const RoomProvider = ({ children }) => {
         const data = {
           id: profile.id,
           username: profile.username,
-          image: `${profile.image}?dt=${new Date().getTime()}`,
+          image: profile.image,
           is_muted: true,
           is_speaking: false,
         };
@@ -528,35 +520,12 @@ const RoomProvider = ({ children }) => {
           }
           window.location.reload();
         } else if (data.user !== undefined) {
-          const responseRoom = await fetchRoom();
-          responseRoom.data.participants = responseRoom.data.participants.map(
-            (user) => (
-              user.id === data.user
-                ? { ...user, image: `${user.image}?dt=${new Date().getTime()}` }
-                : user
-            ),
-          );
-          const responseMessages = await fetchMessageList();
-          responseMessages.data = responseMessages.data.map(
-            (msg) => (
-              msg.author.id === data.user
-                ? { ...msg, author: { ...msg.author, image: `${msg.author.image}?dt=${new Date().getTime()}` } }
-                : msg
-            ),
-          );
+          await fetchRoom();
+          await fetchMessageList();
           if (data.user === profile.id) {
             await refetchProfile();
           }
-          setVoiceChatUsers(voiceChatUsers.map(
-            (user) => (user.id === data.user
-              ? {
-                ...user,
-                image: responseRoom.data.participants.find(
-                  (participant) => participant.id === data.user,
-                ).image,
-              }
-              : user),
-          ));
+          setVoiceChatUsers(data.voice_chat_users);
         } else {
           await fetchRoom();
           await fetchMessageList();
@@ -595,12 +564,7 @@ const RoomProvider = ({ children }) => {
       } else if (data.type === 'message_delete') {
         setMessages(messages.filter((msg) => msg.id !== data.id && msg.reply_to?.id !== data.id));
       } else if (data.type === 'voice_chat_connect') {
-        setVoiceChatUsers(data.voice_chat_users.map(
-          (user) => ({
-            ...user,
-            image: `${user.image}?dt=${new Date().getTime()}`,
-          }),
-        ));
+        setVoiceChatUsers(data.voice_chat_users);
       } else if (data.type === 'voice_chat_signal') {
         if (data.to === profile.id) {
           if (peers[data.from] !== undefined) {
@@ -613,28 +577,32 @@ const RoomProvider = ({ children }) => {
         }
       } else if (data.type === 'voice_chat_toggle_mic') {
         setVoiceChatUsers(voiceChatUsers.map(
-          (user) => (user.id === data.user ? { ...user, is_muted: data.is_muted } : user),
+          (user) => (user.id === data.user
+            ? {
+              ...user,
+              is_muted: data.is_muted,
+            } : user
+          ),
         ));
       } else if (data.type === 'voice_chat_toggle_speaking') {
         if (voiceChatUsers.map((user) => user.id).includes(profile.id)) {
           setVoiceChatUsers(voiceChatUsers.map(
-            (user) => (user.id === data.user ? { ...user, is_speaking: data.is_speaking } : user),
+            (user) => (user.id === data.user
+              ? {
+                ...user,
+                is_speaking: data.is_speaking,
+              } : user
+            ),
           ));
         }
       } else if (data.type === 'voice_chat_disconnect') {
         if (data.user !== profile.id) {
-          setVoiceChatUsers(data.voice_chat_users.map(
-            (user) => ({
-              ...user,
-              image: `${user.image}?dt=${new Date().getTime()}`,
-            }),
-          ));
+          setVoiceChatUsers(data.voice_chat_users);
         } else {
           setVoiceChatUsers(data.voice_chat_users.map(
             (user) => ({
               ...user,
               is_speaking: false,
-              image: `${user.image}?dt=${new Date().getTime()}`,
             }),
           ));
         }

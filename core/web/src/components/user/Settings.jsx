@@ -86,7 +86,6 @@ const Settings = () => {
           data: Object.fromEntries(formData),
         });
         const updated = await refetchProfile();
-        updated.data.image += `?dt=${new Date().getTime()}`;
         resetProfile({
           username: updated.data.username,
           email: updated.data.email,
