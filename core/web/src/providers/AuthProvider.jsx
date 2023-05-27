@@ -146,6 +146,9 @@ const AuthProvider = ({ children }) => {
         window.location.reload();
       }
     };
+    return () => {
+      socket.close();
+    };
   }, [socket]);
 
   const value = useMemo(() => ({

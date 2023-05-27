@@ -191,6 +191,9 @@ const RoomListProvider = ({ children }) => {
         setPreventFilterLoading(false);
       }
     };
+    return () => {
+      socket.close();
+    };
   }, [socket]);
 
   const [filterLoading, setFilterLoading] = useState(false);
@@ -250,7 +253,7 @@ const RoomProvider = ({ children }) => {
 
   const { profile, refetchProfile } = useAuth();
 
-  const socket = useMemo(() => new W3CWebSocket(`${ENDPOINTS.wsRoom}${title}/${location.state?.key ? `?key=${location.state.key}` : ''}`), []);
+  let socket = useMemo(() => new W3CWebSocket(`${ENDPOINTS.wsRoom}${title}/${location.state?.key ? `?key=${location.state.key}` : ''}`), []);
 
   useEffect(() => {
     socket.onerror = () => {
@@ -263,6 +266,9 @@ const RoomProvider = ({ children }) => {
         },
         replace: true,
       });
+    };
+    return () => {
+      socket.close();
     };
   }, [socket]);
 
@@ -510,7 +516,13 @@ const RoomProvider = ({ children }) => {
           ));
         }
       } else if (data.type === 'room_disconnect') {
-        await fetchRoom();
+        const responseRoom = await fetchRoom();
+        if (responseRoom.data.participants.findIndex((user) => user.id === profile.id) === -1) {
+          if (voiceChatUsers.find((user) => user.id === profile.id)) {
+            disconnectFromVoiceChat();
+          }
+          socket = new W3CWebSocket(`${ENDPOINTS.wsRoom}${title}/${location.state?.key ? `?key=${location.state.key}` : ''}`);
+        }
         setVoiceChatUsers(data.voice_chat_users);
       } else if (data.type === 'room_update') {
         if (data.room !== title) {
