@@ -36,7 +36,7 @@ class ImageUtils:
             name = instance.username
             folder, title = "users", f"{name}-{int(timezone.now().timestamp())}"
         else:
-            name = instance.title.lower().replace(" ", "_")
+            name = instance.title.lower().replace(" ", "_").replace("-", "_")
             folder, title = "topics", f"{name}-{int(timezone.now().timestamp())}"
 
         directory = os.path.join(settings.MEDIA_ROOT, f"{folder}")
@@ -45,7 +45,7 @@ class ImageUtils:
             os.makedirs(directory)
 
         for file in os.listdir(directory):
-            if file.startswith(name):
+            if file.startswith(f"{name}-"):
                 os.remove(os.path.join(settings.MEDIA_ROOT, f"{folder}/{file}"))
 
         return f"{folder}/{title}{os.path.splitext(filename)[-1]}"
