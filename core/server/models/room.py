@@ -39,7 +39,7 @@ class Room(BaseModel):
     def clean(self):
         super(Room, self).clean()
 
-        if self.host_id and Room.objects.filter(host=self.host).count() == 5:
+        if not self.pk and self.host_id and Room.objects.filter(host=self.host).count() == 5:
             raise ValidationError("User cannot host more than 5 rooms.", code="invalid")
 
     def __str__(self):
