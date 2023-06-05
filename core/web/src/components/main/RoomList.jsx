@@ -184,7 +184,7 @@ const RoomList = ({ editable }) => {
                       )}
                       <Box
                         component="img"
-                        src={`https://flagcdn.com/${room.language.toLowerCase()}.svg`}
+                        src={`${process.env.NODE_ENV === 'development' ? 'http://127.0.0.1:8000' : ''}/static/languages/${room.language.toLowerCase()}.svg`}
                         width={24}
                         sx={{ mr: 1.5 }}
                       />

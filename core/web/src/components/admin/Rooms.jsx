@@ -39,7 +39,7 @@ const Rooms = () => {
     host: room.host.username,
     title: room.title,
     topic: room.topic.image,
-    language: `https://flagcdn.com/${room.language.toLowerCase()}.svg`,
+    language: `${process.env.NODE_ENV === 'development' ? 'http://127.0.0.1:8000' : ''}/static/languages/${room.language.toLowerCase()}.svg`,
     tags: room.tags,
     participants: room.participants,
     open: room.key.length === 0,
