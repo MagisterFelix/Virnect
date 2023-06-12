@@ -620,6 +620,7 @@ const TopicDialog = ({ open, close, instance }) => {
     },
     image: {
       required: 'This field may not be blank.',
+      validate: 'Invalid image or size greater than 10 MB.',
     },
   };
 
@@ -668,8 +669,7 @@ const TopicDialog = ({ open, close, instance }) => {
           url: `${ENDPOINTS.topic}${topic.id}/`,
           data: Object.fromEntries(formData),
         });
-        const responseTopics = await refetchTopics();
-        responseTopics.data.find((topicData) => topicData.id === topic.id).image += `?dt=${new Date().getTime()}`;
+        await refetchTopics();
         setTopic(response.data.topic);
         reset(response.data.topic);
         await refetchRooms();
@@ -740,6 +740,7 @@ const TopicDialog = ({ open, close, instance }) => {
               <TextField
                 onChange={onChange}
                 value={value}
+                required
                 fullWidth
                 multiline
                 margin="dense"
@@ -757,6 +758,7 @@ const TopicDialog = ({ open, close, instance }) => {
             defaultValue={topic ? topic.image : undefined}
             rules={{
               required: true,
+              validate: (file) => file && file.type && file.type.startsWith('image/') && (file.size / (1024 * 1024)) <= 10,
             }}
             render={({
               field: { onChange, value },
@@ -766,6 +768,7 @@ const TopicDialog = ({ open, close, instance }) => {
                 onChange={(event) => onChange(event.target.files[0])}
                 value={value && value.filename}
                 fullWidth
+                required
                 margin="dense"
                 type="file"
                 label="Image"
@@ -776,6 +779,10 @@ const TopicDialog = ({ open, close, instance }) => {
                       <Image />
                     </InputAdornment>
                   ),
+                  inputProps: {
+                    accept: 'image/*',
+                    style: { cursor: 'pointer' },
+                  },
                 }}
                 error={fieldError !== undefined}
                 helperText={fieldError ? fieldError.message || validation.image[fieldError.type] : ''}
@@ -1114,6 +1121,7 @@ const RoomDialog = ({ open, close, instance }) => {
                     {...params}
                     label="Tags"
                     margin="dense"
+                    placeholder={value.length === 0 ? 'Press <enter> to add' : ''}
                     error={tagsError !== null}
                     helperText={tagsError}
                   />

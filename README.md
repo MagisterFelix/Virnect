@@ -9,7 +9,7 @@
     <p align="center">
         <img src="https://img.shields.io/badge/django-grey.svg?style=for-the-badge&logo=django&logoColor=cyan" alt="python">
         <img src="https://img.shields.io/badge/react-grey.svg?style=for-the-badge&logo=react&logoColor=cyan" alt="react">
-        <img src="https://img.shields.io/badge/progress-developing-yellow.svg?style=for-the-badge&logo=progress" alt="progress">
+        <img src="https://img.shields.io/badge/progress-developed-green.svg?style=for-the-badge&logo=progress" alt="progress">
     </p>
 </div>
 

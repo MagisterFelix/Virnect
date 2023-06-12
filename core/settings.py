@@ -17,7 +17,7 @@ SECRET_KEY = config("DJANGO_SECRET_KEY")
 
 DEBUG = config("DJANGO_DEBUG", default=False, cast=bool)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["127.0.0.1"]
 
 INSTALLED_APPS = [
     "daphne",
@@ -77,7 +77,7 @@ if DEBUG:
 else:
     REDIS_PASSWORD = config("REDIS_PASSWORD", default="")
     REDIS_HOST = config("REDIS_HOST", default="localhost")
-    REDIS_PORT = config('REDIS_PORT', default=6379, cast=int)
+    REDIS_PORT = config("REDIS_PORT", default=6379, cast=int)
     CHANNEL_LAYERS = {
         "default": {
             "BACKEND": "channels_redis.core.RedisChannelLayer",
@@ -121,8 +121,6 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
-
-USER_ONLINE_TIMEOUT = timedelta(minutes=2)
 
 CORS_ALLOW_CREDENTIALS = True
 

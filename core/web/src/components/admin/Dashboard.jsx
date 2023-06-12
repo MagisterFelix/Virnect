@@ -152,7 +152,7 @@ const Dashboard = () => {
                                   </span>
                                   <Box
                                     component="img"
-                                    src={`https://flagcdn.com/${language.code.toLowerCase()}.svg`}
+                                    src={`${process.env.NODE_ENV === 'development' ? 'http://127.0.0.1:8000' : ''}/static/languages/${language.code.toLowerCase()}.svg`}
                                     alt={language.name}
                                     px={1}
                                     sx={{

@@ -81,7 +81,7 @@ class RoomListConsumer(AsyncJsonWebsocketConsumer):
 class RoomConsumer(AsyncJsonWebsocketConsumer):
 
     group = None
-    kicked_users = set()
+    kicked_users = dict()
     voice_chat_users = dict()
 
     async def connect(self):
@@ -91,15 +91,19 @@ class RoomConsumer(AsyncJsonWebsocketConsumer):
             await self.close(code=404)
             return None
 
+        self.group = f"room-{self.room.id}"
+
+        self.kicked_users[self.group] = self.kicked_users.get(self.group, set())
+        self.voice_chat_users[self.group] = self.voice_chat_users.get(self.group, dict())
+
         token = self.scope["cookies"].get("access_token")
 
         user_id = AuthorizationUtils.get_user_id(token=token)
+        self.user = user_id
 
-        if user_id is None or user_id in self.kicked_users:
+        if self.user is None or self.user in self.kicked_users[self.group]:
             await self.close(code=403)
             return None
-
-        self.user = user_id
 
         query_params = urllib.parse.parse_qs(self.scope["query_string"].decode())
         key = query_params.get("key", [None])[0]
@@ -121,8 +125,6 @@ class RoomConsumer(AsyncJsonWebsocketConsumer):
 
         await sync_to_async(serializer.save)()
 
-        self.group = f"room-{self.room.id}"
-
         await self.channel_layer.group_add(self.group, self.channel_name)
 
         await self.accept()
@@ -134,11 +136,11 @@ class RoomConsumer(AsyncJsonWebsocketConsumer):
         if self.group is None:
             return None
 
-        if self.user in self.voice_chat_users:
-            self.voice_chat_users.pop(self.user)
+        if self.user in self.voice_chat_users[self.group]:
+            self.voice_chat_users[self.group].pop(self.user)
 
         if await sync_to_async(lambda: self.user == self.room.host.id)():
-            self.kicked_users.clear()
+            self.kicked_users[self.group].clear()
 
         data = {
             "user": self.user
@@ -162,22 +164,31 @@ class RoomConsumer(AsyncJsonWebsocketConsumer):
         await self.channel_layer.group_send(self.group, content)
 
     async def room_connect(self, event):
-        event["voice_chat_users"] = list(self.voice_chat_users.values())
+        event["voice_chat_users"] = list(self.voice_chat_users[self.group].values())
         await self.send_json(event)
 
     async def room_disconnect(self, event):
-        event["voice_chat_users"] = list(self.voice_chat_users.values())
+        event["voice_chat_users"] = list(self.voice_chat_users[self.group].values())
         await self.send_json(event)
 
     async def room_update(self, event):
         self.room = await sync_to_async(Room.objects.get_or_none)(title=event["room"])
+
+        if "user" in event.keys() and event["user"]["id"] in self.voice_chat_users[self.group]:
+            self.voice_chat_users[self.group][event["user"]["id"]]["username"] = event["user"]["username"]
+            self.voice_chat_users[self.group][event["user"]["id"]]["image"] = event["user"]["image"]
+
+            event["user"] = event["user"]["id"]
+
+        event["voice_chat_users"] = list(self.voice_chat_users[self.group].values())
+
         await self.send_json(event)
 
     async def room_delete(self, event):
         await self.send_json(event)
 
     async def user_kick(self, event):
-        self.kicked_users.add(event["user"])
+        self.kicked_users[self.group].add(event["user"])
         await self.send_json(event)
 
     async def message_send(self, event):
@@ -190,22 +201,22 @@ class RoomConsumer(AsyncJsonWebsocketConsumer):
         await self.send_json(event)
 
     async def voice_chat_connect(self, event):
-        if event["user"]["id"] not in self.voice_chat_users:
-            self.voice_chat_users[event["user"]["id"]] = event["user"]
+        if event["user"]["id"] not in self.voice_chat_users[self.group]:
+            self.voice_chat_users[self.group][event["user"]["id"]] = event["user"]
 
-        event["voice_chat_users"] = list(self.voice_chat_users.values())
+        event["voice_chat_users"] = list(self.voice_chat_users[self.group].values())
 
         await self.send_json(event)
 
     async def voice_chat_toggle_speaking(self, event):
-        if event["user"] in self.voice_chat_users:
-            self.voice_chat_users[event["user"]]["is_speaking"] = event["is_speaking"]
+        if event["user"] in self.voice_chat_users[self.group]:
+            self.voice_chat_users[self.group][event["user"]]["is_speaking"] = event["is_speaking"]
 
         await self.send_json(event)
 
     async def voice_chat_toggle_mic(self, event):
-        if event["user"] in self.voice_chat_users:
-            self.voice_chat_users[event["user"]]["is_muted"] = event["is_muted"]
+        if event["user"] in self.voice_chat_users[self.group]:
+            self.voice_chat_users[self.group][event["user"]]["is_muted"] = event["is_muted"]
 
         await self.send_json(event)
 
@@ -213,9 +224,9 @@ class RoomConsumer(AsyncJsonWebsocketConsumer):
         await self.send_json(event)
 
     async def voice_chat_disconnect(self, event):
-        if event["user"] in self.voice_chat_users:
-            self.voice_chat_users.pop(event["user"])
+        if event["user"] in self.voice_chat_users[self.group]:
+            self.voice_chat_users[self.group].pop(event["user"])
 
-        event["voice_chat_users"] = list(self.voice_chat_users.values())
+        event["voice_chat_users"] = list(self.voice_chat_users[self.group].values())
 
         await self.send_json(event)

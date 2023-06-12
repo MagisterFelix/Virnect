@@ -378,7 +378,7 @@ const Panel = () => {
                           >
                             <Box
                               component="img"
-                              src={`https://flagcdn.com/${language.value.toLowerCase()}.svg`}
+                              src={`${process.env.NODE_ENV === 'development' ? 'http://127.0.0.1:8000' : ''}/static/languages/${language.value.toLowerCase()}.svg`}
                               pr={1}
                               width={24}
                             />
