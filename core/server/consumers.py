@@ -99,12 +99,11 @@ class RoomConsumer(AsyncJsonWebsocketConsumer):
         token = self.scope["cookies"].get("access_token")
 
         user_id = AuthorizationUtils.get_user_id(token=token)
+        self.user = user_id
 
-        if user_id is None or user_id in self.kicked_users[self.group]:
+        if self.user is None or self.user in self.kicked_users[self.group]:
             await self.close(code=403)
             return None
-
-        self.user = user_id
 
         query_params = urllib.parse.parse_qs(self.scope["query_string"].decode())
         key = query_params.get("key", [None])[0]

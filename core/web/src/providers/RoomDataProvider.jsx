@@ -544,7 +544,9 @@ const RoomProvider = ({ children }) => {
           await fetchMessageList();
         }
       } else if (data.type === 'room_delete') {
-        disconnectFromVoiceChat();
+        if (voiceChatUsers.find((user) => user.id === profile.id)) {
+          disconnectFromVoiceChat();
+        }
         navigate('/', {
           state: {
             toast: {
@@ -556,7 +558,9 @@ const RoomProvider = ({ children }) => {
         });
       } else if (data.type === 'user_kick') {
         if (profile.id === data.user) {
-          disconnectFromVoiceChat();
+          if (voiceChatUsers.find((user) => user.id === profile.id)) {
+            disconnectFromVoiceChat();
+          }
           navigate('/', {
             state: {
               toast: {
